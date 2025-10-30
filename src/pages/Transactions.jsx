@@ -1,0 +1,211 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import * as txService from '../services/transactions'
+import * as catService from '../services/categories'
+import * as pocketsService from '../services/pockets'
+
+function ToggleType({ value, onChange }) {
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      <button type="button" onClick={() => onChange('income')} className={`border rounded-xl p-6 text-center ${value==='income' ? 'border-green-500 bg-green-50' : ''}`}>
+        <div className="text-2xl mb-2">↗️</div>
+        <div className="font-medium">Ingreso</div>
+      </button>
+      <button type="button" onClick={() => onChange('expense')} className={`border rounded-xl p-6 text-center ${value==='expense' ? 'border-red-500 bg-red-50' : ''}`}>
+        <div className="text-2xl mb-2">↙️</div>
+        <div className="font-medium">Gasto</div>
+      </button>
+    </div>
+  )
+}
+
+export default function Transactions() {
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [items, setItems] = useState([])
+  const [form, setForm] = useState({
+    type: 'expense',
+    amount: '',
+    date: new Date().toISOString().slice(0,10),
+    category: '',
+    pocket: '',
+    description: ''
+  })
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    (async () => {
+      const data = await txService.list()
+      setItems(data)
+      setLoading(false)
+    })()
+  }, [])
+
+  const [categories, setCategories] = useState([])
+  useEffect(() => {
+    (async () => {
+      const cats = await catService.list()
+      setCategories(cats)
+    })()
+  }, [])
+
+  // Recargar categorías si vuelves a la pestaña o cambian en localStorage
+  useEffect(() => {
+    const reload = async () => setCategories(await catService.list())
+    const onStorage = (e) => { if (e.key === 'demo_categories') reload() }
+    const onFocus = () => reload()
+    window.addEventListener('storage', onStorage)
+    window.addEventListener('focus', onFocus)
+    return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
+  }, [])
+
+  // Limpiar categoría si cambias el tipo y la selección ya no aplica
+  useEffect(() => {
+    if (!categories.find(c => c.type === form.type && c.name === form.category)) {
+      setForm(prev => ({ ...prev, category: '' }))
+    }
+  }, [form.type, categories])
+
+  const [pockets, setPockets] = useState([])
+  useEffect(() => {
+    (async () => setPockets(await pocketsService.list()))()
+  }, [])
+  useEffect(() => {
+    const reload = async () => setPockets(await pocketsService.list())
+    const onStorage = (e) => { if (e.key === 'demo_pockets') reload() }
+    const onFocus = () => reload()
+    window.addEventListener('storage', onStorage)
+    window.addEventListener('focus', onFocus)
+    return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
+  }, [])
+
+  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const categoriesByType = useMemo(() => categories.filter(c => c.type === form.type), [categories, form.type])
+  const canSave = useMemo(() => Number(form.amount) > 0 && form.date && categoriesByType.length > 0 && !!form.category && pockets.length > 0 && !!form.pocket, [form, categoriesByType, pockets])
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setError('')
+    if (categoriesByType.length === 0) {
+      setError(`No hay categorías de ${form.type === 'income' ? 'ingreso' : 'gasto'}. Crea una en la sección Categorías.`)
+      return
+    }
+    if (!form.category) { setError('Selecciona una categoría'); return }
+  if (pockets.length === 0) { setError('No hay bolsillos creados. Crea uno en la sección Bolsillos.'); return }
+  if (!form.pocket) { setError('Selecciona un bolsillo'); return }
+  if (!Number(form.amount) || !form.date) { setError('Completa los campos obligatorios'); return }
+    // Permitir enviar tanto id como nombre según servicio
+    const selectedCat = categoriesByType.find(c => (c.id === form.category || c.name === form.category))
+    const selectedPocket = pockets.find(p => (p.id === form.pocket || p.name === form.pocket))
+    const payload = { ...form, amount: Number(form.amount),
+      categoryId: selectedCat?.id, pocketId: selectedPocket?.id,
+    }
+    const created = await txService.create(payload)
+    setItems(prev => [created, ...prev])
+    setOpen(false)
+    setForm({ ...form, amount: '', description: '' })
+    // trigger dashboard reload in same tab
+    localStorage.setItem('demo_transactions', JSON.stringify(JSON.parse(localStorage.getItem('demo_transactions')||'[]')))
+  }
+
+  const remove = async (id, type) => {
+    await txService.remove(id, type)
+    setItems(prev => prev.filter(x => x.id !== id))
+    localStorage.setItem('demo_transactions', JSON.stringify(JSON.parse(localStorage.getItem('demo_transactions')||'[]')))
+  }
+
+  return (
+    <div className="px-2 md:px-0">
+      <div className="flex items-center justify-between py-4">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold">Transacciones</h2>
+          <p className="text-sm text-gray-600">Gestiona tus ingresos y gastos</p>
+        </div>
+        <button onClick={() => setOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+          <span>＋</span>
+          <span>Nueva Transacción</span>
+        </button>
+      </div>
+
+      {open && (
+        <div className="bg-gray-50 rounded-2xl border p-5 mb-6">
+          <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-medium mb-2">Tipo de Transacción</label>
+              <ToggleType value={form.type} onChange={(t) => setForm({ ...form, type: t })} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Cantidad</label>
+              <div className="flex items-center">
+                <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">€</span>
+                <input name="amount" value={form.amount} onChange={onChange} type="number" step="0.01" placeholder="0.00" className="w-full border rounded-r-lg px-3 py-2" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Fecha</label>
+              <input name="date" value={form.date} onChange={onChange} type="date" className="w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Categoría</label>
+              {categoriesByType.length ? (
+                <select name="category" value={form.category} onChange={onChange} className="w-full border rounded-lg px-3 py-2">
+                  <option value="">Seleccionar categoría</option>
+                  {categoriesByType.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="text-sm text-gray-600">No hay categorías de {form.type === 'income' ? 'ingreso' : 'gasto'}. <Link to="/categories" className="text-blue-600 hover:underline">Crea una</Link>.</div>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Bolsillo</label>
+              {pockets.length ? (
+                <select name="pocket" value={form.pocket} onChange={onChange} className="w-full border rounded-lg px-3 py-2">
+                  <option value="">Seleccionar bolsillo</option>
+                  {pockets.map(p => <option key={p.id} value={p.id}>{p.name || p.nombre}</option>)}
+                </select>
+              ) : (
+                <div className="text-sm text-gray-600">No hay bolsillos creados. <Link to="/pockets" className="text-blue-600 hover:underline">Crea uno</Link>.</div>
+              )}
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-medium mb-2">Descripción</label>
+              <input name="description" value={form.description} onChange={onChange} placeholder="Descripción de la transacción" className="w-full border rounded-lg px-3 py-2" />
+            </div>
+            {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
+            <div className="lg:col-span-2 flex items-center justify-end gap-3">
+              <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 rounded-lg border">Cancelar</button>
+              <button disabled={!canSave} className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50">Guardar</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="bg-white rounded-xl border">
+        <div className="px-4 py-3 border-b flex items-center justify-between">
+          <div className="text-sm font-medium">Historial</div>
+          {loading && <div className="text-sm text-gray-500">Cargando…</div>}
+        </div>
+        {items.length ? (
+          <ul className="divide-y">
+            {items.map(it => (
+              <li key={it.id} className="px-4 py-3 flex items-center justify-between">
+                <div>
+                  <div className="font-medium">{it.description || (it.type==='income' ? 'Ingreso' : 'Gasto')}</div>
+                  <div className="text-xs text-gray-500">{it.category || it.categoria?.nombre || 'Sin categoría'} • {it.pocket || it.bolsillo?.nombre || 'Sin bolsillo'} • {new Date(it.date || it.fecha).toLocaleDateString()}</div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className={`${it.type==='income' ? 'text-green-600' : 'text-red-600'} font-semibold`}>{it.type==='income' ? '+' : '-'}€ {Number(it.amount).toFixed(2)}</div>
+                  <button onClick={() => remove(it.id, it.type)} className="text-red-600 hover:underline text-sm">Eliminar</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="px-4 py-8 text-sm text-gray-500">Aún no hay transacciones registradas.</div>
+        )}
+      </div>
+    </div>
+  )
+}
