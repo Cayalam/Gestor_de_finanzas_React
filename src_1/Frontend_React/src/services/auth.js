@@ -1,7 +1,5 @@
 import api, { setAuthToken } from './api'
 
-const API_BASE = import.meta.env.VITE_API_BASE || ''
-
 export async function login(email, password) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const fakeToken =
@@ -12,16 +10,10 @@ export async function login(email, password) {
     return { token: fakeToken }
   }
 
-  // Preferir endpoint DRF token
-  const res = await fetch(`${API_BASE}/api-token-auth/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: email, password }),
-  })
-  if (!res.ok) throw await res.json().catch(() => ({ detail: 'Login failed' }))
-  const data = await res.json()
-  const t = data.token
-  if (t) setAuthToken(t)
+  // Usar axios client ya configurado para respetar baseURL y headers
+  const res = await api.post('/api-token-auth/', { username: email, password })
+  const data = res.data
+  if (data.token) setAuthToken(data.token)
   return data
 }
 
@@ -29,14 +21,8 @@ export async function register(payload) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     return { message: 'Usuario creado (demo)' }
   }
-  const res = await fetch(`${API_BASE}/api/register/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) throw await res.json().catch(() => ({ detail: 'Register failed' }))
-  const data = await res.json()
-  // backend returns token on creation if available
+  const res = await api.post('/register/', payload)
+  const data = res.data
   if (data.token) setAuthToken(data.token)
   return data
 }
