@@ -21,10 +21,23 @@ export async function register(payload) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     return { message: 'Usuario creado (demo)' }
   }
-  const res = await api.post('/register/', payload)
-  const data = res.data
-  if (data.token) setAuthToken(data.token)
-  return data
+  // Map frontend field names to backend expected names
+  const body = {
+    email: payload.email,
+    nombre: payload.name || payload.nombre || '',
+    password: payload.password,
+    divisa_pref: payload.divisa_pref || 'COP',
+  }
+  try {
+    const res = await api.post('/register/', body)
+    const data = res.data
+    if (data.token) setAuthToken(data.token)
+    return data
+  } catch (err) {
+    // Normalize axios error to throw a useful object for callers
+    if (err.response && err.response.data) throw err.response
+    throw err
+  }
 }
 
 export default { login, register }
