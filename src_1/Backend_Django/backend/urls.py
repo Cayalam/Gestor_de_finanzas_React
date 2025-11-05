@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from finances import views as finances_views
+from rest_framework.authtoken import views as drf_authtoken_views
 
 router = routers.DefaultRouter()
 router.register(r'usuarios', finances_views.UsuarioViewSet)
@@ -32,4 +33,5 @@ router.register(r'movimientos', finances_views.MovimientoViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api-token-auth/', drf_authtoken_views.obtain_auth_token, name='api_token_auth'),
 ]
