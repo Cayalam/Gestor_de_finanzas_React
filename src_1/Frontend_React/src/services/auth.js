@@ -10,8 +10,10 @@ export async function login(email, password) {
     return { token: fakeToken }
   }
 
-  // Usar axios client ya configurado para respetar baseURL y headers
-  const res = await api.post('/api-token-auth/', { username: email, password })
+  // Llamar al endpoint de token en la raíz del backend para evitar el doble prefijo '/api'
+  const BASE = import.meta.env.VITE_API_BASE || ''
+  const tokenUrl = `${BASE}/api-token-auth/`
+  const res = await api.post(tokenUrl, { username: email, password })
   const data = res.data
   if (data.token) setAuthToken(data.token)
   return data
