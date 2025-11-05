@@ -10,7 +10,7 @@ function writeLS(items) {
 
 export async function list() {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS()
-  const { data } = await api.get('/bolsillos')
+  const { data } = await api.get('/bolsillos/')
   return (data || []).map(p => ({ id: p.id, name: p.nombre ?? p.name, balance: Number(p.balance ?? p.saldo ?? 0), color: p.color || '#3b82f6', icon: p.icono || p.icon || 'wallet' }))
 }
 
@@ -23,7 +23,7 @@ export async function create(pocket) {
     return newItem
   }
   const payload = { nombre: pocket.name ?? pocket.nombre, saldo: pocket.balance ?? pocket.saldo, color: pocket.color, icono: pocket.icon }
-  const { data } = await api.post('/bolsillos', payload)
+  const { data } = await api.post('/bolsillos/', payload)
   return data
 }
 
@@ -33,20 +33,20 @@ export async function remove(id) {
     writeLS(items)
     return { ok: true }
   }
-  const { data } = await api.delete(`/bolsillos/${id}`)
+  const { data } = await api.delete(`/bolsillos/${id}/`)
   return data
 }
 
 export async function getById(id) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS().find(x=>x.id===id)
-  const { data } = await api.get(`/bolsillos/${id}`)
+  const { data } = await api.get(`/bolsillos/${id}/`)
   return { id: data.id, name: data.nombre, balance: Number(data.saldo ?? data.balance ?? 0), color: data.color, icon: data.icono || 'wallet' }
 }
 
 export async function update(id, payload) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') { const items=readLS(); const idx=items.findIndex(x=>x.id===id); if(idx>=0){ items[idx] = { ...items[idx], ...payload }; writeLS(items); return items[idx] } return null }
   const body = { nombre: payload.name ?? payload.nombre, saldo: payload.balance ?? payload.saldo, color: payload.color, icono: payload.icon }
-  const { data } = await api.put(`/bolsillos/${id}`, body)
+  const { data } = await api.put(`/bolsillos/${id}/`, body)
   return data
 }
 
