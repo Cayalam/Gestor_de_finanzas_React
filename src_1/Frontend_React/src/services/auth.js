@@ -29,7 +29,7 @@ export async function register(payload) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     return { message: 'Usuario creado (demo)' }
   }
-  const res = await fetch(`${API_BASE}/api/usuarios/`, {
+  const res = await fetch(`${API_BASE}/api/register/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

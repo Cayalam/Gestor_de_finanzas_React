@@ -2,6 +2,20 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from . import models, serializers
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+
+class RegisterAPIView(APIView):
+    permission_classes = []  # allow any
+
+    def post(self, request):
+        serializer = serializers.RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            created = serializer.save()
+            return Response({'token': created.get('token'), 'usuario_id': created.get('usuario').usuario_id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):

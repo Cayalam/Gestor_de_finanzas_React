@@ -34,4 +34,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api-token-auth/', drf_authtoken_views.obtain_auth_token, name='api_token_auth'),
+        path('api/register/', finances_views.RegisterAPIView.as_view(), name='api_register'),
 ]
