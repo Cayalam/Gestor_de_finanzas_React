@@ -5,12 +5,22 @@ from . import models, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class RegisterAPIView(APIView):
     permission_classes = []  # allow any
 
     def post(self, request):
+        # Temporary debug logging to inspect payloads coming from the frontend
+        try:
+            logger.info("Register endpoint called from %s", request.META.get('REMOTE_ADDR'))
+            logger.info("Register payload: %s", request.data)
+        except Exception:
+            logger.exception("Failed to log register payload")
+
         serializer = serializers.RegisterSerializer(data=request.data)
         if serializer.is_valid():
             created = serializer.save()
