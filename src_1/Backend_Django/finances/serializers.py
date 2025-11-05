@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from . import models
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from django.contrib.auth.hashers import make_password
 
 
 User = get_user_model()
@@ -35,21 +34,17 @@ class RegisterSerializer(serializers.Serializer):
         nombre = validated_data.get('nombre', '')
         password = validated_data['password']
         divisa = validated_data.get('divisa_pref', 'COP')
-
-        # Create Django auth user
-        user = User.objects.create(username=email, email=email)
-        user.set_password(password)
-        user.save()
+        # Create the user using the custom user manager to avoid passing
+        # unexpected kwargs (like 'username') to the custom Usuario model.
+        # create_user will handle password hashing.
+        user = User.objects.create_user(email=email, password=password, nombre=nombre, divisa_pref=divisa)
 
         # Create token
         token, _ = Token.objects.get_or_create(user=user)
 
-        # Store Usuario model (password_hash uses Django's make_password)
-        usuario = models.Usuario.objects.create(
-            nombre=nombre, email=email, password_hash=make_password(password), divisa_pref=divisa
-        )
-
-        return {"user": user, "token": token.key, "usuario": usuario}
+        # Return a consistent dict with the created user and token. Keep the
+        # 'usuario' key for backwards compatibility with the view.
+        return {"user": user, "token": token.key, "usuario": user}
 
 
 class GrupoSerializer(serializers.ModelSerializer):
