@@ -7,7 +7,40 @@ from . import models, serializers
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = models.Usuario.objects.all()
     serializer_class = serializers.UsuarioSerializer
+    # Allow unauthenticated users to create (register). Other actions require authentication.
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        # AllowAnyone for create (registration), otherwise require IsAuthenticated
+        if self.action == 'create':
+            from rest_framework.permissions import AllowAny
+
+            return [AllowAny()]
+        return [p() for p in self.permission_classes]
+
+    def create(self, request, *args, **kwargs):
+        # Create user and return token in response for convenience
+        response = super().create(request, *args, **kwargs)
+        # Generate token for the new user
+        try:
+            from rest_framework.authtoken.models import Token
+            # serializer saved instance is in response.data['usuario_id'] or 'id'
+            # Retrieve user by email if present
+            email = response.data.get('email')
+            if email:
+                user = models.Usuario.objects.filter(email=email).first()
+            else:
+                # fallback: try to extract usuario_id
+                usuario_id = response.data.get('usuario_id') or response.data.get('id')
+                user = models.Usuario.objects.filter(usuario_id=usuario_id).first() if usuario_id else None
+            if user:
+                token, _ = Token.objects.get_or_create(user=user)
+                # append token to response data
+                response.data['token'] = token.key
+        except Exception:
+            # don't block user creation if token creation fails
+            pass
+        return response
 
 
 class GrupoViewSet(viewsets.ModelViewSet):
