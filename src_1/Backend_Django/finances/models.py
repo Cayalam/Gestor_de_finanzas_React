@@ -1,18 +1,54 @@
+from django.conf import settings
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.utils import timezone
 
 
-class Usuario(models.Model):
+class UsuarioManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        return self.create_user(email, password, **extra_fields)
+
+
+class Usuario(AbstractBaseUser, PermissionsMixin):
     usuario_id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100, blank=True)
     email = models.EmailField(max_length=120, unique=True)
-    password_hash = models.CharField(max_length=255)
     DIVISA_CHOICES = [
         ("USD", "USD"), ("EUR", "EUR"), ("GBP", "GBP"), ("JPY", "JPY"), ("COP", "COP"),
     ]
     divisa_pref = models.CharField(max_length=3, choices=DIVISA_CHOICES, default="COP")
 
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+
+    objects = UsuarioManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
     class Meta:
         db_table = "usuario"
+
+    def __str__(self):
+        return self.email
 
 
 class Grupo(models.Model):
@@ -26,7 +62,7 @@ class Grupo(models.Model):
 
 
 class UsuarioGrupo(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
     ROL_CHOICES = [("admin", "admin"), ("miembro", "miembro")]
     rol = models.CharField(max_length=10, choices=ROL_CHOICES, default="miembro")
@@ -38,7 +74,7 @@ class UsuarioGrupo(models.Model):
 
 class Bolsillo(models.Model):
     bolsillo_id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True, blank=True)
     nombre = models.CharField(max_length=100)
     saldo = models.DecimalField(max_digits=14, decimal_places=2, default=0.00)
@@ -54,7 +90,7 @@ class Bolsillo(models.Model):
 
 class Categoria(models.Model):
     categoria_id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True, blank=True)
     nombre = models.CharField(max_length=100)
     TIPO_CHOICES = [("ing", "ing"), ("eg", "eg")]
@@ -77,7 +113,7 @@ class Transferencia(models.Model):
     monto_destino = models.DecimalField(max_digits=14, decimal_places=2)
     fecha = models.DateTimeField(auto_now_add=True)
     descripcion = models.CharField(max_length=255, blank=True, null=True)
-    creado_por = models.ForeignKey(Usuario, on_delete=models.RESTRICT)
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT)
 
     class Meta:
         db_table = "transferencia"
@@ -89,7 +125,7 @@ class Transferencia(models.Model):
 
 class Ingreso(models.Model):
     ingreso_id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True, blank=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)
     bolsillo = models.ForeignKey(Bolsillo, on_delete=models.SET_NULL, null=True, blank=True)
@@ -108,7 +144,7 @@ class Ingreso(models.Model):
 
 class Egreso(models.Model):
     egreso_id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True, blank=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)
     bolsillo = models.ForeignKey(Bolsillo, on_delete=models.SET_NULL, null=True, blank=True)
@@ -132,7 +168,7 @@ class Movimiento(models.Model):
     monto = models.DecimalField(max_digits=15, decimal_places=2)
     fecha = models.DateTimeField(auto_now_add=True)
     descripcion = models.CharField(max_length=255, blank=True, null=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True, blank=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)
     bolsillo = models.ForeignKey(Bolsillo, on_delete=models.SET_NULL, null=True, blank=True)

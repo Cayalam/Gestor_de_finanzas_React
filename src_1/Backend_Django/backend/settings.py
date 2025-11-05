@@ -148,3 +148,6 @@ CORS_ALLOW_CREDENTIALS = True
 # In development you may instead set:
 # CORS_ALLOW_ALL_ORIGINS = True
 
+# Use custom user model from finances app
+AUTH_USER_MODEL = 'finances.Usuario'
+
