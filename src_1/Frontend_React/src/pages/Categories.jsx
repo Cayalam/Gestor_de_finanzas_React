@@ -87,18 +87,18 @@ export default function Categories() {
           <h2 className="text-2xl md:text-3xl font-bold">Categorías</h2>
           <p className="text-sm text-gray-600">Organiza tus transacciones por categorías</p>
         </div>
-        <button onClick={() => setOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+        <button onClick={() => setOpen(true)} className="btn btn-primary flex items-center gap-2">
           <span>＋</span>
           <span>Nueva Categoría</span>
         </button>
       </div>
 
       {open ? (
-        <div className="bg-gray-50 rounded-2xl border p-5 mb-6">
+        <div className="card p-5 mb-6">
           <form onSubmit={save} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium mb-2">Nombre de la Categoría</label>
-              <input value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} placeholder="Ej: Alimentación, Transporte..." className="w-full border rounded-lg px-3 py-2" />
+              <input value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} placeholder="Ej: Alimentación, Transporte..." className="input" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Tipo</label>
@@ -110,8 +110,8 @@ export default function Categories() {
             </div>
             {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
             <div className="lg:col-span-2 flex items-center justify-end gap-3">
-              <button type="button" onClick={()=>setOpen(false)} className="px-4 py-2 rounded-lg border">Cancelar</button>
-              <button disabled={!canSave} className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50">Crear Categoría</button>
+              <button type="button" onClick={()=>setOpen(false)} className="btn">Cancelar</button>
+              <button disabled={!canSave} className="btn btn-primary">Crear Categoría</button>
             </div>
           </form>
         </div>

@@ -94,17 +94,21 @@ export default function Pockets() {
     localStorage.setItem('demo_pockets', JSON.stringify(JSON.parse(localStorage.getItem('demo_pockets') || '[]')))
   }
 
+  const [confirmId, setConfirmId] = useState(null)
   const remove = async (id) => {
     setError('')
-    if (!confirm('¿Eliminar este bolsillo? Esta acción no se puede deshacer.')) return
+    setConfirmId(id)
+  }
+  const confirmRemove = async () => {
     try {
-      await pocketsService.remove(id)
-      setItems(prev => prev.filter(x => x.id !== id))
+      await pocketsService.remove(confirmId)
+      setItems(prev => prev.filter(x => x.id !== confirmId))
       localStorage.setItem('demo_pockets', JSON.stringify(JSON.parse(localStorage.getItem('demo_pockets') || '[]')))
+      setConfirmId(null)
     } catch (err) {
-      // err may be axios error or Response-like thrown from service
       const msg = err?.response?.data?.detail || err?.message || 'Error al eliminar el bolsillo'
       setError(msg)
+      setConfirmId(null)
     }
   }
 
@@ -136,17 +140,17 @@ export default function Pockets() {
       </div>
 
       {open && (
-        <div className="bg-gray-50 rounded-2xl border p-5 mb-6">
+        <div className="card p-5 mb-6">
           <form onSubmit={save} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium mb-2">Nombre del Bolsillo</label>
-              <input value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} placeholder="Ej: Cuenta Principal, Ahorros..." className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} placeholder="Ej: Cuenta Principal, Ahorros..." className="input" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Balance Inicial</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">€</span>
-                <input type="number" step="0.01" value={form.balance} onChange={(e)=>setForm({...form, balance: e.target.value})} className="w-full border rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="number" step="0.01" value={form.balance} onChange={(e)=>setForm({...form, balance: e.target.value})} className="input pl-8" />
               </div>
             </div>
 
@@ -173,8 +177,8 @@ export default function Pockets() {
 
             {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
             <div className="lg:col-span-2 flex items-center justify-end gap-3">
-              <button type="button" onClick={()=>setOpen(false)} className="px-4 py-2 rounded-lg border">Cancelar</button>
-              <button disabled={!canSave} className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50 inline-flex items-center gap-2">
+              <button type="button" onClick={()=>setOpen(false)} className="btn btn-ghost">Cancelar</button>
+              <button disabled={!canSave} className={`btn btn-primary inline-flex items-center gap-2 ${!canSave ? 'opacity-60 cursor-not-allowed' : ''}`}>
                 <Icon name="wallet" className="w-5 h-5" />
                 {form.id ? 'Actualizar Bolsillo' : 'Crear Bolsillo'}
               </button>
@@ -183,7 +187,7 @@ export default function Pockets() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border">
+      <div className="card p-4">
         <div className="px-4 py-3 border-b flex items-center justify-between">
           <div className="text-sm font-medium">Listado</div>
           {loading && <div className="text-sm text-gray-500">Cargando…</div>}
@@ -201,13 +205,26 @@ export default function Pockets() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={()=>{ setForm({ id: p.id, name: p.name, color: p.color, balance: p.balance, icon: p.icon }); setOpen(true); setError('') }} className="text-sm text-gray-600 hover:underline">Editar</button>
-                <button onClick={()=>remove(p.id)} className="text-red-600 hover:underline text-sm">Eliminar</button>
+                <button onClick={()=>{ setForm({ id: p.id, name: p.name, color: p.color, balance: p.balance, icon: p.icon }); setOpen(true); setError('') }} className="btn btn-ghost text-sm">Editar</button>
+                <button onClick={()=>remove(p.id)} className="btn btn-danger text-sm">Eliminar</button>
               </div>
             </div>
           )) : <div className="text-sm text-gray-500">Aún no hay bolsillos.</div>}
         </div>
       </div>
+      {/* Confirm modal */}
+      {confirmId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="card p-6 max-w-sm">
+            <div className="text-lg font-semibold mb-2">Confirmar eliminación</div>
+            <div className="text-sm text-gray-700 mb-4">¿Eliminar este bolsillo? Esta acción no se puede deshacer.</div>
+            <div className="flex justify-end gap-3">
+              <button className="btn" onClick={() => setConfirmId(null)}>Cancelar</button>
+              <button className="btn btn-danger" onClick={confirmRemove}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

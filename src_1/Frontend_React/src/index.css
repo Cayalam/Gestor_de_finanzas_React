@@ -1,14 +1,28 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Typography */
+  --font-sans: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --text-color: #213547;
+  --muted: #6b7280;
+
+  /* Palette */
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --primary: #2563eb; /* blue-600 */
+  --primary-600: #1e40af;
+  --accent: #10b981; /* green */
+  --danger: #ef4444;
+
+  /* Controls */
+  --radius: 10px;
+  --card-shadow: 0 6px 18px rgba(16,24,40,0.06);
+
+  font-family: var(--font-sans);
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--text-color);
+  background-color: var(--bg);
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -26,6 +40,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: linear-gradient(180deg, #fbfdff 0%, #f8fafc 100%);
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
@@ -38,34 +54,78 @@ h1 {
   line-height: 1.1;
 }
 
-button {
-  border-radius: 8px;
+/* Buttons */
+.btn {
+  border-radius: var(--radius);
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  padding: 0.6em 1.1em;
+  font-size: 0.95rem;
+  font-weight: 600;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: transform .08s ease, box-shadow .12s ease, background-color .12s ease;
 }
-button:hover {
-  border-color: #646cff;
+.btn:active { transform: translateY(1px); }
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--primary), #1e40af);
+  color: white;
+  box-shadow: 0 6px 18px rgba(37,99,235,0.18);
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.btn-primary:hover { filter: brightness(.98); }
+
+.btn-ghost {
+  background: white;
+  color: var(--text-color);
+  border: 1px solid #e6e9ef;
+}
+.btn-danger {
+  background: var(--danger);
+  color: white;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Inputs */
+.input {
+  width: 100%;
+  padding: .6rem .9rem;
+  border-radius: 8px;
+  border: 1px solid #e6e9ef;
+  background: white;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
 }
+.input:focus { outline: none; border-color: var(--primary); box-shadow: 0 6px 18px rgba(37,99,235,0.06); }
+
+/* Cards */
+.card { background: white; border-radius: 12px; box-shadow: var(--card-shadow); border: 1px solid #eef2f6; }
+
+/* Small helpers */
+.muted { color: var(--muted); }
+
+/* Icon selection buttons */
+.icon-btn { background: #fff; border: 1px solid #eef2f6; padding: .8rem; border-radius: 10px; }
+.icon-btn.active { box-shadow: 0 6px 18px rgba(37,99,235,0.08); border-color: var(--primary); }
+
+/* Color swatches */
+.swatch { width:44px; height:44px; border-radius:10px; border: 3px solid transparent; box-shadow: 0 4px 10px rgba(2,6,23,0.06); cursor:pointer }
+.swatch.active { outline: 4px solid rgba(37,99,235,0.12) }
+
+.btn-small { padding: .4rem .7rem; border-radius: 8px; font-size: .85rem }
+
+@media (prefers-color-scheme: light) {
+  /* keep root overrides for light theme if needed */
+}
+
+/* Utility classes used in components */
+.rounded-xl { border-radius: 12px; }
+.p-4 { padding: 1rem; }
+.p-5 { padding: 1.25rem; }
+.px-4 { padding-left:1rem; padding-right:1rem }
+.py-3 { padding-top:.75rem; padding-bottom:.75rem }
+.flex { display:flex }
+.items-center { align-items:center }
+.justify-between { justify-content:space-between }
+.gap-2 { gap: .5rem }
+.text-sm { font-size: .875rem }
+.text-xs { font-size: .75rem }
+.font-medium { font-weight: 600 }
+.text-red { color: var(--danger) }

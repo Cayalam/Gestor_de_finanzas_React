@@ -121,14 +121,14 @@ export default function Transactions() {
           <h2 className="text-2xl md:text-3xl font-bold">Transacciones</h2>
           <p className="text-sm text-gray-600">Gestiona tus ingresos y gastos</p>
         </div>
-        <button onClick={() => setOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+        <button onClick={() => setOpen(true)} className="btn btn-primary flex items-center gap-2">
           <span>＋</span>
           <span>Nueva Transacción</span>
         </button>
       </div>
 
       {open && (
-        <div className="bg-gray-50 rounded-2xl border p-5 mb-6">
+        <div className="card p-5 mb-6">
           <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium mb-2">Tipo de Transacción</label>
@@ -138,17 +138,17 @@ export default function Transactions() {
               <label className="block text-sm font-medium mb-2">Cantidad</label>
               <div className="flex items-center">
                 <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">€</span>
-                <input name="amount" value={form.amount} onChange={onChange} type="number" step="0.01" placeholder="0.00" className="w-full border rounded-r-lg px-3 py-2" />
+                <input name="amount" value={form.amount} onChange={onChange} type="number" step="0.01" placeholder="0.00" className="input rounded-r-lg" />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Fecha</label>
-              <input name="date" value={form.date} onChange={onChange} type="date" className="w-full border rounded-lg px-3 py-2" />
+              <input name="date" value={form.date} onChange={onChange} type="date" className="input" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Categoría</label>
               {categoriesByType.length ? (
-                <select name="category" value={form.category} onChange={onChange} className="w-full border rounded-lg px-3 py-2">
+                <select name="category" value={form.category} onChange={onChange} className="input">
                   <option value="">Seleccionar categoría</option>
                   {categoriesByType.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
@@ -161,7 +161,7 @@ export default function Transactions() {
             <div>
               <label className="block text-sm font-medium mb-2">Bolsillo</label>
               {pockets.length ? (
-                <select name="pocket" value={form.pocket} onChange={onChange} className="w-full border rounded-lg px-3 py-2">
+                <select name="pocket" value={form.pocket} onChange={onChange} className="input">
                   <option value="">Seleccionar bolsillo</option>
                   {pockets.map(p => <option key={p.id} value={p.id}>{p.name || p.nombre}</option>)}
                 </select>
@@ -171,18 +171,18 @@ export default function Transactions() {
             </div>
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium mb-2">Descripción</label>
-              <input name="description" value={form.description} onChange={onChange} placeholder="Descripción de la transacción" className="w-full border rounded-lg px-3 py-2" />
+              <input name="description" value={form.description} onChange={onChange} placeholder="Descripción de la transacción" className="input" />
             </div>
             {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
             <div className="lg:col-span-2 flex items-center justify-end gap-3">
-              <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 rounded-lg border">Cancelar</button>
-              <button disabled={!canSave} className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50">Guardar</button>
+              <button type="button" onClick={() => setOpen(false)} className="btn">Cancelar</button>
+              <button disabled={!canSave} className="btn btn-primary" type="submit">Guardar</button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="bg-white rounded-xl border">
+      <div className="card">
         <div className="px-4 py-3 border-b flex items-center justify-between">
           <div className="text-sm font-medium">Historial</div>
           {loading && <div className="text-sm text-gray-500">Cargando…</div>}

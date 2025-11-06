@@ -98,12 +98,14 @@ export default function Dashboard() {
           { title: 'Gastos', value: '0,00 €', icon: '📉' },
           { title: 'Balance Neto', value: '0,00 €', icon: '🎯' },
         ]).map((s, i) => (
-          <StatCard key={i} title={s.title} value={s.value} icon={s.icon} trend={s.trend} />
+          <div key={i} className="card p-4">
+            <StatCard title={s.title} value={s.value} icon={s.icon} trend={s.trend} />
+          </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div className="lg:col-span-2 bg-gray-50 rounded-xl border p-5">
+        <div className="lg:col-span-2 card p-5">
           <h3 className="font-semibold mb-4">Bolsillos</h3>
           {data.pockets?.length ? (
             <div className="space-y-3">
@@ -115,7 +117,7 @@ export default function Dashboard() {
             <div className="text-sm text-gray-500">Aún no tienes bolsillos creados.</div>
           )}
         </div>
-        <div className="bg-gray-50 rounded-xl border p-5">
+        <div className="card p-5">
           <h3 className="font-semibold mb-4">Gastos por Categoría</h3>
           {data.categories?.length ? (
             <div className="space-y-4">
@@ -129,7 +131,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-gray-50 rounded-xl border p-5 mt-6">
+      <div className="card p-5 mt-6">
         <h3 className="font-semibold mb-4">Transacciones Recientes</h3>
         {data.transactions?.length ? (
           <div className="divide-y">

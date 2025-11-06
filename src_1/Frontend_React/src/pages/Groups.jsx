@@ -38,23 +38,23 @@ export default function Groups() {
           <h2 className="text-2xl md:text-3xl font-bold">Grupos</h2>
           <p className="text-sm text-gray-600">Comparte tus finanzas con otros usuarios</p>
         </div>
-        <button onClick={() => setOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">+ Nuevo Grupo</button>
+        <button onClick={() => setOpen(true)} className="btn btn-primary">+ Nuevo Grupo</button>
       </div>
 
       {open && (
-        <div className="bg-gray-50 rounded-2xl border p-5 mb-6">
+        <div className="card p-5 mb-6">
           <form onSubmit={save} className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Nombre del grupo</label>
-              <input value={form.nombre} onChange={(e)=>setForm({...form, nombre: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
+              <input value={form.nombre} onChange={(e)=>setForm({...form, nombre: e.target.value})} className="input" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Descripción</label>
-              <input value={form.descripcion} onChange={(e)=>setForm({...form, descripcion: e.target.value})} className="w-full border rounded-lg px-3 py-2" />
+              <input value={form.descripcion} onChange={(e)=>setForm({...form, descripcion: e.target.value})} className="input" />
             </div>
             <div className="flex items-center justify-end gap-3">
-              <button type="button" onClick={()=>setOpen(false)} className="px-4 py-2 rounded-lg border">Cancelar</button>
-              <button disabled={!canSave} className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50">Crear</button>
+              <button type="button" onClick={()=>setOpen(false)} className="btn">Cancelar</button>
+              <button disabled={!canSave} className="btn btn-primary">Crear</button>
             </div>
           </form>
         </div>

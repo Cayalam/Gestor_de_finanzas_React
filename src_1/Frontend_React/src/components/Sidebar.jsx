@@ -20,8 +20,8 @@ function Item({ to, label, icon }) {
 export default function Sidebar() {
   return (
     <aside className="hidden md:flex md:flex-col w-64 border-r bg-white px-4 py-6">
-  <div className="text-xl font-semibold mb-6">FinanzApp</div>
-      <nav className="flex-1 space-y-1">
+      <div className="text-2xl font-semibold mb-6">FinanzApp</div>
+      <nav className="flex-1 space-y-2">
         <Item to="/dashboard" label="Dashboard" icon="📊" />
         <Item to="/transactions" label="Transacciones" icon="🔁" />
         <Item to="/categories" label="Categorías" icon="🏷️" />
