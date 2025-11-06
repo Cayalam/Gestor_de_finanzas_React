@@ -145,6 +145,16 @@ CORS_ALLOWED_ORIGINS = [
 # Allow credentials (cookies) if you use session authentication; not required for token auth
 CORS_ALLOW_CREDENTIALS = True
 
+# Allow the Authorization header from browser clients
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'accept',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+]
+
 # In development you may instead set:
 # CORS_ALLOW_ALL_ORIGINS = True
 

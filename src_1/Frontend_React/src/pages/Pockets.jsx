@@ -49,7 +49,7 @@ export default function Pockets() {
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
-  const [form, setForm] = useState({ name: '', color: COLORS[0], balance: 0, icon: 'wallet' })
+  const [form, setForm] = useState({ id: null, name: '', color: COLORS[0], balance: 0, icon: 'wallet' })
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -67,17 +67,45 @@ export default function Pockets() {
     e.preventDefault()
     setError('')
     if (!canSave) { setError('Completa los campos requeridos'); return }
-    const created = await pocketsService.create({ name: form.name, color: form.color, balance: Number(form.balance || 0), icon: form.icon })
-    setItems(prev => [created, ...prev])
-    setOpen(false)
-    setForm({ name: '', color: COLORS[0], balance: 0, icon: 'wallet' })
+    if (form.id) {
+      // actualizar
+      try {
+        // enviar solo campos modificados para evitar conflictos de unicidad
+        const orig = items.find(x => x.id === form.id) || {}
+        const payload = {}
+        if ((form.name || '') !== (orig.name || '')) payload.name = form.name
+        if ((form.color || '') !== (orig.color || '')) payload.color = form.color
+        if ((form.icon || '') !== (orig.icon || '')) payload.icon = form.icon
+        if (Number(form.balance || 0) !== Number(orig.balance || 0)) payload.balance = Number(form.balance || 0)
+        const updated = await pocketsService.update(form.id, payload)
+        setItems(prev => prev.map(p => p.id === updated.id ? updated : p))
+        setOpen(false)
+        setForm({ id: null, name: '', color: COLORS[0], balance: 0, icon: 'wallet' })
+      } catch (err) {
+        const msg = err?.response?.data?.detail || err?.message || 'Error al actualizar el bolsillo'
+        setError(msg)
+      }
+    } else {
+      const created = await pocketsService.create({ name: form.name, color: form.color, balance: Number(form.balance || 0), icon: form.icon })
+      setItems(prev => [created, ...prev])
+      setOpen(false)
+      setForm({ id: null, name: '', color: COLORS[0], balance: 0, icon: 'wallet' })
+    }
     localStorage.setItem('demo_pockets', JSON.stringify(JSON.parse(localStorage.getItem('demo_pockets') || '[]')))
   }
 
   const remove = async (id) => {
-    await pocketsService.remove(id)
-    setItems(prev => prev.filter(x => x.id !== id))
-    localStorage.setItem('demo_pockets', JSON.stringify(JSON.parse(localStorage.getItem('demo_pockets') || '[]')))
+    setError('')
+    if (!confirm('¿Eliminar este bolsillo? Esta acción no se puede deshacer.')) return
+    try {
+      await pocketsService.remove(id)
+      setItems(prev => prev.filter(x => x.id !== id))
+      localStorage.setItem('demo_pockets', JSON.stringify(JSON.parse(localStorage.getItem('demo_pockets') || '[]')))
+    } catch (err) {
+      // err may be axios error or Response-like thrown from service
+      const msg = err?.response?.data?.detail || err?.message || 'Error al eliminar el bolsillo'
+      setError(msg)
+    }
   }
 
   return (
@@ -148,7 +176,7 @@ export default function Pockets() {
               <button type="button" onClick={()=>setOpen(false)} className="px-4 py-2 rounded-lg border">Cancelar</button>
               <button disabled={!canSave} className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50 inline-flex items-center gap-2">
                 <Icon name="wallet" className="w-5 h-5" />
-                Crear Bolsillo
+                {form.id ? 'Actualizar Bolsillo' : 'Crear Bolsillo'}
               </button>
             </div>
           </form>
@@ -172,7 +200,10 @@ export default function Pockets() {
                   <div className="text-xs text-gray-500">Saldo: {eur.format(Number(p.balance || 0))}</div>
                 </div>
               </div>
-              <button onClick={()=>remove(p.id)} className="text-red-600 hover:underline text-sm">Eliminar</button>
+              <div className="flex items-center gap-3">
+                <button onClick={()=>{ setForm({ id: p.id, name: p.name, color: p.color, balance: p.balance, icon: p.icon }); setOpen(true); setError('') }} className="text-sm text-gray-600 hover:underline">Editar</button>
+                <button onClick={()=>remove(p.id)} className="text-red-600 hover:underline text-sm">Eliminar</button>
+              </div>
             </div>
           )) : <div className="text-sm text-gray-500">Aún no hay bolsillos.</div>}
         </div>

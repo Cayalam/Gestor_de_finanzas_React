@@ -5,6 +5,8 @@ from . import models, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models.deletion import RestrictedError
+from django.db import IntegrityError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,12 +16,7 @@ class RegisterAPIView(APIView):
     permission_classes = []  # allow any
 
     def post(self, request):
-        # Temporary debug logging to inspect payloads coming from the frontend
-        try:
-            logger.info("Register endpoint called from %s", request.META.get('REMOTE_ADDR'))
-            logger.info("Register payload: %s", request.data)
-        except Exception:
-            logger.exception("Failed to log register payload")
+        # No temporary debug logging (removed after verification)
 
         serializer = serializers.RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -91,6 +88,31 @@ class BolsilloViewSet(viewsets.ModelViewSet):
             serializer.save(usuario=user)
         else:
             serializer.save()
+
+    def destroy(self, request, *args, **kwargs):
+        """Override destroy to return a friendly error when DB restricts deletion (e.g. transferencias)."""
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except RestrictedError:
+            return Response({'detail': 'No se puede eliminar este bolsillo porque tiene transferencias relacionadas.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'detail': 'Error al eliminar el bolsillo.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except IntegrityError as e:
+            return Response({'detail': 'Ya existe un bolsillo con ese nombre para este usuario o grupo.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'detail': 'Error al crear el bolsillo.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except IntegrityError:
+            return Response({'detail': 'No se puede actualizar: nombre duplicado para este usuario o grupo.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'detail': 'Error al actualizar el bolsillo.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoriaViewSet(viewsets.ModelViewSet):
