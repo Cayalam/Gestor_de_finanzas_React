@@ -78,6 +78,8 @@ class Bolsillo(models.Model):
     grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True, blank=True)
     nombre = models.CharField(max_length=100)
     saldo = models.DecimalField(max_digits=14, decimal_places=2, default=0.00)
+    # color para mostrar en UI (ej. #ef4444)
+    color = models.CharField(max_length=7, default='#ef4444')
 
     class Meta:
         db_table = "bolsillo"
@@ -93,6 +95,8 @@ class Categoria(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True, blank=True)
     nombre = models.CharField(max_length=100)
+    # color para mostrar en UI (ej. #ef4444)
+    color = models.CharField(max_length=7, default='#ef4444')
     TIPO_CHOICES = [("ing", "ing"), ("eg", "eg")]
     tipo = models.CharField(max_length=3, choices=TIPO_CHOICES)
 

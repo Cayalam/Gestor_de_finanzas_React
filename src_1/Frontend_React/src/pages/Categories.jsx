@@ -140,7 +140,7 @@ export default function Categories() {
             {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
             <div className="lg:col-span-2 flex items-center justify-end gap-3">
               <button type="button" onClick={()=>setOpen(false)} className="btn">Cancelar</button>
-              <button disabled={!canSave} className="btn btn-primary">Crear Categoría</button>
+              <button disabled={!canSave} className="btn btn-primary">{form.id ? 'Actualizar categoría' : 'Crear Categoría'}</button>
             </div>
           </form>
         </div>
