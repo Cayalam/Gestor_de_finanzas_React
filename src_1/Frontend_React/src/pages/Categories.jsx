@@ -30,7 +30,7 @@ function TypeToggle({ value, onChange }) {
   )
 }
 
-function CatRow({ it, onDelete }) {
+function CatRow({ it, onDelete, onEdit }) {
   return (
     <div className="flex items-center justify-between px-4 py-3 border rounded-lg bg-white">
       <div className="flex items-center gap-3">
@@ -40,7 +40,10 @@ function CatRow({ it, onDelete }) {
           <div className="text-xs text-gray-500">{it.type === 'income' ? 'Ingreso' : 'Gasto'}</div>
         </div>
       </div>
-      <button onClick={() => onDelete(it.id)} className="text-red-600 hover:underline text-sm">Eliminar</button>
+      <div className="flex items-center gap-2">
+        <button onClick={() => onEdit && onEdit(it)} className="btn btn-ghost text-sm">Editar</button>
+        <button onClick={() => onDelete && onDelete(it.id)} className="btn btn-danger text-sm">Eliminar</button>
+      </div>
     </div>
   )
 }
@@ -149,10 +152,7 @@ export default function Categories() {
           <div className="p-4 space-y-3">
               {income.length ? income.map(c => (
                 <div key={c.id} className="">
-                  <CatRow it={c} onDelete={remove} />
-                  <div className="mt-2 flex gap-2">
-                    <button onClick={()=>startEdit(c)} className="btn btn-ghost text-sm">Editar</button>
-                  </div>
+                  <CatRow it={c} onDelete={remove} onEdit={startEdit} />
                 </div>
               )) : <div className="text-sm text-gray-500">Aún no hay categorías de ingreso.</div>}
           </div>
@@ -162,10 +162,7 @@ export default function Categories() {
           <div className="p-4 space-y-3">
             {expense.length ? expense.map(c => (
               <div key={c.id} className="">
-                <CatRow it={c} onDelete={remove} />
-                <div className="mt-2 flex gap-2">
-                  <button onClick={()=>startEdit(c)} className="btn btn-ghost text-sm">Editar</button>
-                </div>
+                <CatRow it={c} onDelete={remove} onEdit={startEdit} />
               </div>
             )) : <div className="text-sm text-gray-500">Aún no hay categorías de gasto.</div>}
           </div>
