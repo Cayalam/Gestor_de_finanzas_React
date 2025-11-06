@@ -38,6 +38,7 @@ export async function create(category) {
     nombre: category.name ?? category.nombre,
     // Backend expects 'ing' for ingreso and 'eg' for egreso
     tipo: category.type ? (category.type === 'income' ? 'ing' : 'eg') : category.tipo,
+  color: category.color ?? '#ef4444',
   }
   const { data } = await api.post('/categorias/', payload)
   return normalizeCategory(data)
@@ -64,7 +65,8 @@ export async function update(id, category) {
     const items = readLS(); const idx = items.findIndex(x=>x.id===id); if (idx>=0) { items[idx] = { ...items[idx], ...category }; writeLS(items); return items[idx] } return null
   }
   const payload = { nombre: category.name ?? category.nombre, tipo: category.type ? (category.type==='income'?'ing':'eg') : category.tipo }
-  const { data } = await api.patch(`/categorias/${id}/`, payload)
+  const payload2 = { ...payload, color: category.color ?? '#ef4444' }
+  const { data } = await api.patch(`/categorias/${id}/`, payload2)
   return normalizeCategory(data)
 }
 
