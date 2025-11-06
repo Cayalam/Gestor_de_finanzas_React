@@ -32,8 +32,8 @@ export async function create(category) {
   }
   const payload = {
     nombre: category.name ?? category.nombre,
-    tipo: category.type ? (category.type === 'income' ? 'INGRESO' : 'EGRESO') : category.tipo,
-    color: category.color,
+    // Backend expects 'ing' for ingreso and 'eg' for egreso
+    tipo: category.type ? (category.type === 'income' ? 'ing' : 'eg') : category.tipo,
   }
   const { data } = await api.post('/categorias/', payload)
   return data
@@ -51,16 +51,16 @@ export async function remove(id) {
 
 export async function getById(id) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS().find(x=>x.id===id)
-  const { data } = await api.get(`/categorias/${id}`)
-  return { id: data.id, name: data.nombre, type: (data.tipo||'').toString().toLowerCase().includes('ing')?'income':'expense', color: data.color }
+  const { data } = await api.get(`/categorias/${id}/`)
+  return { id: data.categoria_id ?? data.id, name: data.nombre, type: (data.tipo||'').toString().toLowerCase().includes('ing')?'income':'expense', color: data.color }
 }
 
 export async function update(id, category) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const items = readLS(); const idx = items.findIndex(x=>x.id===id); if (idx>=0) { items[idx] = { ...items[idx], ...category }; writeLS(items); return items[idx] } return null
   }
-  const payload = { nombre: category.name ?? category.nombre, tipo: category.type ? (category.type==='income'?'INGRESO':'EGRESO') : category.tipo, color: category.color }
-  const { data } = await api.put(`/categorias/${id}`, payload)
+  const payload = { nombre: category.name ?? category.nombre, tipo: category.type ? (category.type==='income'?'ing':'eg') : category.tipo }
+  const { data } = await api.put(`/categorias/${id}/`, payload)
   return data
 }
 
