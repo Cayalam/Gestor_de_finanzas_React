@@ -7,7 +7,7 @@ function writeLS(items) { localStorage.setItem(LS_KEY, JSON.stringify(items)) }
 
 export async function list() {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS()
-  const { data } = await api.get('/grupos')
+  const { data } = await api.get('/grupos/')
   return data
 }
 
@@ -19,7 +19,7 @@ export async function create(group) {
     writeLS(items)
     return newItem
   }
-  const { data } = await api.post('/grupos', group)
+  const { data } = await api.post('/grupos/', group)
   return data
 }
 
@@ -28,7 +28,7 @@ export async function remove(id) {
     writeLS(readLS().filter(x => x.id !== id))
     return { ok: true }
   }
-  const { data } = await api.delete(`/grupos/${id}`)
+  const { data } = await api.delete(`/grupos/${id}/`)
   return data
 }
 

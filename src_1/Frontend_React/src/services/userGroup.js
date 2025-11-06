@@ -1,7 +1,7 @@
 import api from './api'
 
 export async function add({ usuarioId, grupoId, rol }) {
-  const { data } = await api.post('/usuario-grupo', { usuarioId, grupoId, rol })
+  const { data } = await api.post('/usuario-grupo/', { usuarioId, grupoId, rol })
   return data
 }
 
@@ -21,7 +21,7 @@ export async function get(usuarioId, grupoId) {
 }
 
 export async function remove(usuarioId, grupoId) {
-  const { data } = await api.delete(`/usuario-grupo/${usuarioId}/${grupoId}`)
+  const { data } = await api.delete(`/usuario-grupo/${usuarioId}/${grupoId}/`)
   return data
 }
 

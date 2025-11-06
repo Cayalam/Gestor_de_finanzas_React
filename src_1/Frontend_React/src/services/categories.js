@@ -12,7 +12,7 @@ function writeLS(items) {
 
 export async function list() {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS()
-  const { data } = await api.get('/categorias')
+  const { data } = await api.get('/categorias/')
   // Normalizar a {id, name, type, color}
   return (data || []).map(c => ({
     id: c.id,
@@ -35,7 +35,7 @@ export async function create(category) {
     tipo: category.type ? (category.type === 'income' ? 'INGRESO' : 'EGRESO') : category.tipo,
     color: category.color,
   }
-  const { data } = await api.post('/categorias', payload)
+  const { data } = await api.post('/categorias/', payload)
   return data
 }
 
@@ -45,7 +45,7 @@ export async function remove(id) {
     writeLS(items)
     return { ok: true }
   }
-  const { data } = await api.delete(`/categorias/${id}`)
+  const { data } = await api.delete(`/categorias/${id}/`)
   return data
 }
 

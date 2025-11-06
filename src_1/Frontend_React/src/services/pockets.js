@@ -24,7 +24,8 @@ export async function create(pocket) {
   }
   const payload = { nombre: pocket.name ?? pocket.nombre, saldo: pocket.balance ?? pocket.saldo, color: pocket.color, icono: pocket.icon }
   const { data } = await api.post('/bolsillos/', payload)
-  return data
+  // Normalizar la forma del objeto para que coincida con list()
+  return { id: data.id, name: data.nombre ?? data.name, balance: Number(data.saldo ?? data.balance ?? 0), color: data.color || '#3b82f6', icon: data.icono || data.icon || 'wallet' }
 }
 
 export async function remove(id) {

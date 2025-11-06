@@ -9,19 +9,19 @@ export async function create(user) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const items = readLS(); const item = { id: crypto.randomUUID(), ...user }; items.unshift(item); writeLS(items); return item
   }
-  const { data } = await api.post('/usuarios', user)
+  const { data } = await api.post('/usuarios/', user)
   return data
 }
 
 export async function list() {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS()
-  const { data } = await api.get('/usuarios')
+  const { data } = await api.get('/usuarios/')
   return data
 }
 
 export async function getById(id) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS().find(u => u.id === id)
-  const { data } = await api.get(`/usuarios/${id}`)
+  const { data } = await api.get(`/usuarios/${id}/`)
   return data
 }
 
@@ -41,7 +41,7 @@ export async function remove(id) {
 }
 
 export async function me() {
-  const { data } = await api.get('/usuarios/me')
+  const { data } = await api.get('/usuarios/me/')
   return data
 }
 

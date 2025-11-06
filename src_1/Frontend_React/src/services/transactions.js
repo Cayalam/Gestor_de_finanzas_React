@@ -24,8 +24,8 @@ export async function list() {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS()
   // Combinar ingresos y egresos en una sola lista normalizada
   const [ing, egr] = await Promise.all([
-    api.get('/ingresos'),
-    api.get('/egresos'),
+  api.get('/ingresos/'),
+  api.get('/egresos/'),
   ])
   const normalize = (arr, type) => (arr?.data || arr).map(x => ({
     id: x.id,
@@ -62,7 +62,7 @@ export async function create(tx) {
   }
   // En backend crear según tipo
   if (tx.type === 'income') {
-    const { data } = await api.post('/ingresos', {
+  const { data } = await api.post('/ingresos/', {
       monto: tx.amount,
       fecha: tx.date,
       categoriaId: tx.categoryId ?? tx.category,
@@ -79,7 +79,7 @@ export async function create(tx) {
       description: data.descripcion ?? tx.description,
     }
   } else {
-    const { data } = await api.post('/egresos', {
+  const { data } = await api.post('/egresos/', {
       monto: tx.amount,
       fecha: tx.date,
       categoriaId: tx.categoryId ?? tx.category,

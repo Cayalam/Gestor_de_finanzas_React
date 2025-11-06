@@ -42,9 +42,9 @@ export async function getOverview() {
   }
   // Backend no tiene endpoint /dashboard; calculamos con datos crudos
   const [pocketsRes, ingresosRes, egresosRes] = await Promise.all([
-    api.get('/bolsillos'),
-    api.get('/ingresos'),
-    api.get('/egresos'),
+  api.get('/bolsillos/'),
+  api.get('/ingresos/'),
+  api.get('/egresos/'),
   ])
   const pockets = (pocketsRes?.data || pocketsRes).map(p => ({
     name: p.nombre ?? p.name,
@@ -88,9 +88,9 @@ export async function getRecentTransactions() {
     }))
   }
   const [ing, egr, pocketsRes] = await Promise.all([
-    api.get('/ingresos'),
-    api.get('/egresos'),
-    api.get('/bolsillos'),
+  api.get('/ingresos/'),
+  api.get('/egresos/'),
+  api.get('/bolsillos/'),
   ])
   const pockets = pocketsRes?.data || pocketsRes
   const pname = (id) => pockets.find(p => (p.id === id))?.nombre ?? pockets.find(p => (p.id === id))?.name ?? id
