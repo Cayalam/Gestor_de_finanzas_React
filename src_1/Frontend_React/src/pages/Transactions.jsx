@@ -24,6 +24,7 @@ export default function Transactions() {
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
   const [form, setForm] = useState({
+    id: null,
     type: 'expense',
     amount: '',
     date: new Date().toISOString().slice(0,10),
@@ -32,6 +33,7 @@ export default function Transactions() {
     description: ''
   })
   const [error, setError] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   useEffect(() => {
     (async () => {
@@ -91,27 +93,75 @@ export default function Transactions() {
       return
     }
     if (!form.category) { setError('Selecciona una categoría'); return }
-  if (pockets.length === 0) { setError('No hay bolsillos creados. Crea uno en la sección Bolsillos.'); return }
-  if (!form.pocket) { setError('Selecciona un bolsillo'); return }
-  if (!Number(form.amount) || !form.date) { setError('Completa los campos obligatorios'); return }
-    // Permitir enviar tanto id como nombre según servicio
-    const selectedCat = categoriesByType.find(c => (c.id === form.category || c.name === form.category))
-    const selectedPocket = pockets.find(p => (p.id === form.pocket || p.name === form.pocket))
-    const payload = { ...form, amount: Number(form.amount),
-      categoryId: selectedCat?.id, pocketId: selectedPocket?.id,
+    if (pockets.length === 0) { setError('No hay bolsillos creados. Crea uno en la sección Bolsillos.'); return }
+    if (!form.pocket) { setError('Selecciona un bolsillo'); return }
+    if (!Number(form.amount) || !form.date) { setError('Completa los campos obligatorios'); return }
+    
+    try {
+      // Permitir enviar tanto id como nombre según servicio
+      const selectedCat = categoriesByType.find(c => (c.id === form.category || c.name === form.category))
+      const selectedPocket = pockets.find(p => (p.id === form.pocket || p.name === form.pocket))
+      const payload = { 
+        ...form, 
+        amount: Number(form.amount),
+        categoryId: selectedCat?.id, 
+        pocketId: selectedPocket?.id,
+      }
+      
+      if (form.id) {
+        // Actualizar transacción existente
+        const updated = await txService.update(form.id, form.type, payload)
+        setItems(prev => prev.map(x => x.id === updated.id ? updated : x))
+      } else {
+        // Crear nueva transacción
+        const created = await txService.create(payload)
+        setItems(prev => [created, ...prev])
+      }
+      
+      setOpen(false)
+      setForm({ id: null, type: 'expense', amount: '', date: new Date().toISOString().slice(0,10), category: '', pocket: '', description: '' })
+      // trigger dashboard reload in same tab
+      localStorage.setItem('demo_transactions', JSON.stringify(JSON.parse(localStorage.getItem('demo_transactions')||'[]')))
+    } catch (err) {
+      // Capturar errores del backend (ej: saldo insuficiente)
+      const detail = err?.response?.data?.detail
+      if (detail) {
+        setError(detail)
+      } else if (err?.response?.data && typeof err.response.data === 'object') {
+        // Si es un objeto con múltiples errores
+        const errors = Object.values(err.response.data).flat().join(', ')
+        setError(errors || 'Error al guardar la transacción')
+      } else {
+        setError(err?.message || 'Error al guardar la transacción')
+      }
     }
-    const created = await txService.create(payload)
-    setItems(prev => [created, ...prev])
-    setOpen(false)
-    setForm({ ...form, amount: '', description: '' })
-    // trigger dashboard reload in same tab
-    localStorage.setItem('demo_transactions', JSON.stringify(JSON.parse(localStorage.getItem('demo_transactions')||'[]')))
   }
 
-  const remove = async (id, type) => {
-    await txService.remove(id, type)
-    setItems(prev => prev.filter(x => x.id !== id))
-    localStorage.setItem('demo_transactions', JSON.stringify(JSON.parse(localStorage.getItem('demo_transactions')||'[]')))
+  const startEdit = (tx) => {
+    setForm({
+      id: tx.id,
+      type: tx.type,
+      amount: String(tx.amount),
+      date: tx.date,
+      category: tx.categoryId || tx.category,
+      pocket: tx.pocketId || tx.pocket,
+      description: tx.description || ''
+    })
+    setOpen(true)
+    setError('')
+  }
+
+  const remove = async () => {
+    if (!confirmDelete) return
+    try {
+      await txService.remove(confirmDelete.id, confirmDelete.type)
+      setItems(prev => prev.filter(x => x.id !== confirmDelete.id))
+      localStorage.setItem('demo_transactions', JSON.stringify(JSON.parse(localStorage.getItem('demo_transactions')||'[]')))
+      setConfirmDelete(null)
+    } catch (err) {
+      setError(err?.response?.data?.detail || err?.message || 'Error al eliminar la transacción')
+      setConfirmDelete(null)
+    }
   }
 
   return (
@@ -175,8 +225,8 @@ export default function Transactions() {
             </div>
             {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
             <div className="lg:col-span-2 flex items-center justify-end gap-3">
-              <button type="button" onClick={() => setOpen(false)} className="btn">Cancelar</button>
-              <button disabled={!canSave} className="btn btn-primary" type="submit">Guardar</button>
+              <button type="button" onClick={() => { setOpen(false); setForm({ id: null, type: 'expense', amount: '', date: new Date().toISOString().slice(0,10), category: '', pocket: '', description: '' }); setError(''); }} className="btn">Cancelar</button>
+              <button disabled={!canSave} className="btn btn-primary" type="submit">{form.id ? 'Actualizar transacción' : 'Guardar'}</button>
             </div>
           </form>
         </div>
@@ -197,7 +247,8 @@ export default function Transactions() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className={`${it.type==='income' ? 'text-green-600' : 'text-red-600'} font-semibold`}>{it.type==='income' ? '+' : '-'}€ {Number(it.amount).toFixed(2)}</div>
-                  <button onClick={() => remove(it.id, it.type)} className="text-red-600 hover:underline text-sm">Eliminar</button>
+                  <button onClick={() => startEdit(it)} className="text-blue-600 hover:underline text-sm">Editar</button>
+                  <button onClick={() => setConfirmDelete(it)} className="text-red-600 hover:underline text-sm">Eliminar</button>
                 </div>
               </li>
             ))}
@@ -206,6 +257,22 @@ export default function Transactions() {
           <div className="px-4 py-8 text-sm text-gray-500">Aún no hay transacciones registradas.</div>
         )}
       </div>
+
+      {/* Modal de confirmación de eliminación */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="card p-6 max-w-sm mx-4">
+            <div className="text-lg font-semibold mb-2">Confirmar eliminación</div>
+            <div className="text-sm text-gray-700 mb-4">
+              ¿Eliminar esta transacción de {confirmDelete.type === 'income' ? 'ingreso' : 'gasto'} por €{Number(confirmDelete.amount).toFixed(2)}? Esta acción no se puede deshacer.
+            </div>
+            <div className="flex justify-end gap-3">
+              <button className="btn" onClick={() => setConfirmDelete(null)}>Cancelar</button>
+              <button className="btn btn-danger" onClick={remove}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

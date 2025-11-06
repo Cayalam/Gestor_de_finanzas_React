@@ -184,6 +184,17 @@ class EgresoViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         user = self.request.user
+        bolsillo = serializer.validated_data.get('bolsillo')
+        monto = serializer.validated_data.get('monto', 0)
+        
+        # Validar que hay saldo suficiente en el bolsillo
+        if bolsillo and monto:
+            if bolsillo.saldo < monto:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError({
+                    'detail': f'Saldo insuficiente en el bolsillo "{bolsillo.nombre}". Saldo disponible: ${bolsillo.saldo}, monto requerido: ${monto}'
+                })
+        
         if user and not serializer.validated_data.get('grupo'):
             serializer.save(usuario=user)
         else:

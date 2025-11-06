@@ -28,12 +28,14 @@ export async function list() {
   api.get('/egresos/'),
   ])
   const normalize = (arr, type) => (arr?.data || arr).map(x => ({
-    id: x.id,
+    id: x.ingreso_id ?? x.egreso_id ?? x.id,
     type,
     amount: Number(x.monto ?? x.amount),
     date: x.fecha ?? x.date,
     category: x.categoria?.nombre ?? x.categoria?.name ?? x.category,
+    categoryId: x.categoria?.categoria_id ?? x.categoria?.id ?? x.categoriaId,
     pocket: x.bolsillo?.nombre ?? x.bolsillo?.name ?? x.pocket,
+    pocketId: x.bolsillo?.bolsillo_id ?? x.bolsillo?.id ?? x.bolsilloId,
     description: x.descripcion ?? x.description ?? '',
   }))
   const items = [...normalize(ing, 'income'), ...normalize(egr, 'expense')]
@@ -65,34 +67,38 @@ export async function create(tx) {
   const { data } = await api.post('/ingresos/', {
       monto: tx.amount,
       fecha: tx.date,
-      categoriaId: tx.categoryId ?? tx.category,
-      bolsilloId: tx.pocketId ?? tx.pocket,
+      categoria: tx.categoryId ?? tx.category,
+      bolsillo: tx.pocketId ?? tx.pocket,
       descripcion: tx.description,
     })
     return {
-      id: data.id,
+      id: data.ingreso_id ?? data.id,
       type: 'income',
       amount: Number(data.monto ?? tx.amount),
       date: data.fecha ?? tx.date,
       category: data.categoria?.nombre ?? tx.category,
+      categoryId: data.categoria?.categoria_id ?? data.categoria?.id ?? tx.categoryId,
       pocket: data.bolsillo?.nombre ?? tx.pocket,
+      pocketId: data.bolsillo?.bolsillo_id ?? data.bolsillo?.id ?? tx.pocketId,
       description: data.descripcion ?? tx.description,
     }
   } else {
   const { data } = await api.post('/egresos/', {
       monto: tx.amount,
       fecha: tx.date,
-      categoriaId: tx.categoryId ?? tx.category,
-      bolsilloId: tx.pocketId ?? tx.pocket,
+      categoria: tx.categoryId ?? tx.category,
+      bolsillo: tx.pocketId ?? tx.pocket,
       descripcion: tx.description,
     })
     return {
-      id: data.id,
+      id: data.egreso_id ?? data.id,
       type: 'expense',
       amount: Number(data.monto ?? tx.amount),
       date: data.fecha ?? tx.date,
       category: data.categoria?.nombre ?? tx.category,
+      categoryId: data.categoria?.categoria_id ?? data.categoria?.id ?? tx.categoryId,
       pocket: data.bolsillo?.nombre ?? tx.pocket,
+      pocketId: data.bolsillo?.bolsillo_id ?? data.bolsillo?.id ?? tx.pocketId,
       description: data.descripcion ?? tx.description,
     }
   }
@@ -116,12 +122,89 @@ export async function remove(id, type) {
     return { ok: true }
   }
   if (type === 'income') {
-    const { data } = await api.delete(`/ingresos/${id}`)
+    const { data } = await api.delete(`/ingresos/${id}/`)
     return data
   } else {
-    const { data } = await api.delete(`/egresos/${id}`)
+    const { data } = await api.delete(`/egresos/${id}/`)
     return data
   }
 }
 
-export default { list, create, remove }
+export async function update(id, type, tx) {
+  if (import.meta.env.VITE_DEMO_MODE === 'true') {
+    const items = readLS()
+    const idx = items.findIndex(x => x.id === id)
+    if (idx >= 0) {
+      const old = items[idx]
+      const updated = { ...old, ...tx }
+      items[idx] = updated
+      writeLS(items)
+      
+      // Actualizar bolsillos si cambió el monto o bolsillo
+      if (old.pocket || updated.pocket) {
+        const pockets = readPockets()
+        // Revertir transacción antigua
+        if (old.pocket) {
+          const oldIdx = pockets.findIndex(p => p.id === old.pocket)
+          const oldDelta = Number(old.amount) * (old.type === 'income' ? -1 : 1)
+          if (oldIdx >= 0) {
+            pockets[oldIdx].balance = Number((pockets[oldIdx].balance || 0)) + oldDelta
+          }
+        }
+        // Aplicar transacción nueva
+        if (updated.pocket) {
+          const newIdx = pockets.findIndex(p => p.id === updated.pocket)
+          const newDelta = Number(updated.amount) * (updated.type === 'income' ? 1 : -1)
+          if (newIdx >= 0) {
+            pockets[newIdx].balance = Number((pockets[newIdx].balance || 0)) + newDelta
+          }
+        }
+        writePockets(pockets)
+      }
+      return updated
+    }
+    return null
+  }
+  
+  if (type === 'income') {
+    const { data } = await api.patch(`/ingresos/${id}/`, {
+      monto: tx.amount,
+      fecha: tx.date,
+      categoria: tx.categoryId ?? tx.category,
+      bolsillo: tx.pocketId ?? tx.pocket,
+      descripcion: tx.description,
+    })
+    return {
+      id: data.ingreso_id ?? data.id,
+      type: 'income',
+      amount: Number(data.monto ?? tx.amount),
+      date: data.fecha ?? tx.date,
+      category: data.categoria?.nombre ?? tx.category,
+      categoryId: data.categoria?.categoria_id ?? data.categoria?.id ?? tx.categoryId,
+      pocket: data.bolsillo?.nombre ?? tx.pocket,
+      pocketId: data.bolsillo?.bolsillo_id ?? data.bolsillo?.id ?? tx.pocketId,
+      description: data.descripcion ?? tx.description,
+    }
+  } else {
+    const { data } = await api.patch(`/egresos/${id}/`, {
+      monto: tx.amount,
+      fecha: tx.date,
+      categoria: tx.categoryId ?? tx.category,
+      bolsillo: tx.pocketId ?? tx.pocket,
+      descripcion: tx.description,
+    })
+    return {
+      id: data.egreso_id ?? data.id,
+      type: 'expense',
+      amount: Number(data.monto ?? tx.amount),
+      date: data.fecha ?? tx.date,
+      category: data.categoria?.nombre ?? tx.category,
+      categoryId: data.categoria?.categoria_id ?? data.categoria?.id ?? tx.categoryId,
+      pocket: data.bolsillo?.nombre ?? tx.pocket,
+      pocketId: data.bolsillo?.bolsillo_id ?? data.bolsillo?.id ?? tx.pocketId,
+      description: data.descripcion ?? tx.description,
+    }
+  }
+}
+
+export default { list, create, remove, update }
