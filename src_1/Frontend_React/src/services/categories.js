@@ -10,16 +10,20 @@ function writeLS(items) {
   localStorage.setItem(LS_KEY, JSON.stringify(items))
 }
 
+function normalizeCategory(data) {
+  if (!data) return null
+  const id = data.categoria_id ?? data.id
+  const name = data.nombre ?? data.name
+  const tipo = (data.tipo || '').toString().toLowerCase()
+  const type = tipo.includes('ing') ? 'income' : 'expense'
+  return { id, name, type, color: data.color || '#ef4444' }
+}
+
 export async function list() {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS()
   const { data } = await api.get('/categorias/')
   // Normalizar a {id, name, type, color}
-  return (data || []).map(c => ({
-    id: c.id,
-    name: c.nombre ?? c.name,
-    type: (c.tipo || c.type || '').toString().toLowerCase().includes('ing') ? 'income' : 'expense',
-    color: c.color || '#ef4444',
-  }))
+  return (data || []).map(c => normalizeCategory(c))
 }
 
 export async function create(category) {
@@ -36,7 +40,7 @@ export async function create(category) {
     tipo: category.type ? (category.type === 'income' ? 'ing' : 'eg') : category.tipo,
   }
   const { data } = await api.post('/categorias/', payload)
-  return data
+  return normalizeCategory(data)
 }
 
 export async function remove(id) {
@@ -52,7 +56,7 @@ export async function remove(id) {
 export async function getById(id) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS().find(x=>x.id===id)
   const { data } = await api.get(`/categorias/${id}/`)
-  return { id: data.categoria_id ?? data.id, name: data.nombre, type: (data.tipo||'').toString().toLowerCase().includes('ing')?'income':'expense', color: data.color }
+  return normalizeCategory(data)
 }
 
 export async function update(id, category) {
@@ -61,7 +65,7 @@ export async function update(id, category) {
   }
   const payload = { nombre: category.name ?? category.nombre, tipo: category.type ? (category.type==='income'?'ing':'eg') : category.tipo }
   const { data } = await api.put(`/categorias/${id}/`, payload)
-  return data
+  return normalizeCategory(data)
 }
 
 export default { list, create, remove, getById, update }
