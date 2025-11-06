@@ -49,8 +49,9 @@ export default function Categories() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
-  const [form, setForm] = useState({ name: '', type: 'expense', color: COLORS[0] })
+  const [form, setForm] = useState({ id: null, name: '', type: 'expense', color: COLORS[0] })
   const [error, setError] = useState('')
+  const [confirmId, setConfirmId] = useState(null)
 
   useEffect(() => {
     (async () => {
@@ -66,15 +67,40 @@ export default function Categories() {
     e.preventDefault()
     setError('')
     if (!canSave) { setError('Completa los campos'); return }
-    const created = await catService.create(form)
-    setItems(prev => [created, ...prev])
-    setOpen(false)
-    setForm({ name: '', type: 'expense', color: COLORS[0] })
+    try {
+      if (form.id) {
+        const updated = await catService.update(form.id, form)
+        setItems(prev => prev.map(x => x.id === updated.id ? updated : x))
+      } else {
+        const created = await catService.create(form)
+        setItems(prev => [created, ...prev])
+      }
+      setOpen(false)
+      setForm({ id: null, name: '', type: 'expense', color: COLORS[0] })
+    } catch (err) {
+      setError(err?.response?.data?.detail || err?.message || 'Error al guardar la categoría')
+    }
   }
 
   const remove = async (id) => {
-    await catService.remove(id)
-    setItems(prev => prev.filter(x => x.id !== id))
+    // open confirm modal
+    setConfirmId(id)
+  }
+  const confirmRemove = async () => {
+    try {
+      await catService.remove(confirmId)
+      setItems(prev => prev.filter(x => x.id !== confirmId))
+      setConfirmId(null)
+    } catch (err) {
+      setError(err?.response?.data?.detail || err?.message || 'Error al eliminar categoría')
+      setConfirmId(null)
+    }
+  }
+
+  const startEdit = (c) => {
+    setForm({ id: c.id, name: c.name, type: c.type, color: c.color })
+    setOpen(true)
+    setError('')
   }
 
   const income = items.filter(i => i.type === 'income')
@@ -121,16 +147,43 @@ export default function Categories() {
         <div className="bg-white rounded-xl border">
           <div className="px-4 py-3 border-b font-semibold">Ingreso</div>
           <div className="p-4 space-y-3">
-            {income.length ? income.map(c => <CatRow key={c.id} it={c} onDelete={remove} />) : <div className="text-sm text-gray-500">Aún no hay categorías de ingreso.</div>}
+              {income.length ? income.map(c => (
+                <div key={c.id} className="">
+                  <CatRow it={c} onDelete={remove} />
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={()=>startEdit(c)} className="btn btn-ghost text-sm">Editar</button>
+                  </div>
+                </div>
+              )) : <div className="text-sm text-gray-500">Aún no hay categorías de ingreso.</div>}
           </div>
         </div>
         <div className="bg-white rounded-xl border">
           <div className="px-4 py-3 border-b font-semibold">Gasto</div>
           <div className="p-4 space-y-3">
-            {expense.length ? expense.map(c => <CatRow key={c.id} it={c} onDelete={remove} />) : <div className="text-sm text-gray-500">Aún no hay categorías de gasto.</div>}
+            {expense.length ? expense.map(c => (
+              <div key={c.id} className="">
+                <CatRow it={c} onDelete={remove} />
+                <div className="mt-2 flex gap-2">
+                  <button onClick={()=>startEdit(c)} className="btn btn-ghost text-sm">Editar</button>
+                </div>
+              </div>
+            )) : <div className="text-sm text-gray-500">Aún no hay categorías de gasto.</div>}
           </div>
         </div>
       </div>
+      {/* Confirm modal */}
+      {confirmId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="card p-6 max-w-sm">
+            <div className="text-lg font-semibold mb-2">Confirmar eliminación</div>
+            <div className="text-sm text-gray-700 mb-4">¿Eliminar esta categoría? Esta acción no se puede deshacer.</div>
+            <div className="flex justify-end gap-3">
+              <button className="btn" onClick={() => setConfirmId(null)}>Cancelar</button>
+              <button className="btn btn-danger" onClick={confirmRemove}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
