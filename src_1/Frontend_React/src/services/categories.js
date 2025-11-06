@@ -64,7 +64,7 @@ export async function update(id, category) {
     const items = readLS(); const idx = items.findIndex(x=>x.id===id); if (idx>=0) { items[idx] = { ...items[idx], ...category }; writeLS(items); return items[idx] } return null
   }
   const payload = { nombre: category.name ?? category.nombre, tipo: category.type ? (category.type==='income'?'ing':'eg') : category.tipo }
-  const { data } = await api.put(`/categorias/${id}/`, payload)
+  const { data } = await api.patch(`/categorias/${id}/`, payload)
   return normalizeCategory(data)
 }
 
