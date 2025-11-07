@@ -133,3 +133,10 @@ class MovimientoSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Movimiento
         fields = '__all__'
+
+
+class UsuarioGrupoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UsuarioGrupo
+        fields = '__all__'
+

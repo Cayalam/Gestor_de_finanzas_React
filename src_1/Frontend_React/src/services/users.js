@@ -45,4 +45,19 @@ export async function me() {
   return data
 }
 
-export default { create, list, getById, update, remove, me }
+export async function checkEmailExists(email) {
+  try {
+    const { data } = await api.get(`/usuarios/check-email/?email=${encodeURIComponent(email)}`)
+    return data.exists
+  } catch (err) {
+    // Si el endpoint no existe, intentar con la lista completa
+    try {
+      const users = await list()
+      return users.some(u => u.email === email)
+    } catch {
+      return false
+    }
+  }
+}
+
+export default { create, list, getById, update, remove, me, checkEmailExists }

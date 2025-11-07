@@ -5,6 +5,20 @@ export async function add({ usuarioId, grupoId, rol }) {
   return data
 }
 
+export async function addByEmail({ email, grupoId, rol = 'miembro' }) {
+  const { data } = await api.post('/usuario-grupo/add-by-email/', { 
+    email, 
+    grupo_id: grupoId,
+    rol 
+  })
+  return data
+}
+
+export async function listMembers(grupoId) {
+  const { data } = await api.get(`/usuario-grupo/members/${grupoId}/`)
+  return data
+}
+
 export async function listByUsuario(usuarioId) {
   const { data } = await api.get(`/usuario-grupo/usuario/${usuarioId}`)
   return data
@@ -25,4 +39,4 @@ export async function remove(usuarioId, grupoId) {
   return data
 }
 
-export default { add, listByUsuario, listByGrupo, get, remove }
+export default { add, addByEmail, listMembers, listByUsuario, listByGrupo, get, remove }

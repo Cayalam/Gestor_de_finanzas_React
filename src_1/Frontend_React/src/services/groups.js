@@ -23,6 +23,21 @@ export async function create(group) {
   return data
 }
 
+export async function update(id, group) {
+  if (import.meta.env.VITE_DEMO_MODE === 'true') {
+    const items = readLS()
+    const idx = items.findIndex(g => g.id === id)
+    if (idx >= 0) {
+      items[idx] = { ...items[idx], ...group }
+      writeLS(items)
+      return items[idx]
+    }
+    return null
+  }
+  const { data } = await api.put(`/grupos/${id}/`, group)
+  return data
+}
+
 export async function remove(id) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     writeLS(readLS().filter(x => x.id !== id))
@@ -32,4 +47,4 @@ export async function remove(id) {
   return data
 }
 
-export default { list, create, remove }
+export default { list, create, update, remove }
