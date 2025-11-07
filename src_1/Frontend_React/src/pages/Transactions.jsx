@@ -4,6 +4,18 @@ import * as txService from '../services/transactions'
 import * as catService from '../services/categories'
 import * as pocketsService from '../services/pockets'
 
+// Función para formatear fechas sin problemas de zona horaria
+function formatLocalDate(dateString) {
+  if (!dateString) return ''
+  // Si la fecha viene en formato YYYY-MM-DD, parsearlo como fecha local
+  if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = dateString.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
+    return date.toLocaleDateString('es-ES')
+  }
+  return new Date(dateString).toLocaleDateString('es-ES')
+}
+
 function ToggleType({ value, onChange }) {
   return (
     <div className="grid grid-cols-2 gap-4">
@@ -243,7 +255,7 @@ export default function Transactions() {
               <li key={it.id} className="px-4 py-3 flex items-center justify-between">
                 <div>
                   <div className="font-medium">{it.description || (it.type==='income' ? 'Ingreso' : 'Gasto')}</div>
-                  <div className="text-xs text-gray-500">{it.category || it.categoria?.nombre || 'Sin categoría'} • {it.pocket || it.bolsillo?.nombre || 'Sin bolsillo'} • {new Date(it.date || it.fecha).toLocaleDateString()}</div>
+                  <div className="text-xs text-gray-500">{it.category || it.categoria?.nombre || 'Sin categoría'} • {it.pocket || it.bolsillo?.nombre || 'Sin bolsillo'} • {formatLocalDate(it.date || it.fecha)}</div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className={`${it.type==='income' ? 'text-green-600' : 'text-red-600'} font-semibold`}>{it.type==='income' ? '+' : '-'}€ {Number(it.amount).toFixed(2)}</div>

@@ -1,7 +1,7 @@
 import api from './api'
 
 export async function add({ usuarioId, grupoId, rol }) {
-  const { data } = await api.post('/usuario-grupo/', { usuarioId, grupoId, rol })
+   const { data } = await api.post('/usuario-grupo/', { usuarioId, grupoId, rol })
   return data
 }
 

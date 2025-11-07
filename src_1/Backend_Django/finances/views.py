@@ -164,10 +164,46 @@ class IngresoViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         user = self.request.user
+        bolsillo = serializer.validated_data.get('bolsillo')
+        monto = serializer.validated_data.get('monto', 0)
+        
+        # Actualizar saldo del bolsillo (sumar ingreso)
+        if bolsillo and monto:
+            bolsillo.saldo += monto
+            bolsillo.save()
+        
         if user and not serializer.validated_data.get('grupo'):
             serializer.save(usuario=user)
         else:
             serializer.save()
+    
+    def perform_update(self, serializer):
+        # Obtener el ingreso original antes de actualizar
+        ingreso_original = self.get_object()
+        bolsillo_original = ingreso_original.bolsillo
+        monto_original = ingreso_original.monto
+        
+        # Revertir el saldo original si había bolsillo
+        if bolsillo_original and monto_original:
+            bolsillo_original.saldo -= monto_original
+            bolsillo_original.save()
+        
+        # Aplicar el nuevo monto al bolsillo nuevo o actualizado
+        bolsillo_nuevo = serializer.validated_data.get('bolsillo')
+        monto_nuevo = serializer.validated_data.get('monto', 0)
+        
+        if bolsillo_nuevo and monto_nuevo:
+            bolsillo_nuevo.saldo += monto_nuevo
+            bolsillo_nuevo.save()
+        
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        # Revertir el saldo al eliminar
+        if instance.bolsillo and instance.monto:
+            instance.bolsillo.saldo -= instance.monto
+            instance.bolsillo.save()
+        instance.delete()
 
 
 class EgresoViewSet(viewsets.ModelViewSet):
@@ -194,11 +230,48 @@ class EgresoViewSet(viewsets.ModelViewSet):
                 raise ValidationError({
                     'detail': f'Saldo insuficiente en el bolsillo "{bolsillo.nombre}". Saldo disponible: ${bolsillo.saldo}, monto requerido: ${monto}'
                 })
+            
+            # Actualizar saldo del bolsillo (restar egreso)
+            bolsillo.saldo -= monto
+            bolsillo.save()
         
         if user and not serializer.validated_data.get('grupo'):
             serializer.save(usuario=user)
         else:
             serializer.save()
+    
+    def perform_update(self, serializer):
+        # Obtener el egreso original antes de actualizar
+        egreso_original = self.get_object()
+        bolsillo_original = egreso_original.bolsillo
+        monto_original = egreso_original.monto
+        
+        # Revertir el saldo original si había bolsillo (sumar de vuelta)
+        if bolsillo_original and monto_original:
+            bolsillo_original.saldo += monto_original
+            bolsillo_original.save()
+        
+        # Validar y aplicar el nuevo monto
+        bolsillo_nuevo = serializer.validated_data.get('bolsillo')
+        monto_nuevo = serializer.validated_data.get('monto', 0)
+        
+        if bolsillo_nuevo and monto_nuevo:
+            if bolsillo_nuevo.saldo < monto_nuevo:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError({
+                    'detail': f'Saldo insuficiente en el bolsillo "{bolsillo_nuevo.nombre}". Saldo disponible: ${bolsillo_nuevo.saldo}, monto requerido: ${monto_nuevo}'
+                })
+            bolsillo_nuevo.saldo -= monto_nuevo
+            bolsillo_nuevo.save()
+        
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        # Revertir el saldo al eliminar (sumar de vuelta)
+        if instance.bolsillo and instance.monto:
+            instance.bolsillo.saldo += instance.monto
+            instance.bolsillo.save()
+        instance.delete()
 
 
 class MovimientoViewSet(viewsets.ModelViewSet):

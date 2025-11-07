@@ -13,6 +13,21 @@ function euro(n) {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n)
 }
 
+// Función para convertir fecha string a formato local sin problemas de zona horaria
+function parseLocalDate(dateString) {
+  // Si la fecha viene en formato YYYY-MM-DD, parsearlo como fecha local
+  if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = dateString.split('-').map(Number)
+    return new Date(year, month - 1, day) // month - 1 porque Date usa meses 0-11
+  }
+  return new Date(dateString)
+}
+
+function formatDate(dateString) {
+  const date = parseLocalDate(dateString)
+  return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+}
+
 export async function getOverview() {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const pockets = readLS(POCKETS_KEY)
@@ -83,7 +98,7 @@ export async function getRecentTransactions() {
       title: t.description || (t.type==='income' ? 'Ingreso' : 'Gasto'),
       subtitle: `${t.category || 'Sin categoría'} • ${pocketName(t.pocket)}`,
       amount: `${t.type==='income' ? '+' : '-'}${euro(Number(t.amount))}`,
-      date: new Date(t.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+      date: formatDate(t.date),
       positive: t.type === 'income',
     }))
   }
@@ -93,12 +108,20 @@ export async function getRecentTransactions() {
   api.get('/bolsillos/'),
   ])
   const pockets = pocketsRes?.data || pocketsRes
-  const pname = (id) => pockets.find(p => (p.id === id))?.nombre ?? pockets.find(p => (p.id === id))?.name ?? id
+  const pname = (bolsilloObj) => {
+    // bolsilloObj puede ser un ID o un objeto con información del bolsillo
+    if (typeof bolsilloObj === 'object' && bolsilloObj !== null) {
+      return bolsilloObj.nombre || bolsilloObj.name || 'Sin bolsillo'
+    }
+    // Si es solo un ID, buscar en la lista de bolsillos
+    const pocket = pockets.find(p => p.bolsillo_id === bolsilloObj || p.id === bolsilloObj)
+    return pocket?.nombre || pocket?.name || 'Sin bolsillo'
+  }
   const normalize = (arr, type) => (arr?.data || arr).map(t => ({
     title: t.descripcion || (type==='income' ? 'Ingreso' : 'Gasto'),
-    subtitle: `${t.categoria?.nombre ?? 'Sin categoría'} • ${pname(t.bolsilloId ?? t.bolsillo ?? t.pocket)}`,
+    subtitle: `${t.categoria?.nombre || t.categoria?.name || 'Sin categoría'} • ${pname(t.bolsillo)}`,
     amount: `${type==='income' ? '+' : '-'}${euro(Number(t.monto ?? t.amount))}`,
-    date: new Date(t.fecha ?? t.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+    date: formatDate(t.fecha ?? t.date),
     positive: type==='income',
   }))
   const items = [...normalize(ing, 'income'), ...normalize(egr, 'expense')].sort((a,b)=> new Date(b.date) - new Date(a.date))

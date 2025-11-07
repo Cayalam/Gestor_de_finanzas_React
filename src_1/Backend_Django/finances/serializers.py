@@ -72,15 +72,61 @@ class TransferenciaSerializer(serializers.ModelSerializer):
 
 
 class IngresoSerializer(serializers.ModelSerializer):
+    # Agregar campos de solo lectura para incluir información completa
+    categoria_detalle = CategoriaSerializer(source='categoria', read_only=True)
+    bolsillo_detalle = BolsilloSerializer(source='bolsillo', read_only=True)
+    
     class Meta:
         model = models.Ingreso
         fields = '__all__'
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Incluir información anidada de categoría y bolsillo
+        if instance.categoria:
+            representation['categoria'] = {
+                'categoria_id': instance.categoria.categoria_id,
+                'nombre': instance.categoria.nombre,
+                'color': instance.categoria.color,
+                'tipo': instance.categoria.tipo,
+            }
+        if instance.bolsillo:
+            representation['bolsillo'] = {
+                'bolsillo_id': instance.bolsillo.bolsillo_id,
+                'nombre': instance.bolsillo.nombre,
+                'saldo': str(instance.bolsillo.saldo),
+                'color': instance.bolsillo.color,
+            }
+        return representation
 
 
 class EgresoSerializer(serializers.ModelSerializer):
+    # Agregar campos de solo lectura para incluir información completa
+    categoria_detalle = CategoriaSerializer(source='categoria', read_only=True)
+    bolsillo_detalle = BolsilloSerializer(source='bolsillo', read_only=True)
+    
     class Meta:
         model = models.Egreso
         fields = '__all__'
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Incluir información anidada de categoría y bolsillo
+        if instance.categoria:
+            representation['categoria'] = {
+                'categoria_id': instance.categoria.categoria_id,
+                'nombre': instance.categoria.nombre,
+                'color': instance.categoria.color,
+                'tipo': instance.categoria.tipo,
+            }
+        if instance.bolsillo:
+            representation['bolsillo'] = {
+                'bolsillo_id': instance.bolsillo.bolsillo_id,
+                'nombre': instance.bolsillo.nombre,
+                'saldo': str(instance.bolsillo.saldo),
+                'color': instance.bolsillo.color,
+            }
+        return representation
 
 
 class MovimientoSerializer(serializers.ModelSerializer):
