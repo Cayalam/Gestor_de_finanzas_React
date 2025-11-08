@@ -19,6 +19,15 @@ export async function listMembers(grupoId) {
   return data
 }
 
+export async function changeRole({ usuarioId, grupoId, nuevoRol }) {
+  const { data } = await api.post('/usuario-grupo/change-role/', { 
+    usuario_id: usuarioId,
+    grupo_id: grupoId,
+    nuevo_rol: nuevoRol
+  })
+  return data
+}
+
 export async function listByUsuario(usuarioId) {
   const { data } = await api.get(`/usuario-grupo/usuario/${usuarioId}`)
   return data
@@ -39,4 +48,4 @@ export async function remove(usuarioId, grupoId) {
   return data
 }
 
-export default { add, addByEmail, listMembers, listByUsuario, listByGrupo, get, remove }
+export default { add, addByEmail, listMembers, changeRole, listByUsuario, listByGrupo, get, remove }

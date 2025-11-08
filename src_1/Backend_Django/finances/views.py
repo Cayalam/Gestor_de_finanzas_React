@@ -113,13 +113,14 @@ class GrupoViewSet(viewsets.ModelViewSet):
         """
         Al crear un grupo, automáticamente agregar al usuario creador como admin
         """
-        grupo = serializer.save()
+        grupo = serializer.save(creador=self.request.user)
         # Agregar al usuario actual como admin del grupo
         models.UsuarioGrupo.objects.create(
             usuario=self.request.user,
             grupo=grupo,
             rol='admin'
         )
+
 
 
 class BolsilloViewSet(viewsets.ModelViewSet):
@@ -443,11 +444,93 @@ class UsuarioGrupoViewSet(viewsets.ModelViewSet):
         # Obtener todos los miembros
         miembros = models.UsuarioGrupo.objects.filter(grupo=grupo).select_related('usuario')
         
+        # Obtener el ID del creador (si existe)
+        creador_id = grupo.creador.usuario_id if grupo.creador else None
+        
         data = [{
             'usuario_id': m.usuario.usuario_id,
             'email': m.usuario.email,
             'nombre': m.usuario.nombre,
-            'rol': m.rol
+            'rol': m.rol,
+            'es_creador': m.usuario.usuario_id == creador_id if creador_id else False
         } for m in miembros]
         
         return Response(data)
+
+    @action(detail=False, methods=['post'], url_path='change-role')
+    def change_role(self, request):
+        """
+        Cambiar el rol de un miembro en un grupo.
+        Solo los administradores pueden cambiar roles.
+        Requiere: usuario_id, grupo_id, nuevo_rol
+        """
+        usuario_id = request.data.get('usuario_id')
+        grupo_id = request.data.get('grupo_id') or request.data.get('grupoId')
+        nuevo_rol = request.data.get('nuevo_rol') or request.data.get('nuevoRol')
+        
+        if not usuario_id:
+            raise ValidationError({'detail': 'El usuario_id es requerido'})
+        if not grupo_id:
+            raise ValidationError({'detail': 'El grupo_id es requerido'})
+        if not nuevo_rol or nuevo_rol not in ['admin', 'miembro']:
+            raise ValidationError({'detail': 'El nuevo_rol debe ser "admin" o "miembro"'})
+        
+        # Verificar que el grupo existe
+        try:
+            grupo = models.Grupo.objects.get(grupo_id=grupo_id)
+        except models.Grupo.DoesNotExist:
+            raise ValidationError({'detail': 'El grupo no existe'})
+        
+        # Verificar que el usuario actual es admin del grupo
+        user_grupo = models.UsuarioGrupo.objects.filter(
+            usuario=request.user,
+            grupo=grupo,
+            rol='admin'
+        ).first()
+        
+        if not user_grupo:
+            raise ValidationError({'detail': 'Solo los administradores del grupo pueden cambiar roles'})
+        
+        # Buscar el miembro a modificar
+        try:
+            usuario_a_modificar = models.Usuario.objects.get(usuario_id=usuario_id)
+        except models.Usuario.DoesNotExist:
+            raise ValidationError({'detail': 'El usuario no existe'})
+        
+        # PROTECCIÓN: No permitir cambiar el rol del creador del grupo
+        if grupo.creador and grupo.creador.usuario_id == usuario_a_modificar.usuario_id:
+            raise ValidationError({'detail': 'No se puede cambiar el rol del creador del grupo. El creador siempre debe ser administrador.'})
+        
+        # Buscar la relación usuario-grupo
+        miembro_grupo = models.UsuarioGrupo.objects.filter(
+            usuario=usuario_a_modificar,
+            grupo=grupo
+        ).first()
+        
+        if not miembro_grupo:
+            raise ValidationError({'detail': 'El usuario no es miembro de este grupo'})
+        
+        # Si se está degradando a miembro, verificar que no sea el último admin
+        if nuevo_rol == 'miembro' and miembro_grupo.rol == 'admin':
+            admins_count = models.UsuarioGrupo.objects.filter(
+                grupo=grupo,
+                rol='admin'
+            ).count()
+            
+            if admins_count <= 1:
+                raise ValidationError({'detail': 'No se puede degradar al único administrador del grupo'})
+        
+        # Actualizar el rol
+        rol_anterior = miembro_grupo.rol
+        miembro_grupo.rol = nuevo_rol
+        miembro_grupo.save()
+        
+        return Response({
+            'detail': f'Rol cambiado de {rol_anterior} a {nuevo_rol} exitosamente',
+            'usuario_id': usuario_a_modificar.usuario_id,
+            'email': usuario_a_modificar.email,
+            'nombre': usuario_a_modificar.nombre,
+            'rol_anterior': rol_anterior,
+            'rol_nuevo': nuevo_rol
+        }, status=status.HTTP_200_OK)
+

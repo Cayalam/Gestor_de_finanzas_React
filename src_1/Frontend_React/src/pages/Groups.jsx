@@ -38,6 +38,9 @@ export default function Groups() {
   const [form, setForm] = useState({ nombre: '', descripcion: '' })
   const [editingGroup, setEditingGroup] = useState(null)
   
+  // Estado para roles del usuario en cada grupo
+  const [userRoles, setUserRoles] = useState({}) // { grupoId: 'admin' | 'miembro' }
+  
   // Estado para miembros al crear grupo
   const [newMembers, setNewMembers] = useState([])
   const [memberEmail, setMemberEmail] = useState('')
@@ -61,9 +64,52 @@ export default function Groups() {
     (async () => {
       const data = await groupsService.list()
       setItems(data)
+      
+      // Cargar roles del usuario en cada grupo
+      await loadUserRoles(data)
+      
       setLoading(false)
     })()
   }, [])
+
+  const loadUserRoles = async (groups) => {
+    const currentUser = user || getUserFromToken()
+    if (!currentUser) {
+      try {
+        const userData = await usersService.me()
+        if (userData) {
+          await loadUserRolesWithUser(groups, userData)
+        }
+      } catch (err) {
+        console.error('Error obteniendo usuario para roles:', err)
+      }
+    } else {
+      await loadUserRolesWithUser(groups, currentUser)
+    }
+  }
+
+  const loadUserRolesWithUser = async (groups, currentUser) => {
+    const roles = {}
+    
+    for (const group of groups) {
+      try {
+        const members = await userGroupService.listMembers(group.id || group.grupo_id)
+        const membership = members.find(m => 
+          m.usuario_id === currentUser?.usuario_id || 
+          m.usuario_id === currentUser?.user_id ||
+          m.email === currentUser?.email
+        )
+        
+        if (membership) {
+          roles[group.id || group.grupo_id] = membership.rol
+        }
+      } catch (err) {
+        console.error(`Error cargando rol para grupo ${group.nombre}:`, err)
+      }
+    }
+    
+    setUserRoles(roles)
+  }
 
   const canSave = useMemo(() => !!form.nombre, [form])
 
@@ -262,6 +308,34 @@ export default function Groups() {
     }
   }
 
+  const changeUserRole = async (member, nuevoRol) => {
+    setError('')
+    setSuccess('')
+    
+    try {
+      await userGroupService.changeRole({
+        usuarioId: member.usuario_id,
+        grupoId: selectedGroup.id || selectedGroup.grupo_id,
+        nuevoRol: nuevoRol
+      })
+      
+      setSuccess(`Rol de ${member.nombre || member.email} cambiado a ${nuevoRol}`)
+      
+      // Recargar miembros del modal
+      const data = await userGroupService.listMembers(selectedGroup.id || selectedGroup.grupo_id)
+      setMembers(data)
+      
+      // Recargar todos los grupos para actualizar userRoles
+      const groups = await groupsService.list()
+      setItems(groups)
+      await loadUserRoles(groups)
+      
+    } catch (err) {
+      const detail = err?.response?.data?.detail
+      setError(detail || 'Error al cambiar el rol')
+    }
+  }
+
   return (
     <div className="px-2 md:px-0">
       <div className="flex items-center justify-between py-4">
@@ -374,15 +448,20 @@ export default function Groups() {
                   <button onClick={()=>openMembersModal(g)} className="text-blue-600 hover:underline text-sm">
                     👥 Ver miembros
                   </button>
-                  <button onClick={()=>openMembersModal(g)} className="text-purple-600 hover:underline text-sm">
-                    ➕ Agregar miembros
-                  </button>
-                  <button onClick={()=>openEditForm(g)} className="text-green-600 hover:underline text-sm">
-                    ✏️ Editar
-                  </button>
-                  <button onClick={()=>remove(g.id)} className="text-red-600 hover:underline text-sm">
-                    🗑️ Eliminar
-                  </button>
+                  {/* Solo mostrar opciones de gestión si el usuario es admin del grupo */}
+                  {userRoles[g.id || g.grupo_id] === 'admin' && (
+                    <>
+                      <button onClick={()=>openMembersModal(g)} className="text-purple-600 hover:underline text-sm">
+                        ➕ Agregar miembros
+                      </button>
+                      <button onClick={()=>openEditForm(g)} className="text-green-600 hover:underline text-sm">
+                        ✏️ Editar
+                      </button>
+                      <button onClick={()=>remove(g.id)} className="text-red-600 hover:underline text-sm">
+                        🗑️ Eliminar
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -456,13 +535,36 @@ export default function Groups() {
                 <div className="space-y-2">
                   {members.map((member) => (
                     <div key={member.usuario_id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">{member.nombre || member.email}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="font-medium">{member.nombre || member.email}</div>
+                          {member.es_creador && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-700 font-medium">
+                              👑 Creador
+                            </span>
+                          )}
+                        </div>
                         <div className="text-xs text-gray-500">{member.email}</div>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded ${member.rol === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
-                        {member.rol}
-                      </span>
+                      {/* Si es admin y no es creador, mostrar selector de rol */}
+                      {isAdmin && !member.es_creador ? (
+                        <select
+                          value={member.rol}
+                          onChange={(e) => changeUserRole(member, e.target.value)}
+                          className="text-xs px-2 py-1 rounded border cursor-pointer"
+                          style={{
+                            backgroundColor: member.rol === 'admin' ? '#DBEAFE' : '#F3F4F6',
+                            color: member.rol === 'admin' ? '#1E40AF' : '#374151'
+                          }}
+                        >
+                          <option value="miembro">Miembro</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      ) : (
+                        <span className={`text-xs px-2 py-1 rounded ${member.rol === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
+                          {member.rol}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -56,6 +56,7 @@ class Grupo(models.Model):
     nombre = models.CharField(max_length=100, db_index=True)
     descripcion = models.TextField(blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+    creador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='grupos_creados')
 
     class Meta:
         db_table = "grupo"
