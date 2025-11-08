@@ -7,7 +7,7 @@ import * as pocketsService from '../services/pockets'
 import * as contributionsService from '../services/contributions'
 import * as transfersService from '../services/transfers'
 
-// FunciÃ³n para formatear fechas sin problemas de zona horaria
+// Función para formatear fechas sin problemas de zona horaria
 function formatLocalDate(dateString) {
   if (!dateString) return ''
   // Si la fecha viene en formato YYYY-MM-DD, parsearlo como fecha local
@@ -23,11 +23,11 @@ function ToggleType({ value, onChange }) {
   return (
     <div className="grid grid-cols-2 gap-4">
       <button type="button" onClick={() => onChange('income')} className={`border rounded-xl p-6 text-center ${value==='income' ? 'border-green-500 bg-green-50' : ''}`}>
-        <div className="text-2xl mb-2">â†—ï¸</div>
+        <div className="text-2xl mb-2">↗️</div>
         <div className="font-medium">Ingreso</div>
       </button>
       <button type="button" onClick={() => onChange('expense')} className={`border rounded-xl p-6 text-center ${value==='expense' ? 'border-red-500 bg-red-50' : ''}`}>
-        <div className="text-2xl mb-2">â†™ï¸</div>
+        <div className="text-2xl mb-2">↙️</div>
         <div className="font-medium">Gasto</div>
       </button>
     </div>
@@ -82,7 +82,7 @@ export default function Transactions() {
     })()
   }, [activeGroup])
 
-  // Recargar categorÃ­as si vuelves a la pestaÃ±a o cambian en localStorage
+  // Recargar categorías si vuelves a la pestaña o cambian en localStorage
   useEffect(() => {
     const reload = async () => setCategories(await catService.list(activeGroup))
     const onStorage = (e) => { if (e.key === 'demo_categories') reload() }
@@ -92,7 +92,7 @@ export default function Transactions() {
     return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
   }, [activeGroup])
 
-  // Limpiar categorÃ­a si cambias el tipo y la selecciÃ³n ya no aplica
+  // Limpiar categoría si cambias el tipo y la selección ya no aplica
   useEffect(() => {
     if (!categories.find(c => c.type === form.type && c.name === form.category)) {
       setForm(prev => ({ ...prev, category: '' }))
@@ -132,11 +132,11 @@ export default function Transactions() {
     e.preventDefault()
     setError('')
     if (categoriesByType.length === 0) {
-      setError(`No hay categorÃ­as de ${form.type === 'income' ? 'ingreso' : 'gasto'}. Crea una en la secciÃ³n CategorÃ­as.`)
+  setError(`No hay categorías de ${form.type === 'income' ? 'ingreso' : 'gasto'}. Crea una en la sección Categorías.`)
       return
     }
-    if (!form.category) { setError('Selecciona una categorÃ­a'); return }
-    if (pockets.length === 0) { setError('No hay bolsillos creados. Crea uno en la secciÃ³n Bolsillos.'); return }
+  if (!form.category) { setError('Selecciona una categoría'); return }
+  if (pockets.length === 0) { setError('No hay bolsillos creados. Crea uno en la sección Bolsillos.'); return }
     if (!form.pocket) { setError('Selecciona un bolsillo'); return }
     if (!Number(form.amount) || !form.date) { setError('Completa los campos obligatorios'); return }
     
@@ -173,9 +173,9 @@ export default function Transactions() {
       } else if (err?.response?.data && typeof err.response.data === 'object') {
         // Si es un objeto con mÃºltiples errores
         const errors = Object.values(err.response.data).flat().join(', ')
-        setError(errors || 'Error al guardar la transacciÃ³n')
+  setError(errors || 'Error al guardar la transacción')
       } else {
-        setError(err?.message || 'Error al guardar la transacciÃ³n')
+  setError(err?.message || 'Error al guardar la transacción')
       }
     }
   }
@@ -202,7 +202,7 @@ export default function Transactions() {
       localStorage.setItem('demo_transactions', JSON.stringify(JSON.parse(localStorage.getItem('demo_transactions')||'[]')))
       setConfirmDelete(null)
     } catch (err) {
-      setError(err?.response?.data?.detail || err?.message || 'Error al eliminar la transacciÃ³n')
+  setError(err?.response?.data?.detail || err?.message || 'Error al eliminar la transacción')
       setConfirmDelete(null)
     }
   }
@@ -239,16 +239,16 @@ export default function Transactions() {
       setItems(data)
       
       // Mostrar mensaje de Ã©xito
-      alert('âœ… AportaciÃ³n realizada exitosamente')
+  alert('✅ Aportación realizada exitosamente')
     } catch (err) {
       const detail = err?.response?.data?.detail
       if (detail) {
         setError(detail)
       } else if (err?.response?.data && typeof err.response.data === 'object') {
         const errors = Object.values(err.response.data).flat().join(', ')
-        setError(errors || 'Error al realizar la aportaciÃ³n')
+  setError(errors || 'Error al realizar la aportación')
       } else {
-        setError(err?.message || 'Error al realizar la aportaciÃ³n')
+  setError(err?.message || 'Error al realizar la aportación')
       }
     }
   }
@@ -289,16 +289,16 @@ export default function Transactions() {
       const updatedPockets = await pocketsService.list(activeGroup)
       setPockets(updatedPockets)
       
-      alert(' Transferencia realizada exitosamente')
+  alert('✅ Transferencia realizada exitosamente')
     } catch (err) {
       const detail = err?.response?.data?.detail
       if (detail) {
         setError(detail)
       } else if (err?.response?.data && typeof err.response.data === 'object') {
         const errors = Object.values(err.response.data).flat().join(', ')
-        setError(errors || 'Error al realizar la transferencia')
+  setError(errors || 'Error al realizar la transferencia')
       } else {
-        setError(err?.message || 'Error al realizar la transferencia')
+  setError(err?.message || 'Error al realizar la transferencia')
       }
     }
   }
@@ -311,26 +311,26 @@ export default function Transactions() {
         </div>
         <div className="flex gap-2">
           {!activeGroup && groups.length > 0 && (
-            <button 
-              onClick={() => setOpenContribution(true)} 
+            <button
+              onClick={() => setOpenContribution(true)}
               className="btn bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
             >
-              <span>ðŸ’°</span>
+              <span>💰</span>
               <span className="hidden md:inline">Aportar al Grupo</span>
             </button>
           )}
-                    {pockets.length > 1 && (
-            <button 
-              onClick={() => setOpenTransfer(true)} 
+          {activeGroup && pockets.length > 1 && (
+            <button
+              onClick={() => setOpenTransfer(true)}
               className="btn bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
             >
-              <span></span>
+              <span>🔄</span>
               <span className="hidden md:inline">Transferir</span>
             </button>
           )}
           <button onClick={() => setOpen(true)} className="btn btn-primary flex items-center gap-2">
-            <span>ï¼‹</span>
-            <span>Nueva TransacciÃ³n</span>
+            <span>＋</span>
+            <span>Nueva Transacción</span>
           </button>
         </div>
       </div>
@@ -339,13 +339,13 @@ export default function Transactions() {
         <div className="card p-5 mb-6">
           <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="lg:col-span-2">
-              <label className="block text-sm font-medium mb-2">Tipo de TransacciÃ³n</label>
+              <label className="block text-sm font-medium mb-2">Tipo de Transacción</label>
               <ToggleType value={form.type} onChange={(t) => setForm({ ...form, type: t })} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Cantidad</label>
               <div className="flex items-center">
-                <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">â‚¬</span>
+                <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">€</span>
                 <input name="amount" value={form.amount} onChange={onChange} type="number" step="0.01" placeholder="0.00" className="input rounded-r-lg" />
               </div>
             </div>
@@ -354,16 +354,16 @@ export default function Transactions() {
               <input name="date" value={form.date} onChange={onChange} type="date" className="input" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">CategorÃ­a</label>
+              <label className="block text-sm font-medium mb-2">Categoría</label>
               {categoriesByType.length ? (
                 <select name="category" value={form.category} onChange={onChange} className="input">
-                  <option value="">Seleccionar categorÃ­a</option>
+                  <option value="">Seleccionar categoría</option>
                   {categoriesByType.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
               ) : (
-                <div className="text-sm text-gray-600">No hay categorÃ­as de {form.type === 'income' ? 'ingreso' : 'gasto'}. <Link to="/categories" className="text-blue-600 hover:underline">Crea una</Link>.</div>
+                <div className="text-sm text-gray-600">No hay categorías de {form.type === 'income' ? 'ingreso' : 'gasto'}. <Link to="/categories" className="text-blue-600 hover:underline">Crea una</Link>.</div>
               )}
             </div>
             <div>
@@ -378,13 +378,20 @@ export default function Transactions() {
               )}
             </div>
             <div className="lg:col-span-2">
-              <label className="block text-sm font-medium mb-2">DescripciÃ³n</label>
-              <input name="description" value={form.description} onChange={onChange} placeholder="DescripciÃ³n de la transacciÃ³n" className="input" />
+              <label className="block text-sm font-medium mb-2">Descripción</label>
+              <input
+                name="description"
+                value={form.description}
+                onChange={onChange}
+                placeholder="Descripción de la transacción"
+                autoComplete="off"
+                className="input"
+              />
             </div>
             {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
             <div className="lg:col-span-2 flex items-center justify-end gap-3">
               <button type="button" onClick={() => { setOpen(false); setForm({ id: null, type: 'expense', amount: '', date: new Date().toISOString().slice(0,10), category: '', pocket: '', description: '' }); setError(''); }} className="btn">Cancelar</button>
-              <button disabled={!canSave} className="btn btn-primary" type="submit">{form.id ? 'Actualizar transacciÃ³n' : 'Guardar'}</button>
+              <button disabled={!canSave} className="btn btn-primary" type="submit">{form.id ? 'Actualizar transacción' : 'Guardar'}</button>
             </div>
           </form>
         </div>
@@ -393,7 +400,7 @@ export default function Transactions() {
       <div className="card">
         <div className="px-4 py-3 border-b flex items-center justify-between">
           <div className="text-sm font-medium">Historial</div>
-          {loading && <div className="text-sm text-gray-500">Cargandoâ€¦</div>}
+          {loading && <div className="text-sm text-gray-500">Cargando…</div>}
         </div>
         {items.length ? (
           <ul className="divide-y">
@@ -401,10 +408,10 @@ export default function Transactions() {
               <li key={it.id} className="px-4 py-3 flex items-center justify-between">
                 <div>
                   <div className="font-medium">{it.description || (it.type==='income' ? 'Ingreso' : 'Gasto')}</div>
-                  <div className="text-xs text-gray-500">{it.category || it.categoria?.nombre || 'Sin categorÃ­a'} â€¢ {it.pocket || it.bolsillo?.nombre || 'Sin bolsillo'} â€¢ {formatLocalDate(it.date || it.fecha)}</div>
+                  <div className="text-xs text-gray-500">{it.category || it.categoria?.nombre || 'Sin categoría'} • {it.pocket || it.bolsillo?.nombre || 'Sin bolsillo'} • {formatLocalDate(it.date || it.fecha)}</div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className={`${it.type==='income' ? 'text-green-600' : 'text-red-600'} font-semibold`}>{it.type==='income' ? '+' : '-'}â‚¬ {Number(it.amount).toFixed(2)}</div>
+                  <div className={`${it.type==='income' ? 'text-green-600' : 'text-red-600'} font-semibold`}>{it.type==='income' ? '+' : '-'}€ {Number(it.amount).toFixed(2)}</div>
                   <button onClick={() => startEdit(it)} className="text-blue-600 hover:underline text-sm">Editar</button>
                   <button onClick={() => setConfirmDelete(it)} className="text-red-600 hover:underline text-sm">Eliminar</button>
                 </div>
@@ -412,17 +419,17 @@ export default function Transactions() {
             ))}
           </ul>
         ) : (
-          <div className="px-4 py-8 text-sm text-gray-500">AÃºn no hay transacciones registradas.</div>
+          <div className="px-4 py-8 text-sm text-gray-500">Aún no hay transacciones registradas.</div>
         )}
       </div>
 
-      {/* Modal de confirmaciÃ³n de eliminaciÃ³n */}
+  {/* Modal de confirmación de eliminación */}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="card p-6 max-w-sm mx-4">
-            <div className="text-lg font-semibold mb-2">Confirmar eliminaciÃ³n</div>
+            <div className="text-lg font-semibold mb-2">Confirmar eliminación</div>
             <div className="text-sm text-gray-700 mb-4">
-              Â¿Eliminar esta transacciÃ³n de {confirmDelete.type === 'income' ? 'ingreso' : 'gasto'} por â‚¬{Number(confirmDelete.amount).toFixed(2)}? Esta acciÃ³n no se puede deshacer.
+              ¿Eliminar esta transacción de {confirmDelete.type === 'income' ? 'ingreso' : 'gasto'} por €{Number(confirmDelete.amount).toFixed(2)}? Esta acción no se puede deshacer.
             </div>
             <div className="flex justify-end gap-3">
               <button className="btn" onClick={() => setConfirmDelete(null)}>Cancelar</button>
@@ -534,13 +541,13 @@ export default function Transactions() {
         </div>
       )}
 
-      {/* Modal de aportaciÃ³n a grupo */}
+  {/* Modal de aportación a grupo */}
       {openContribution && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="card p-6 max-w-md mx-4 w-full">
-            <h3 className="text-xl font-bold mb-4">ðŸ’° Aportar Dinero al Grupo</h3>
+            <h3 className="text-xl font-bold mb-4">💰 Aportar Dinero al Grupo</h3>
             <p className="text-sm text-gray-600 mb-4">
-              Selecciona un grupo y el bolsillo desde donde quieres enviar dinero. Esto crearÃ¡ un egreso en tu cuenta y un ingreso en el grupo.
+              Selecciona un grupo y el bolsillo desde donde quieres enviar dinero. Esto creará un egreso en tu cuenta y un ingreso en el grupo.
             </p>
             
             <form onSubmit={submitContribution} className="space-y-4">
@@ -572,7 +579,7 @@ export default function Transactions() {
                   <option value="">Selecciona tu bolsillo</option>
                   {pockets.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} - Saldo: â‚¬{Number(p.balance || 0).toFixed(2)}
+                      {p.name} - Saldo: €{Number(p.balance || 0).toFixed(2)}
                     </option>
                   ))}
                 </select>
@@ -581,7 +588,7 @@ export default function Transactions() {
               <div>
                 <label className="block text-sm font-medium mb-2">Monto</label>
                 <div className="flex items-center">
-                  <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">â‚¬</span>
+                  <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">€</span>
                   <input
                     type="number"
                     step="0.01"
@@ -609,7 +616,7 @@ export default function Transactions() {
                   </option>
                   {groupPockets.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} - Saldo: â‚¬{Number(p.balance || 0).toFixed(2)}
+                      {p.name} - Saldo: €{Number(p.balance || 0).toFixed(2)}
                     </option>
                   ))}
                 </select>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useGroup } from '../context/GroupContext'
 import * as pocketsService from '../services/pockets'
+import * as transfersService from '../services/transfers'
 
 const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
 
@@ -89,16 +90,52 @@ export default function Pockets() {
       }
     } else {
       try {
-        const created = await pocketsService.create(
-          { 
-            name: form.name, 
-            color: form.color, 
-            balance: Number(form.balance || 0), 
-            icon: form.icon 
-          }, 
-          activeGroup
-        )
-        setItems(prev => [created, ...prev])
+        const initialAmount = Number(form.balance || 0)
+        const createPayload = {
+          name: form.name,
+          color: form.color,
+          // Si es un grupo y hay monto inicial, crear con saldo 0 y luego transferir desde General
+          balance: activeGroup && initialAmount > 0 ? 0 : initialAmount,
+          icon: form.icon
+        }
+
+        const created = await pocketsService.create(createPayload, activeGroup)
+
+        // Si estamos en un grupo y se indicó monto inicial, intentar transferir desde "General"
+        if (activeGroup && initialAmount > 0) {
+          // Buscar bolsillo General ya cargado en el listado
+          let general = items.find(x => (x.name || '').toLowerCase() === 'general')
+          // Si no está en memoria, recargar lista de bolsillos del grupo y buscarlo
+          if (!general) {
+            const fresh = await pocketsService.list(activeGroup)
+            general = fresh.find(x => (x.name || '').toLowerCase() === 'general')
+          }
+
+          if (!general) {
+            setError('Bolsillo "General" no encontrado en el grupo. El bolsillo se creó sin monto inicial.')
+          } else {
+            try {
+              await transfersService.transfer(
+                general.id,
+                created.id,
+                initialAmount,
+                `Asignación inicial a ${created.name}`
+              )
+              // Refrescar listado para reflejar saldos actualizados
+              const refreshed = await pocketsService.list(activeGroup)
+              setItems(refreshed)
+            } catch (txErr) {
+              const txMsg = txErr?.response?.data?.detail || txErr?.message || 'No se pudo asignar el monto inicial desde "General"'
+              setError(txMsg)
+              // Aun así, agregar el bolsillo creado a la lista local si aún no está
+              setItems(prev => [created, ...prev])
+            }
+          }
+        } else {
+          // Caso personal o sin monto inicial
+          setItems(prev => [created, ...prev])
+        }
+
         setOpen(false)
         setForm({ id: null, name: '', color: COLORS[0], balance: 0, icon: 'wallet' })
       } catch (err) {
@@ -162,11 +199,14 @@ export default function Pockets() {
               <input value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} placeholder="Ej: Cuenta Principal, Ahorros..." className="input" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Balance Inicial</label>
+              <label className="block text-sm font-medium mb-2">Monto inicial</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">€</span>
                 <input type="number" step="0.01" value={form.balance} onChange={(e)=>setForm({...form, balance: e.target.value})} className="input pl-8" />
               </div>
+              {activeGroup && (
+                <p className="mt-1 text-xs text-gray-500">Si indicas un monto, se transferirá desde el bolsillo General de tu grupo al nuevo bolsillo.</p>
+              )}
             </div>
 
             <div className="lg:col-span-2">
