@@ -88,10 +88,23 @@ export default function Pockets() {
         setError(msg)
       }
     } else {
-      const created = await pocketsService.create({ name: form.name, color: form.color, balance: Number(form.balance || 0), icon: form.icon })
-      setItems(prev => [created, ...prev])
-      setOpen(false)
-      setForm({ id: null, name: '', color: COLORS[0], balance: 0, icon: 'wallet' })
+      try {
+        const created = await pocketsService.create(
+          { 
+            name: form.name, 
+            color: form.color, 
+            balance: Number(form.balance || 0), 
+            icon: form.icon 
+          }, 
+          activeGroup
+        )
+        setItems(prev => [created, ...prev])
+        setOpen(false)
+        setForm({ id: null, name: '', color: COLORS[0], balance: 0, icon: 'wallet' })
+      } catch (err) {
+        const msg = err?.response?.data?.detail || err?.message || 'Error al crear el bolsillo'
+        setError(msg)
+      }
     }
     localStorage.setItem('demo_pockets', JSON.stringify(JSON.parse(localStorage.getItem('demo_pockets') || '[]')))
   }
