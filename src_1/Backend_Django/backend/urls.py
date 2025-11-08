@@ -30,6 +30,7 @@ router.register(r'ingresos', finances_views.IngresoViewSet)
 router.register(r'egresos', finances_views.EgresoViewSet)
 router.register(r'movimientos', finances_views.MovimientoViewSet)
 router.register(r'usuario-grupo', finances_views.UsuarioGrupoViewSet)
+router.register(r'aportaciones', finances_views.AportacionViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

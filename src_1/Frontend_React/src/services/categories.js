@@ -19,14 +19,15 @@ function normalizeCategory(data) {
   return { id, name, type, color: data.color || '#ef4444' }
 }
 
-export async function list() {
+export async function list(grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS()
-  const { data } = await api.get('/categorias/')
+  const params = grupoId ? { grupo_id: grupoId } : {}
+  const { data } = await api.get('/categorias/', { params })
   // Normalizar a {id, name, type, color}
   return (data || []).map(c => normalizeCategory(c))
 }
 
-export async function create(category) {
+export async function create(category, grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const items = readLS()
     const newItem = { id: crypto.randomUUID(), ...category, createdAt: new Date().toISOString() }
@@ -38,7 +39,11 @@ export async function create(category) {
     nombre: category.name ?? category.nombre,
     // Backend expects 'ing' for ingreso and 'eg' for egreso
     tipo: category.type ? (category.type === 'income' ? 'ing' : 'eg') : category.tipo,
-  color: category.color ?? '#ef4444',
+    color: category.color ?? '#ef4444',
+  }
+  // Agregar grupo_id si existe
+  if (grupoId) {
+    payload.grupo_id = grupoId
   }
   const { data } = await api.post('/categorias/', payload)
   return normalizeCategory(data)

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useGroup } from '../context/GroupContext'
 import * as txService from '../services/transactions'
 import * as catService from '../services/categories'
 import * as pocketsService from '../services/pockets'
@@ -32,6 +33,7 @@ function ToggleType({ value, onChange }) {
 }
 
 export default function Transactions() {
+  const { activeGroup, getActiveGroupInfo } = useGroup()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
@@ -49,29 +51,29 @@ export default function Transactions() {
 
   useEffect(() => {
     (async () => {
-      const data = await txService.list()
+      const data = await txService.list(activeGroup)
       setItems(data)
       setLoading(false)
     })()
-  }, [])
+  }, [activeGroup])
 
   const [categories, setCategories] = useState([])
   useEffect(() => {
     (async () => {
-      const cats = await catService.list()
+      const cats = await catService.list(activeGroup)
       setCategories(cats)
     })()
-  }, [])
+  }, [activeGroup])
 
   // Recargar categorías si vuelves a la pestaña o cambian en localStorage
   useEffect(() => {
-    const reload = async () => setCategories(await catService.list())
+    const reload = async () => setCategories(await catService.list(activeGroup))
     const onStorage = (e) => { if (e.key === 'demo_categories') reload() }
     const onFocus = () => reload()
     window.addEventListener('storage', onStorage)
     window.addEventListener('focus', onFocus)
     return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
-  }, [])
+  }, [activeGroup])
 
   // Limpiar categoría si cambias el tipo y la selección ya no aplica
   useEffect(() => {
@@ -82,16 +84,16 @@ export default function Transactions() {
 
   const [pockets, setPockets] = useState([])
   useEffect(() => {
-    (async () => setPockets(await pocketsService.list()))()
-  }, [])
+    (async () => setPockets(await pocketsService.list(activeGroup)))()
+  }, [activeGroup])
   useEffect(() => {
-    const reload = async () => setPockets(await pocketsService.list())
+    const reload = async () => setPockets(await pocketsService.list(activeGroup))
     const onStorage = (e) => { if (e.key === 'demo_pockets') reload() }
     const onFocus = () => reload()
     window.addEventListener('storage', onStorage)
     window.addEventListener('focus', onFocus)
     return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
-  }, [])
+  }, [activeGroup])
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const categoriesByType = useMemo(() => categories.filter(c => c.type === form.type), [categories, form.type])
@@ -122,11 +124,11 @@ export default function Transactions() {
       
       if (form.id) {
         // Actualizar transacción existente
-        const updated = await txService.update(form.id, form.type, payload)
+        const updated = await txService.update(form.id, form.type, payload, activeGroup)
         setItems(prev => prev.map(x => x.id === updated.id ? updated : x))
       } else {
         // Crear nueva transacción
-        const created = await txService.create(payload)
+        const created = await txService.create(payload, activeGroup)
         setItems(prev => [created, ...prev])
       }
       

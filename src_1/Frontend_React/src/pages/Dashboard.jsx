@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useGroup } from '../context/GroupContext'
 import * as dashboardService from '../services/dashboard'
 
 function StatCard({ title, value, icon, trend }) {
@@ -53,13 +54,14 @@ function TxRow({ title, subtitle, amount, date, positive }) {
 }
 
 export default function Dashboard() {
+  const { activeGroup, getActiveGroupInfo } = useGroup()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState(null)
 
   async function load() {
     try {
-      const overview = await dashboardService.getOverview()
-      const recent = await dashboardService.getRecentTransactions()
+      const overview = await dashboardService.getOverview(activeGroup)
+      const recent = await dashboardService.getRecentTransactions(activeGroup)
       setData({ ...overview, transactions: recent })
     } catch {
       setData({ stats: [], pockets: [], categories: [], transactions: [] })
@@ -77,7 +79,11 @@ export default function Dashboard() {
     }
     window.addEventListener('storage', onStorage)
     return () => window.removeEventListener('storage', onStorage)
-  }, [])
+  }, [activeGroup]) // Recargar cuando cambie el grupo activo
+
+  const activeGroupInfo = getActiveGroupInfo()
+  const contextTitle = activeGroup ? `Dashboard - ${activeGroupInfo?.nombre || 'Grupo'}` : 'Dashboard Financiero'
+  const contextSubtitle = activeGroup ? 'Resumen del grupo' : 'Resumen personal de este mes'
 
   if (loading || !data) return <p className="text-gray-600 px-4">Cargando dashboard…</p>
 
@@ -85,8 +91,8 @@ export default function Dashboard() {
     <div className="px-1 sm:px-2 lg:px-0 py-6 max-w-7xl mx-auto w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold">Dashboard Financiero</h2>
-          <p className="text-sm text-gray-600">Resumen de este mes</p>
+          <h2 className="text-2xl md:text-3xl font-bold">{contextTitle}</h2>
+          <p className="text-sm text-gray-600">{contextSubtitle}</p>
         </div>
         <div className="text-sm text-gray-600">septiembre 2025</div>
       </div>

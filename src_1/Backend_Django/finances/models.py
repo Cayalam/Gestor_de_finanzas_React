@@ -184,3 +184,36 @@ class Movimiento(models.Model):
             models.CheckConstraint(check=(models.Q(usuario__isnull=True) ^ models.Q(grupo__isnull=True)), name="chk_movimiento_owner"),
             models.CheckConstraint(check=models.Q(monto__gt=0), name="chk_movimiento_monto"),
         ]
+
+
+class Aportacion(models.Model):
+    """
+    Modelo para registrar aportaciones de usuarios a grupos.
+    Crea automáticamente un egreso del usuario y un ingreso al grupo.
+    """
+    aportacion_id = models.AutoField(primary_key=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT)
+    grupo = models.ForeignKey(Grupo, on_delete=models.RESTRICT)
+    monto = models.DecimalField(max_digits=14, decimal_places=2)
+    fecha = models.DateField()
+    descripcion = models.CharField(max_length=255, blank=True, null=True)
+    
+    # Referencias a las transacciones creadas
+    egreso_usuario = models.ForeignKey(Egreso, on_delete=models.SET_NULL, null=True, blank=True, related_name='aportacion_egreso')
+    ingreso_grupo = models.ForeignKey(Ingreso, on_delete=models.SET_NULL, null=True, blank=True, related_name='aportacion_ingreso')
+    
+    # Bolsillos involucrados
+    bolsillo_usuario = models.ForeignKey(Bolsillo, on_delete=models.RESTRICT, related_name='aportaciones_origen')
+    bolsillo_grupo = models.ForeignKey(Bolsillo, on_delete=models.RESTRICT, related_name='aportaciones_destino')
+    
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "aportacion"
+        constraints = [
+            models.CheckConstraint(check=models.Q(monto__gt=0), name="chk_aportacion_monto"),
+        ]
+    
+    def __str__(self):
+        return f"{self.usuario.email} -> {self.grupo.nombre}: {self.monto}"
+

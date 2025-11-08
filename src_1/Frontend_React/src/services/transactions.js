@@ -20,12 +20,13 @@ function pocketLabel(id) {
   return map[id] || id || 'Sin bolsillo'
 }
 
-export async function list() {
+export async function list(grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS()
   // Combinar ingresos y egresos en una sola lista normalizada
+  const params = grupoId ? { grupo_id: grupoId } : {}
   const [ing, egr] = await Promise.all([
-  api.get('/ingresos/'),
-  api.get('/egresos/'),
+    api.get('/ingresos/', { params }),
+    api.get('/egresos/', { params }),
   ])
   const normalize = (arr, type) => (arr?.data || arr).map(x => ({
     id: x.ingreso_id ?? x.egreso_id ?? x.id,
@@ -42,7 +43,7 @@ export async function list() {
   return items.sort((a,b)=> new Date(b.date) - new Date(a.date))
 }
 
-export async function create(tx) {
+export async function create(tx, grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const items = readLS()
     const withId = { ...tx, id: crypto.randomUUID(), createdAt: new Date().toISOString() }
@@ -63,14 +64,20 @@ export async function create(tx) {
     return withId
   }
   // En backend crear según tipo
+  const basePayload = {
+    monto: tx.amount,
+    fecha: tx.date,
+    categoria: tx.categoryId ?? tx.category,
+    bolsillo: tx.pocketId ?? tx.pocket,
+    descripcion: tx.description,
+  }
+  // Agregar grupo_id si existe
+  if (grupoId) {
+    basePayload.grupo_id = grupoId
+  }
+  
   if (tx.type === 'income') {
-  const { data } = await api.post('/ingresos/', {
-      monto: tx.amount,
-      fecha: tx.date,
-      categoria: tx.categoryId ?? tx.category,
-      bolsillo: tx.pocketId ?? tx.pocket,
-      descripcion: tx.description,
-    })
+    const { data } = await api.post('/ingresos/', basePayload)
     return {
       id: data.ingreso_id ?? data.id,
       type: 'income',
@@ -83,13 +90,7 @@ export async function create(tx) {
       description: data.descripcion ?? tx.description,
     }
   } else {
-  const { data } = await api.post('/egresos/', {
-      monto: tx.amount,
-      fecha: tx.date,
-      categoria: tx.categoryId ?? tx.category,
-      bolsillo: tx.pocketId ?? tx.pocket,
-      descripcion: tx.description,
-    })
+    const { data } = await api.post('/egresos/', basePayload)
     return {
       id: data.egreso_id ?? data.id,
       type: 'expense',
@@ -130,7 +131,7 @@ export async function remove(id, type) {
   }
 }
 
-export async function update(id, type, tx) {
+export async function update(id, type, tx, grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const items = readLS()
     const idx = items.findIndex(x => x.id === id)
@@ -166,14 +167,20 @@ export async function update(id, type, tx) {
     return null
   }
   
+  const basePayload = {
+    monto: tx.amount,
+    fecha: tx.date,
+    categoria: tx.categoryId ?? tx.category,
+    bolsillo: tx.pocketId ?? tx.pocket,
+    descripcion: tx.description,
+  }
+  // Agregar grupo_id si existe
+  if (grupoId) {
+    basePayload.grupo_id = grupoId
+  }
+  
   if (type === 'income') {
-    const { data } = await api.patch(`/ingresos/${id}/`, {
-      monto: tx.amount,
-      fecha: tx.date,
-      categoria: tx.categoryId ?? tx.category,
-      bolsillo: tx.pocketId ?? tx.pocket,
-      descripcion: tx.description,
-    })
+    const { data } = await api.patch(`/ingresos/${id}/`, basePayload)
     return {
       id: data.ingreso_id ?? data.id,
       type: 'income',
@@ -186,13 +193,7 @@ export async function update(id, type, tx) {
       description: data.descripcion ?? tx.description,
     }
   } else {
-    const { data } = await api.patch(`/egresos/${id}/`, {
-      monto: tx.amount,
-      fecha: tx.date,
-      categoria: tx.categoryId ?? tx.category,
-      bolsillo: tx.pocketId ?? tx.pocket,
-      descripcion: tx.description,
-    })
+    const { data } = await api.patch(`/egresos/${id}/`, basePayload)
     return {
       id: data.egreso_id ?? data.id,
       type: 'expense',

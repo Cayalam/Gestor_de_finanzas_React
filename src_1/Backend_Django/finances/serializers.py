@@ -140,3 +140,9 @@ class UsuarioGrupoSerializer(serializers.ModelSerializer):
         model = models.UsuarioGrupo
         fields = '__all__'
 
+
+class AportacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Aportacion
+        fields = '__all__'
+        read_only_fields = ('egreso_usuario', 'ingreso_grupo', 'fecha_creacion')

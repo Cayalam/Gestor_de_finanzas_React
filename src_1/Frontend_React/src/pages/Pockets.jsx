@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useGroup } from '../context/GroupContext'
 import * as pocketsService from '../services/pockets'
 
 const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
@@ -46,6 +47,7 @@ const ICONS = [
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f97316', '#ef4444', '#06b6d4']
 
 export default function Pockets() {
+  const { activeGroup } = useGroup()
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -54,11 +56,11 @@ export default function Pockets() {
 
   useEffect(() => {
     (async () => {
-      const data = await pocketsService.list()
+      const data = await pocketsService.list(activeGroup)
       setItems(data)
       setLoading(false)
     })()
-  }, [])
+  }, [activeGroup]) // Recargar cuando cambie el grupo activo
 
   const total = useMemo(() => items.reduce((acc, it) => acc + Number(it.balance || 0), 0), [items])
   const canSave = useMemo(() => form.name && form.icon && form.color, [form])

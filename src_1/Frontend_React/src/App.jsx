@@ -3,6 +3,7 @@ import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import { useAuth } from './context/AuthContext.jsx'
+import { GroupProvider } from './context/GroupContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Transactions from './pages/Transactions.jsx'
@@ -54,34 +55,36 @@ function Placeholder({ title, children }) {
 
 function App() {
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <Layout>
-            <Placeholder title="Bienvenido">
-              <p>Usa el menú para iniciar sesión o registrarte.</p>
-            </Placeholder>
-          </Layout>
-        }
-      />
-      <Route
-        path="/login"
-        element={<Layout><Login /></Layout>}
-      />
-      <Route
-        path="/register"
-        element={<Layout><Register /></Layout>}
-      />
-      <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-        <Route path="/transactions" element={<Layout><Transactions /></Layout>} />
-        <Route path="/categories" element={<Layout><Categories /></Layout>} />
-        <Route path="/pockets" element={<Layout><Pockets /></Layout>} />
-        <Route path="/groups" element={<Layout><Groups /></Layout>} />
-      </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+    <GroupProvider>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <Placeholder title="Bienvenido">
+                <p>Usa el menú para iniciar sesión o registrarte.</p>
+              </Placeholder>
+            </Layout>
+          }
+        />
+        <Route
+          path="/login"
+          element={<Layout><Login /></Layout>}
+        />
+        <Route
+          path="/register"
+          element={<Layout><Register /></Layout>}
+        />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/transactions" element={<Layout><Transactions /></Layout>} />
+          <Route path="/categories" element={<Layout><Categories /></Layout>} />
+          <Route path="/pockets" element={<Layout><Pockets /></Layout>} />
+          <Route path="/groups" element={<Layout><Groups /></Layout>} />
+        </Route>
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </GroupProvider>
   )
 }
 

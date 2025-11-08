@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useGroup } from '../context/GroupContext'
 import * as catService from '../services/categories'
 
 const COLORS = [
@@ -49,6 +50,7 @@ function CatRow({ it, onDelete, onEdit }) {
 }
 
 export default function Categories() {
+  const { activeGroup } = useGroup()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
@@ -58,11 +60,11 @@ export default function Categories() {
 
   useEffect(() => {
     (async () => {
-      const data = await catService.list()
+      const data = await catService.list(activeGroup)
       setItems(data)
       setLoading(false)
     })()
-  }, [])
+  }, [activeGroup]) // Recargar cuando cambie el grupo activo
 
   const canSave = useMemo(() => form.name && form.type && form.color, [form])
 
@@ -75,7 +77,7 @@ export default function Categories() {
         const updated = await catService.update(form.id, form)
         setItems(prev => prev.map(x => x.id === updated.id ? updated : x))
       } else {
-        const created = await catService.create(form)
+        const created = await catService.create(form, activeGroup)
         setItems(prev => [created, ...prev])
       }
       setOpen(false)

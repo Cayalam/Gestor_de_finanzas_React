@@ -132,15 +132,38 @@ class BolsilloViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user or user.is_anonymous:
             return models.Bolsillo.objects.none()
-        grupos = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
-        return models.Bolsillo.objects.filter(Q(usuario=user) | Q(grupo__in=grupos))
+        
+        # Filtrar por grupo específico si se proporciona grupo_id
+        grupo_id = self.request.query_params.get('grupo_id')
+        if grupo_id:
+            # Verificar que el usuario sea miembro del grupo
+            es_miembro = models.UsuarioGrupo.objects.filter(
+                usuario=user,
+                grupo_id=grupo_id
+            ).exists()
+            if not es_miembro:
+                return models.Bolsillo.objects.none()
+            return models.Bolsillo.objects.filter(grupo_id=grupo_id)
+        
+        # Si no hay grupo_id, mostrar solo bolsillos personales del usuario
+        return models.Bolsillo.objects.filter(usuario=user)
 
     def perform_create(self, serializer):
         user = self.request.user
-        if user and not serializer.validated_data.get('grupo'):
-            serializer.save(usuario=user)
+        grupo_id = self.request.data.get('grupo_id') or self.request.data.get('grupo')
+        
+        if grupo_id:
+            # Verificar que el usuario sea miembro del grupo
+            es_miembro = models.UsuarioGrupo.objects.filter(
+                usuario=user,
+                grupo_id=grupo_id
+            ).exists()
+            if not es_miembro:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError({'detail': 'No eres miembro de este grupo'})
+            serializer.save(grupo_id=grupo_id)
         else:
-            serializer.save()
+            serializer.save(usuario=user)
 
     def destroy(self, request, *args, **kwargs):
         """Override destroy to return a friendly error when DB restricts deletion (e.g. transferencias)."""
@@ -177,15 +200,38 @@ class CategoriaViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user or user.is_anonymous:
             return models.Categoria.objects.none()
-        grupos = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
-        return models.Categoria.objects.filter(Q(usuario=user) | Q(grupo__in=grupos))
+        
+        # Filtrar por grupo específico si se proporciona grupo_id
+        grupo_id = self.request.query_params.get('grupo_id')
+        if grupo_id:
+            # Verificar que el usuario sea miembro del grupo
+            es_miembro = models.UsuarioGrupo.objects.filter(
+                usuario=user,
+                grupo_id=grupo_id
+            ).exists()
+            if not es_miembro:
+                return models.Categoria.objects.none()
+            return models.Categoria.objects.filter(grupo_id=grupo_id)
+        
+        # Si no hay grupo_id, mostrar solo categorías personales del usuario
+        return models.Categoria.objects.filter(usuario=user)
 
     def perform_create(self, serializer):
         user = self.request.user
-        if user and not serializer.validated_data.get('grupo'):
-            serializer.save(usuario=user)
+        grupo_id = self.request.data.get('grupo_id') or self.request.data.get('grupo')
+        
+        if grupo_id:
+            # Verificar que el usuario sea miembro del grupo
+            es_miembro = models.UsuarioGrupo.objects.filter(
+                usuario=user,
+                grupo_id=grupo_id
+            ).exists()
+            if not es_miembro:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError({'detail': 'No eres miembro de este grupo'})
+            serializer.save(grupo_id=grupo_id)
         else:
-            serializer.save()
+            serializer.save(usuario=user)
 
 
 class TransferenciaViewSet(viewsets.ModelViewSet):
@@ -212,23 +258,45 @@ class IngresoViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user or user.is_anonymous:
             return models.Ingreso.objects.none()
-        grupos = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
-        return models.Ingreso.objects.filter(Q(usuario=user) | Q(grupo__in=grupos))
+        
+        # Filtrar por grupo específico si se proporciona grupo_id
+        grupo_id = self.request.query_params.get('grupo_id')
+        if grupo_id:
+            # Verificar que el usuario sea miembro del grupo
+            es_miembro = models.UsuarioGrupo.objects.filter(
+                usuario=user,
+                grupo_id=grupo_id
+            ).exists()
+            if not es_miembro:
+                return models.Ingreso.objects.none()
+            return models.Ingreso.objects.filter(grupo_id=grupo_id)
+        
+        # Si no hay grupo_id, mostrar solo ingresos personales del usuario
+        return models.Ingreso.objects.filter(usuario=user)
 
     def perform_create(self, serializer):
         user = self.request.user
         bolsillo = serializer.validated_data.get('bolsillo')
         monto = serializer.validated_data.get('monto', 0)
+        grupo_id = self.request.data.get('grupo_id') or self.request.data.get('grupo')
         
         # Actualizar saldo del bolsillo (sumar ingreso)
         if bolsillo and monto:
             bolsillo.saldo += monto
             bolsillo.save()
         
-        if user and not serializer.validated_data.get('grupo'):
-            serializer.save(usuario=user)
+        if grupo_id:
+            # Verificar que el usuario sea miembro del grupo
+            es_miembro = models.UsuarioGrupo.objects.filter(
+                usuario=user,
+                grupo_id=grupo_id
+            ).exists()
+            if not es_miembro:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError({'detail': 'No eres miembro de este grupo'})
+            serializer.save(grupo_id=grupo_id)
         else:
-            serializer.save()
+            serializer.save(usuario=user)
     
     def perform_update(self, serializer):
         # Obtener el ingreso original antes de actualizar
@@ -268,13 +336,27 @@ class EgresoViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user or user.is_anonymous:
             return models.Egreso.objects.none()
-        grupos = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
-        return models.Egreso.objects.filter(Q(usuario=user) | Q(grupo__in=grupos))
+        
+        # Filtrar por grupo específico si se proporciona grupo_id
+        grupo_id = self.request.query_params.get('grupo_id')
+        if grupo_id:
+            # Verificar que el usuario sea miembro del grupo
+            es_miembro = models.UsuarioGrupo.objects.filter(
+                usuario=user,
+                grupo_id=grupo_id
+            ).exists()
+            if not es_miembro:
+                return models.Egreso.objects.none()
+            return models.Egreso.objects.filter(grupo_id=grupo_id)
+        
+        # Si no hay grupo_id, mostrar solo egresos personales del usuario
+        return models.Egreso.objects.filter(usuario=user)
 
     def perform_create(self, serializer):
         user = self.request.user
         bolsillo = serializer.validated_data.get('bolsillo')
         monto = serializer.validated_data.get('monto', 0)
+        grupo_id = self.request.data.get('grupo_id') or self.request.data.get('grupo')
         
         # Validar que hay saldo suficiente en el bolsillo
         if bolsillo and monto:
@@ -288,10 +370,18 @@ class EgresoViewSet(viewsets.ModelViewSet):
             bolsillo.saldo -= monto
             bolsillo.save()
         
-        if user and not serializer.validated_data.get('grupo'):
-            serializer.save(usuario=user)
+        if grupo_id:
+            # Verificar que el usuario sea miembro del grupo
+            es_miembro = models.UsuarioGrupo.objects.filter(
+                usuario=user,
+                grupo_id=grupo_id
+            ).exists()
+            if not es_miembro:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError({'detail': 'No eres miembro de este grupo'})
+            serializer.save(grupo_id=grupo_id)
         else:
-            serializer.save()
+            serializer.save(usuario=user)
     
     def perform_update(self, serializer):
         # Obtener el egreso original antes de actualizar
@@ -534,3 +624,143 @@ class UsuarioGrupoViewSet(viewsets.ModelViewSet):
             'rol_nuevo': nuevo_rol
         }, status=status.HTTP_200_OK)
 
+
+class AportacionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para manejar aportaciones de usuarios a grupos.
+    Al crear una aportación, se crea automáticamente:
+    - Un egreso del bolsillo personal del usuario
+    - Un ingreso al bolsillo del grupo
+    """
+    queryset = models.Aportacion.objects.all()
+    serializer_class = serializers.AportacionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user or user.is_anonymous:
+            return models.Aportacion.objects.none()
+        
+        # Mostrar aportaciones donde el usuario es el aportante o miembro del grupo
+        grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
+        return models.Aportacion.objects.filter(
+            Q(usuario=user) | Q(grupo__in=grupos_ids)
+        )
+
+    @action(detail=False, methods=['post'], url_path='aportar')
+    def aportar(self, request):
+        """
+        Endpoint para que un usuario aporte dinero a un grupo.
+        Requiere: grupo_id, bolsillo_usuario_id, bolsillo_grupo_id, monto, fecha, descripcion (opcional)
+        """
+        user = request.user
+        grupo_id = request.data.get('grupo_id')
+        bolsillo_usuario_id = request.data.get('bolsillo_usuario_id')
+        bolsillo_grupo_id = request.data.get('bolsillo_grupo_id')
+        monto = request.data.get('monto')
+        fecha = request.data.get('fecha')
+        descripcion = request.data.get('descripcion', '')
+        
+        # Validaciones
+        if not grupo_id:
+            raise ValidationError({'detail': 'El grupo_id es requerido'})
+        if not bolsillo_usuario_id:
+            raise ValidationError({'detail': 'El bolsillo_usuario_id es requerido'})
+        if not bolsillo_grupo_id:
+            raise ValidationError({'detail': 'El bolsillo_grupo_id es requerido'})
+        if not monto:
+            raise ValidationError({'detail': 'El monto es requerido'})
+        if not fecha:
+            raise ValidationError({'detail': 'La fecha es requerida'})
+        
+        try:
+            monto = float(monto)
+            if monto <= 0:
+                raise ValidationError({'detail': 'El monto debe ser mayor a 0'})
+        except (ValueError, TypeError):
+            raise ValidationError({'detail': 'El monto debe ser un número válido'})
+        
+        # Verificar que el grupo existe
+        try:
+            grupo = models.Grupo.objects.get(grupo_id=grupo_id)
+        except models.Grupo.DoesNotExist:
+            raise ValidationError({'detail': 'El grupo no existe'})
+        
+        # Verificar que el usuario es miembro del grupo
+        es_miembro = models.UsuarioGrupo.objects.filter(
+            usuario=user,
+            grupo=grupo
+        ).exists()
+        if not es_miembro:
+            raise ValidationError({'detail': 'No eres miembro de este grupo'})
+        
+        # Verificar que los bolsillos existen y pertenecen a quien deben
+        try:
+            bolsillo_usuario = models.Bolsillo.objects.get(
+                bolsillo_id=bolsillo_usuario_id,
+                usuario=user
+            )
+        except models.Bolsillo.DoesNotExist:
+            raise ValidationError({'detail': 'El bolsillo de usuario no existe o no te pertenece'})
+        
+        try:
+            bolsillo_grupo = models.Bolsillo.objects.get(
+                bolsillo_id=bolsillo_grupo_id,
+                grupo=grupo
+            )
+        except models.Bolsillo.DoesNotExist:
+            raise ValidationError({'detail': 'El bolsillo del grupo no existe o no pertenece al grupo'})
+        
+        # Verificar saldo suficiente
+        if bolsillo_usuario.saldo < monto:
+            raise ValidationError({
+                'detail': f'Saldo insuficiente. Tienes ${bolsillo_usuario.saldo}, necesitas ${monto}'
+            })
+        
+        # Crear el egreso del usuario
+        egreso = models.Egreso.objects.create(
+            usuario=user,
+            bolsillo=bolsillo_usuario,
+            monto=monto,
+            fecha=fecha,
+            descripcion=descripcion or f'Aportación al grupo {grupo.nombre}'
+        )
+        
+        # Actualizar saldo del bolsillo del usuario
+        bolsillo_usuario.saldo -= monto
+        bolsillo_usuario.save()
+        
+        # Crear el ingreso al grupo
+        ingreso = models.Ingreso.objects.create(
+            grupo=grupo,
+            bolsillo=bolsillo_grupo,
+            monto=monto,
+            fecha=fecha,
+            descripcion=descripcion or f'Aportación de {user.nombre or user.email}'
+        )
+        
+        # Actualizar saldo del bolsillo del grupo
+        bolsillo_grupo.saldo += monto
+        bolsillo_grupo.save()
+        
+        # Crear el registro de aportación
+        aportacion = models.Aportacion.objects.create(
+            usuario=user,
+            grupo=grupo,
+            monto=monto,
+            fecha=fecha,
+            descripcion=descripcion,
+            egreso_usuario=egreso,
+            ingreso_grupo=ingreso,
+            bolsillo_usuario=bolsillo_usuario,
+            bolsillo_grupo=bolsillo_grupo
+        )
+        
+        return Response({
+            'detail': f'Aportación de ${monto} realizada exitosamente',
+            'aportacion_id': aportacion.aportacion_id,
+            'egreso_id': egreso.egreso_id,
+            'ingreso_id': ingreso.ingreso_id,
+            'nuevo_saldo_usuario': str(bolsillo_usuario.saldo),
+            'nuevo_saldo_grupo': str(bolsillo_grupo.saldo)
+        }, status=status.HTTP_201_CREATED)

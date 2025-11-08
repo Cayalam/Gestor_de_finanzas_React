@@ -28,7 +28,7 @@ function formatDate(dateString) {
   return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
 }
 
-export async function getOverview() {
+export async function getOverview(grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const pockets = readLS(POCKETS_KEY)
     const txs = readLS(TX_KEY)
@@ -55,12 +55,16 @@ export async function getOverview() {
 
     return { stats, pockets: pocketCards, categories }
   }
-  // Backend no tiene endpoint /dashboard; calculamos con datos crudos
+  
+  // Backend - agregar grupo_id como query param si existe
+  const params = grupoId ? { grupo_id: grupoId } : {}
+  
   const [pocketsRes, ingresosRes, egresosRes] = await Promise.all([
-  api.get('/bolsillos/'),
-  api.get('/ingresos/'),
-  api.get('/egresos/'),
+    api.get('/bolsillos/', { params }),
+    api.get('/ingresos/', { params }),
+    api.get('/egresos/', { params }),
   ])
+  
   const pockets = (pocketsRes?.data || pocketsRes).map(p => ({
     name: p.nombre ?? p.name,
     amount: euro(Number(p.balance ?? p.saldo ?? 0)),
@@ -88,7 +92,7 @@ export async function getOverview() {
   return { stats, pockets, categories }
 }
 
-export async function getRecentTransactions() {
+export async function getRecentTransactions(grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     if (import.meta.env.VITE_DEMO_EMPTY === 'true') return []
     const txs = readLS(TX_KEY)
@@ -102,11 +106,16 @@ export async function getRecentTransactions() {
       positive: t.type === 'income',
     }))
   }
+  
+  // Backend - agregar grupo_id como query param si existe
+  const params = grupoId ? { grupo_id: grupoId } : {}
+  
   const [ing, egr, pocketsRes] = await Promise.all([
-  api.get('/ingresos/'),
-  api.get('/egresos/'),
-  api.get('/bolsillos/'),
+    api.get('/ingresos/', { params }),
+    api.get('/egresos/', { params }),
+    api.get('/bolsillos/', { params }),
   ])
+  
   const pockets = pocketsRes?.data || pocketsRes
   const pname = (bolsilloObj) => {
     // bolsilloObj puede ser un ID o un objeto con información del bolsillo
