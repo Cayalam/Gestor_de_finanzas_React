@@ -112,6 +112,7 @@ class GrupoViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """
         Al crear un grupo, automáticamente agregar al usuario creador como admin
+        y crear un bolsillo "General" para recibir aportaciones
         """
         grupo = serializer.save(creador=self.request.user)
         # Agregar al usuario actual como admin del grupo
@@ -119,6 +120,13 @@ class GrupoViewSet(viewsets.ModelViewSet):
             usuario=self.request.user,
             grupo=grupo,
             rol='admin'
+        )
+        # Crear bolsillo "General" automáticamente con saldo 0
+        models.Bolsillo.objects.create(
+            nombre='General',
+            saldo=0,
+            grupo=grupo,
+            usuario=None  # No tiene usuario porque es del grupo
         )
 
 
@@ -502,6 +510,122 @@ class MovimientoViewSet(viewsets.ModelViewSet):
         else:
             serializer.save()
 
+    @action(detail=False, methods=['post'], url_path='transferir')
+    def transferir(self, request):
+        """
+        Transferir dinero entre bolsillos (del mismo usuario o del mismo grupo).
+        Requiere: bolsillo_origen_id, bolsillo_destino_id, monto, descripcion (opcional)
+        """
+        from decimal import Decimal
+        from django.db import transaction
+        
+        user = request.user
+        bolsillo_origen_id = request.data.get('bolsillo_origen_id')
+        bolsillo_destino_id = request.data.get('bolsillo_destino_id')
+        monto = request.data.get('monto')
+        descripcion = request.data.get('descripcion', '')
+        
+        # Validaciones
+        if not bolsillo_origen_id:
+            raise ValidationError({'detail': 'El bolsillo_origen_id es requerido'})
+        if not bolsillo_destino_id:
+            raise ValidationError({'detail': 'El bolsillo_destino_id es requerido'})
+        if not monto:
+            raise ValidationError({'detail': 'El monto es requerido'})
+        if bolsillo_origen_id == bolsillo_destino_id:
+            raise ValidationError({'detail': 'No puedes transferir al mismo bolsillo'})
+        
+        try:
+            monto = Decimal(str(monto))
+            if monto <= 0:
+                raise ValidationError({'detail': 'El monto debe ser mayor a 0'})
+        except (ValueError, TypeError):
+            raise ValidationError({'detail': 'El monto debe ser un número válido'})
+        
+        # Obtener bolsillos
+        try:
+            bolsillo_origen = models.Bolsillo.objects.get(bolsillo_id=bolsillo_origen_id)
+        except models.Bolsillo.DoesNotExist:
+            raise ValidationError({'detail': 'El bolsillo de origen no existe'})
+        
+        try:
+            bolsillo_destino = models.Bolsillo.objects.get(bolsillo_id=bolsillo_destino_id)
+        except models.Bolsillo.DoesNotExist:
+            raise ValidationError({'detail': 'El bolsillo de destino no existe'})
+        
+        # Verificar que ambos bolsillos pertenecen al mismo contexto (usuario o grupo)
+        if bolsillo_origen.usuario and bolsillo_destino.usuario:
+            # Ambos son personales - deben ser del mismo usuario
+            if bolsillo_origen.usuario != user or bolsillo_destino.usuario != user:
+                raise ValidationError({'detail': 'Solo puedes transferir entre tus propios bolsillos'})
+            contexto_usuario = user
+            contexto_grupo = None
+        elif bolsillo_origen.grupo and bolsillo_destino.grupo:
+            # Ambos son de grupo - deben ser del mismo grupo
+            if bolsillo_origen.grupo != bolsillo_destino.grupo:
+                raise ValidationError({'detail': 'Solo puedes transferir entre bolsillos del mismo grupo'})
+            # Verificar que el usuario es miembro del grupo
+            es_miembro = models.UsuarioGrupo.objects.filter(
+                usuario=user,
+                grupo=bolsillo_origen.grupo
+            ).exists()
+            if not es_miembro:
+                raise ValidationError({'detail': 'No eres miembro de este grupo'})
+            contexto_usuario = None
+            contexto_grupo = bolsillo_origen.grupo
+        else:
+            raise ValidationError({'detail': 'No puedes transferir entre bolsillos personales y de grupo'})
+        
+        # Verificar saldo suficiente
+        if bolsillo_origen.saldo < monto:
+            raise ValidationError({
+                'detail': f'Saldo insuficiente. El bolsillo tiene ${bolsillo_origen.saldo}, necesitas ${monto}'
+            })
+        
+        # Realizar la transferencia (atomic para que ambas operaciones se hagan o ninguna)
+        with transaction.atomic():
+            # Actualizar saldos
+            bolsillo_origen.saldo -= monto
+            bolsillo_origen.save()
+            
+            bolsillo_destino.saldo += monto
+            bolsillo_destino.save()
+            
+            # Crear registro de movimiento (egreso del origen)
+            movimiento_egreso = models.Movimiento.objects.create(
+                tipo='eg',
+                monto=monto,
+                descripcion=descripcion or f'Transferencia a {bolsillo_destino.nombre}',
+                usuario=contexto_usuario,
+                grupo=contexto_grupo,
+                bolsillo=bolsillo_origen
+            )
+            
+            # Crear registro de movimiento (ingreso al destino)
+            movimiento_ingreso = models.Movimiento.objects.create(
+                tipo='ing',
+                monto=monto,
+                descripcion=descripcion or f'Transferencia desde {bolsillo_origen.nombre}',
+                usuario=contexto_usuario,
+                grupo=contexto_grupo,
+                bolsillo=bolsillo_destino
+            )
+        
+        return Response({
+            'detail': 'Transferencia realizada exitosamente',
+            'bolsillo_origen': {
+                'id': bolsillo_origen.bolsillo_id,
+                'nombre': bolsillo_origen.nombre,
+                'saldo': str(bolsillo_origen.saldo)
+            },
+            'bolsillo_destino': {
+                'id': bolsillo_destino.bolsillo_id,
+                'nombre': bolsillo_destino.nombre,
+                'saldo': str(bolsillo_destino.saldo)
+            },
+            'monto': str(monto)
+        }, status=status.HTTP_200_OK)
+
 
 class UsuarioGrupoViewSet(viewsets.ModelViewSet):
     queryset = models.UsuarioGrupo.objects.all()
@@ -739,8 +863,10 @@ class AportacionViewSet(viewsets.ModelViewSet):
         if not fecha:
             raise ValidationError({'detail': 'La fecha es requerida'})
         
+        from decimal import Decimal
+        
         try:
-            monto = float(monto)
+            monto = Decimal(str(monto))
             if monto <= 0:
                 raise ValidationError({'detail': 'El monto debe ser mayor a 0'})
         except (ValueError, TypeError):

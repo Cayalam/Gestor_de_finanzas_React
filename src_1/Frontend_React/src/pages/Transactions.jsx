@@ -5,6 +5,7 @@ import * as txService from '../services/transactions'
 import * as catService from '../services/categories'
 import * as pocketsService from '../services/pockets'
 import * as contributionsService from '../services/contributions'
+import * as transfersService from '../services/transfers'
 
 // Función para formatear fechas sin problemas de zona horaria
 function formatLocalDate(dateString) {
@@ -37,6 +38,7 @@ export default function Transactions() {
   const { activeGroup, getActiveGroupInfo, groups } = useGroup()
   const [open, setOpen] = useState(false)
   const [openContribution, setOpenContribution] = useState(false)
+  const [openTransfer, setOpenTransfer] = useState(false)
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
   const [form, setForm] = useState({
@@ -51,8 +53,16 @@ export default function Transactions() {
   const [contributionForm, setContributionForm] = useState({
     grupo: '',
     monto: '',
-    bolsillo_usuario: ''
+    bolsillo_usuario: '',
+    bolsillo_grupo: ''
   })
+  const [transferForm, setTransferForm] = useState({
+    bolsillo_origen: '',
+    bolsillo_destino: '',
+    monto: '',
+    descripcion: ''
+  })
+  const [groupPockets, setGroupPockets] = useState([])
   const [error, setError] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(null)
 
@@ -101,6 +111,18 @@ export default function Transactions() {
     window.addEventListener('focus', onFocus)
     return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
   }, [activeGroup])
+
+  // Cargar bolsillos del grupo seleccionado para aportaciones
+  useEffect(() => {
+    if (contributionForm.grupo) {
+      (async () => {
+        const grupoPockets = await pocketsService.list(Number(contributionForm.grupo))
+        setGroupPockets(grupoPockets)
+      })()
+    } else {
+      setGroupPockets([])
+    }
+  }, [contributionForm.grupo])
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const categoriesByType = useMemo(() => categories.filter(c => c.type === form.type), [categories, form.type])
@@ -189,7 +211,7 @@ export default function Transactions() {
     e.preventDefault()
     setError('')
     
-    if (!contributionForm.grupo || !contributionForm.monto || !contributionForm.bolsillo_usuario) {
+    if (!contributionForm.grupo || !contributionForm.monto || !contributionForm.bolsillo_usuario || !contributionForm.bolsillo_grupo) {
       setError('Completa todos los campos')
       return
     }
@@ -203,11 +225,13 @@ export default function Transactions() {
       await contributionsService.contribute(
         Number(contributionForm.grupo),
         Number(contributionForm.monto),
-        Number(contributionForm.bolsillo_usuario)
+        Number(contributionForm.bolsillo_usuario),
+        Number(contributionForm.bolsillo_grupo)
       )
       
       setOpenContribution(false)
-      setContributionForm({ grupo: '', monto: '', bolsillo_usuario: '' })
+      setContributionForm({ grupo: '', monto: '', bolsillo_usuario: '', bolsillo_grupo: '' })
+      setGroupPockets([])
       setError('')
       
       // Recargar transacciones
@@ -411,6 +435,26 @@ export default function Transactions() {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium mb-2">Bolsillo de Destino (Grupo)</label>
+                <select
+                  value={contributionForm.bolsillo_grupo}
+                  onChange={(e) => setContributionForm({ ...contributionForm, bolsillo_grupo: e.target.value })}
+                  className="input"
+                  required
+                  disabled={!contributionForm.grupo}
+                >
+                  <option value="">
+                    {!contributionForm.grupo ? 'Primero selecciona un grupo' : 'Selecciona el bolsillo del grupo'}
+                  </option>
+                  {groupPockets.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} - Saldo: €{Number(p.balance || 0).toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
                   {error}
@@ -422,7 +466,8 @@ export default function Transactions() {
                   type="button" 
                   onClick={() => {
                     setOpenContribution(false)
-                    setContributionForm({ grupo: '', monto: '', bolsillo_usuario: '' })
+                    setContributionForm({ grupo: '', monto: '', bolsillo_usuario: '', bolsillo_grupo: '' })
+                    setGroupPockets([])
                     setError('')
                   }} 
                   className="btn"
