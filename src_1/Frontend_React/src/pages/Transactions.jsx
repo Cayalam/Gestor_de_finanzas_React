@@ -4,6 +4,7 @@ import { useGroup } from '../context/GroupContext'
 import * as txService from '../services/transactions'
 import * as catService from '../services/categories'
 import * as pocketsService from '../services/pockets'
+import * as contributionsService from '../services/contributions'
 
 // Función para formatear fechas sin problemas de zona horaria
 function formatLocalDate(dateString) {
@@ -33,8 +34,9 @@ function ToggleType({ value, onChange }) {
 }
 
 export default function Transactions() {
-  const { activeGroup, getActiveGroupInfo } = useGroup()
+  const { activeGroup, getActiveGroupInfo, groups } = useGroup()
   const [open, setOpen] = useState(false)
+  const [openContribution, setOpenContribution] = useState(false)
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
   const [form, setForm] = useState({
@@ -45,6 +47,11 @@ export default function Transactions() {
     category: '',
     pocket: '',
     description: ''
+  })
+  const [contributionForm, setContributionForm] = useState({
+    grupo: '',
+    monto: '',
+    bolsillo_usuario: ''
   })
   const [error, setError] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -178,6 +185,50 @@ export default function Transactions() {
     }
   }
 
+  const submitContribution = async (e) => {
+    e.preventDefault()
+    setError('')
+    
+    if (!contributionForm.grupo || !contributionForm.monto || !contributionForm.bolsillo_usuario) {
+      setError('Completa todos los campos')
+      return
+    }
+
+    if (Number(contributionForm.monto) <= 0) {
+      setError('El monto debe ser mayor a 0')
+      return
+    }
+
+    try {
+      await contributionsService.contribute(
+        Number(contributionForm.grupo),
+        Number(contributionForm.monto),
+        Number(contributionForm.bolsillo_usuario)
+      )
+      
+      setOpenContribution(false)
+      setContributionForm({ grupo: '', monto: '', bolsillo_usuario: '' })
+      setError('')
+      
+      // Recargar transacciones
+      const data = await txService.list(activeGroup)
+      setItems(data)
+      
+      // Mostrar mensaje de éxito
+      alert('✅ Aportación realizada exitosamente')
+    } catch (err) {
+      const detail = err?.response?.data?.detail
+      if (detail) {
+        setError(detail)
+      } else if (err?.response?.data && typeof err.response.data === 'object') {
+        const errors = Object.values(err.response.data).flat().join(', ')
+        setError(errors || 'Error al realizar la aportación')
+      } else {
+        setError(err?.message || 'Error al realizar la aportación')
+      }
+    }
+  }
+
   return (
     <div className="px-2 md:px-0">
       <div className="flex items-center justify-between py-4">
@@ -185,10 +236,21 @@ export default function Transactions() {
           <h2 className="text-2xl md:text-3xl font-bold">Transacciones</h2>
           <p className="text-sm text-gray-600">Gestiona tus ingresos y gastos</p>
         </div>
-        <button onClick={() => setOpen(true)} className="btn btn-primary flex items-center gap-2">
-          <span>＋</span>
-          <span>Nueva Transacción</span>
-        </button>
+        <div className="flex gap-2">
+          {!activeGroup && groups.length > 0 && (
+            <button 
+              onClick={() => setOpenContribution(true)} 
+              className="btn bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+            >
+              <span>💰</span>
+              <span className="hidden md:inline">Aportar al Grupo</span>
+            </button>
+          )}
+          <button onClick={() => setOpen(true)} className="btn btn-primary flex items-center gap-2">
+            <span>＋</span>
+            <span>Nueva Transacción</span>
+          </button>
+        </div>
       </div>
 
       {open && (
@@ -284,6 +346,94 @@ export default function Transactions() {
               <button className="btn" onClick={() => setConfirmDelete(null)}>Cancelar</button>
               <button className="btn btn-danger" onClick={remove}>Eliminar</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de aportación a grupo */}
+      {openContribution && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="card p-6 max-w-md mx-4 w-full">
+            <h3 className="text-xl font-bold mb-4">💰 Aportar Dinero al Grupo</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Selecciona un grupo y el bolsillo desde donde quieres enviar dinero. Esto creará un egreso en tu cuenta y un ingreso en el grupo.
+            </p>
+            
+            <form onSubmit={submitContribution} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Grupo</label>
+                <select
+                  value={contributionForm.grupo}
+                  onChange={(e) => setContributionForm({ ...contributionForm, grupo: e.target.value })}
+                  className="input"
+                  required
+                >
+                  <option value="">Selecciona un grupo</option>
+                  {groups.map((g) => (
+                    <option key={g.id || g.grupo_id} value={g.id || g.grupo_id}>
+                      {g.nombre || g.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Bolsillo de Origen (Personal)</label>
+                <select
+                  value={contributionForm.bolsillo_usuario}
+                  onChange={(e) => setContributionForm({ ...contributionForm, bolsillo_usuario: e.target.value })}
+                  className="input"
+                  required
+                >
+                  <option value="">Selecciona tu bolsillo</option>
+                  {pockets.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} - Saldo: €{Number(p.balance || 0).toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Monto</label>
+                <div className="flex items-center">
+                  <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">€</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={contributionForm.monto}
+                    onChange={(e) => setContributionForm({ ...contributionForm, monto: e.target.value })}
+                    placeholder="0.00"
+                    className="input rounded-r-lg"
+                    required
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setOpenContribution(false)
+                    setContributionForm({ grupo: '', monto: '', bolsillo_usuario: '' })
+                    setError('')
+                  }} 
+                  className="btn"
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="btn bg-purple-600 hover:bg-purple-700 text-white">
+                  Aportar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

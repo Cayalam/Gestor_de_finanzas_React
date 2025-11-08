@@ -21,6 +21,8 @@ function Item({ to, label, icon }) {
 export default function Sidebar() {
   const { activeGroup, groups, selectPersonal, selectGroup, getActiveGroupInfo, loading } = useGroup()
 
+  console.log('📊 Sidebar: activeGroup =', activeGroup, 'groups =', groups, 'loading =', loading)
+
   const handleContextChange = (e) => {
     const value = e.target.value
     if (value === 'personal') {

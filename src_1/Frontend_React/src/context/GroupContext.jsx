@@ -15,10 +15,12 @@ export function GroupProvider({ children }) {
 
   const loadGroups = async () => {
     try {
+      console.log('🔍 GroupContext: Cargando grupos...')
       const data = await groupsService.list()
+      console.log('✅ GroupContext: Grupos cargados:', data)
       setGroups(data)
     } catch (error) {
-      console.error('Error cargando grupos:', error)
+      console.error('❌ GroupContext: Error cargando grupos:', error)
     } finally {
       setLoading(false)
     }
