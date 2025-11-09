@@ -74,7 +74,7 @@ export default function Categories() {
     if (!canSave) { setError('Completa los campos'); return }
     try {
       if (form.id) {
-        const updated = await catService.update(form.id, form)
+        const updated = await catService.update(form.id, form, activeGroup)
         setItems(prev => prev.map(x => x.id === updated.id ? updated : x))
       } else {
         const created = await catService.create(form, activeGroup)
@@ -93,7 +93,7 @@ export default function Categories() {
   }
   const confirmRemove = async () => {
     try {
-      await catService.remove(confirmId)
+      await catService.remove(confirmId, activeGroup)
       setItems(prev => prev.filter(x => x.id !== confirmId))
       setConfirmId(null)
     } catch (err) {

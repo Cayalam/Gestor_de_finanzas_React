@@ -49,29 +49,32 @@ export async function create(category, grupoId = null) {
   return normalizeCategory(data)
 }
 
-export async function remove(id) {
+export async function remove(id, grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const items = readLS().filter(x => x.id !== id)
     writeLS(items)
     return { ok: true }
   }
-  const { data } = await api.delete(`/categorias/${id}/`)
+  const params = grupoId ? { params: { grupo_id: grupoId } } : {}
+  const { data } = await api.delete(`/categorias/${id}/`, params)
   return data
 }
 
-export async function getById(id) {
+export async function getById(id, grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') return readLS().find(x=>x.id===id)
-  const { data } = await api.get(`/categorias/${id}/`)
+  const params = grupoId ? { params: { grupo_id: grupoId } } : {}
+  const { data } = await api.get(`/categorias/${id}/`, params)
   return normalizeCategory(data)
 }
 
-export async function update(id, category) {
+export async function update(id, category, grupoId = null) {
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const items = readLS(); const idx = items.findIndex(x=>x.id===id); if (idx>=0) { items[idx] = { ...items[idx], ...category }; writeLS(items); return items[idx] } return null
   }
   const payload = { nombre: category.name ?? category.nombre, tipo: category.type ? (category.type==='income'?'ing':'eg') : category.tipo }
   const payload2 = { ...payload, color: category.color ?? '#ef4444' }
-  const { data } = await api.patch(`/categorias/${id}/`, payload2)
+  const params = grupoId ? { params: { grupo_id: grupoId } } : {}
+  const { data } = await api.patch(`/categorias/${id}/`, payload2, params)
   return normalizeCategory(data)
 }
 
