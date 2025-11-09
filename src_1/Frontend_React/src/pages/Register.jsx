@@ -38,8 +38,8 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center px-6 py-16">
+      <div className="w-full max-w-xl">
         {/* Logo y título */}
         <div className="text-center mb-8 fade-in">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-lg">
@@ -50,8 +50,8 @@ export default function Register() {
         </div>
 
         {/* Card del formulario */}
-        <div className="glass rounded-2xl shadow-2xl p-8 scale-in">
-          <form onSubmit={onSubmit} className="space-y-5">
+        <div className="glass rounded-3xl shadow-2xl p-10 scale-in">
+          <form onSubmit={onSubmit} className="space-y-6">
             {/* Nombre */}
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700" htmlFor="name">

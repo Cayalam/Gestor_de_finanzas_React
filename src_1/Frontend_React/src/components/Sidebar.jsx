@@ -2,8 +2,8 @@ import { NavLink } from 'react-router-dom'
 import { useGroup } from '../context/GroupContext'
 
 const linkBase = 'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group'
-const linkActive = 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg scale-105'
-const linkInactive = 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 hover:scale-105'
+const linkActive = 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg scale-105'
+const linkInactive = 'text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 hover:scale-105'
 
 function Item({ to, label, icon }) {
   return (
@@ -41,14 +41,14 @@ export default function Sidebar() {
         </label>
         {loading ? (
           <div className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm text-gray-500 bg-gray-50 flex items-center gap-2">
-            <div className="spinner border-indigo-500"></div>
+            <div className="spinner border-emerald-500"></div>
             <span>Cargando...</span>
           </div>
         ) : (
           <select
             value={activeGroup || 'personal'}
             onChange={handleContextChange}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white hover:border-indigo-300 cursor-pointer"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-white hover:border-emerald-300 cursor-pointer"
           >
             <option value="personal">🏠 Personal</option>
             {groups.length > 0 && <option disabled>──────────</option>}
@@ -62,13 +62,13 @@ export default function Sidebar() {
         
         {/* Indicador visual del contexto activo */}
         {activeGroupInfo && (
-          <div className="mt-3 p-3 bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl">
+          <div className="mt-3 p-3 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-xl">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-indigo-600">👥</span>
-              <div className="font-bold text-indigo-900 text-sm">{activeGroupInfo.nombre || activeGroupInfo.name}</div>
+              <span className="text-emerald-600">👥</span>
+              <div className="font-bold text-emerald-900 text-sm">{activeGroupInfo.nombre || activeGroupInfo.name}</div>
             </div>
             {activeGroupInfo.descripcion && (
-              <div className="text-xs text-indigo-700 mt-1">{activeGroupInfo.descripcion}</div>
+              <div className="text-xs text-emerald-700 mt-1">{activeGroupInfo.descripcion}</div>
             )}
           </div>
         )}

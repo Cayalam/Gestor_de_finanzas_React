@@ -155,9 +155,9 @@ export default function Categories() {
   const expense = items.filter(i => i.type === 'expense')
 
   return (
-    <div className="px-2 md:px-0 space-y-6 fade-in">
+  <div className="px-4 lg:px-10 xl:px-14 max-w-[1900px] mx-auto space-y-10 fade-in">
       {/* Header con gradiente */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-2xl p-8 shadow-xl">
+  <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-lime-500 text-white rounded-3xl p-10 shadow-2xl">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -182,7 +182,7 @@ export default function Categories() {
 
       {/* Formulario */}
       {open && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg scale-in">
+  <div className="bg-white rounded-3xl border border-gray-100 p-10 shadow-xl scale-in">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
               <span className="text-2xl">🏷️</span>
@@ -195,8 +195,8 @@ export default function Categories() {
             </div>
           </div>
 
-          <form onSubmit={save} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <form onSubmit={save} className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Nombre de la Categoría <span className="text-red-500">*</span>
@@ -248,10 +248,10 @@ export default function Categories() {
       )}
 
       {/* Grid de Ingresos y Gastos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-10">
         {/* Ingresos */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200">
+          <div className="px-8 py-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
                 <span className="text-xl">📈</span>
@@ -262,7 +262,7 @@ export default function Categories() {
               </div>
             </div>
           </div>
-          <div className="p-4 space-y-3 max-h-[600px] overflow-y-auto">
+          <div className="p-6 space-y-4 max-h-[600px] overflow-y-auto">
             {income.length ? (
               income.map((c) => (
                 <div key={c.id}>
@@ -281,7 +281,7 @@ export default function Categories() {
 
         {/* Gastos */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-red-50 to-rose-50 border-b border-red-200">
+          <div className="px-8 py-6 bg-gradient-to-r from-red-50 to-rose-50 border-b border-red-200">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
                 <span className="text-xl">📉</span>
@@ -292,7 +292,7 @@ export default function Categories() {
               </div>
             </div>
           </div>
-          <div className="p-4 space-y-3 max-h-[600px] overflow-y-auto">
+          <div className="p-6 space-y-4 max-h-[600px] overflow-y-auto">
             {expense.length ? (
               expense.map((c) => (
                 <div key={c.id}>

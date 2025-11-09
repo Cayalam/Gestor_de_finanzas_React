@@ -8,20 +8,20 @@
   /* Palette */
   --bg: #ffffff;
   --surface: #f8fafc;
-  --primary: #6366f1; /* indigo-500 */
-  --primary-hover: #4f46e5; /* indigo-600 */
-  --primary-light: #eef2ff; /* indigo-50 */
-  --accent: #10b981; /* emerald-500 */
-  --accent-hover: #059669;
+  --primary: #10b981; /* emerald-500 */
+  --primary-hover: #059669; /* emerald-600 */
+  --primary-light: #ecfdf5; /* emerald-50 */
+  --accent: #16a34a; /* green-600 */
+  --accent-hover: #15803d;
   --danger: #ef4444;
   --danger-hover: #dc2626;
   --warning: #f59e0b;
   
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-accent: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --gradient-purple: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-accent: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  --gradient-success: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  --gradient-purple: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%);
 
   /* Controls */
   --radius: 12px;
@@ -62,7 +62,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
 }
@@ -147,7 +147,7 @@ h3 { font-size: 1.5rem; }
 .btn-ghost:hover {
   border-color: var(--primary);
   color: var(--primary);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
 }
 
 .btn-danger {
@@ -185,7 +185,7 @@ h3 { font-size: 1.5rem; }
 .input:focus { 
   outline: none; 
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
   transform: translateY(-1px);
 }
 
@@ -292,11 +292,11 @@ h3 { font-size: 1.5rem; }
 
 /* Icon selection buttons */
 .icon-btn { background: #fff; border: 1px solid #eef2f6; padding: .8rem; border-radius: 10px; }
-.icon-btn.active { box-shadow: 0 6px 18px rgba(37,99,235,0.08); border-color: var(--primary); }
+.icon-btn.active { box-shadow: 0 6px 18px rgba(16,185,129,0.12); border-color: var(--primary); }
 
 /* Color swatches */
 .swatch { width:44px; height:44px; border-radius:10px; border: 3px solid transparent; box-shadow: 0 4px 10px rgba(2,6,23,0.06); cursor:pointer }
-.swatch.active { outline: 4px solid rgba(37,99,235,0.12) }
+.swatch.active { outline: 4px solid rgba(16,185,129,0.16) }
 
 .btn-small { padding: .4rem .7rem; border-radius: 8px; font-size: .85rem }
 

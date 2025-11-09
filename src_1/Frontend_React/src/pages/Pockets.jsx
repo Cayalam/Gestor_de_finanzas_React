@@ -165,17 +165,17 @@ export default function Pockets() {
   }
 
   return (
-    <div className="space-y-6 fade-in">
+  <div className="space-y-10 fade-in max-w-[1900px] mx-auto px-4 lg:px-8 xl:px-12">
       {/* Header con gradiente */}
-      <div className="bg-gradient-to-r from-blue-500 to-cyan-600 rounded-2xl p-8 text-white shadow-xl">
+  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-3xl p-10 text-white shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">Bolsillos</h2>
-            <p className="text-blue-100 text-lg">Organiza tus cuentas y balances</p>
+            <p className="text-emerald-100 text-lg">Organiza tus cuentas y balances</p>
           </div>
           <button
             onClick={() => setOpen(true)}
-            className="btn bg-white text-blue-600 hover:bg-gray-50 shadow-lg flex items-center gap-2 font-bold"
+            className="btn bg-white text-emerald-600 hover:bg-gray-50 shadow-lg flex items-center gap-2 font-bold"
           >
             <span className="text-xl">＋</span>
             <span>Nuevo Bolsillo</span>
@@ -184,7 +184,7 @@ export default function Pockets() {
       </div>
 
       {/* Card de balance total */}
-      <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-8 text-white shadow-2xl hover:shadow-3xl transition-shadow">
+  <div className="bg-gradient-to-br from-emerald-500 via-green-600 to-lime-500 rounded-3xl p-10 text-white shadow-2xl hover:shadow-3xl transition-shadow">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-sm text-white/80 font-semibold uppercase tracking-wider mb-2">Balance Total</div>
@@ -199,9 +199,9 @@ export default function Pockets() {
 
       {/* Formulario de nuevo/editar bolsillo */}
       {open && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg scale-in">
+  <div className="bg-white rounded-3xl border border-gray-100 p-10 shadow-xl scale-in">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg">
               <span className="text-2xl">💼</span>
             </div>
             <div>
@@ -212,8 +212,8 @@ export default function Pockets() {
             </div>
           </div>
 
-          <form onSubmit={save} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={save} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Nombre del Bolsillo <span className="text-red-500">*</span>
@@ -250,7 +250,7 @@ export default function Pockets() {
               <label className="block text-sm font-bold text-gray-700 mb-3">
                 Icono <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {ICONS.map((opt) => (
                   <button
                     type="button"
@@ -273,7 +273,7 @@ export default function Pockets() {
               <label className="block text-sm font-bold text-gray-700 mb-3">
                 Color <span className="text-red-500">*</span>
               </label>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-4">
                 {COLORS.map((c) => (
                   <button
                     type="button"
@@ -330,12 +330,12 @@ export default function Pockets() {
             </div>
           )}
         </div>
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-8">
           {items.length ? (
             items.map((p) => (
               <div
                 key={p.id}
-                className="relative group border-2 border-gray-100 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 hover:border-blue-200 bg-gradient-to-br from-white to-gray-50"
+                className="relative group border-2 border-gray-100 rounded-2xl p-6 transition-all hover:shadow-xl hover:scale-[1.03] hover:border-emerald-200 bg-gradient-to-br from-white to-gray-50"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4 flex-1">
@@ -369,7 +369,7 @@ export default function Pockets() {
                       setOpen(true);
                       setError('');
                     }}
-                    className="flex-1 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold rounded-xl transition-all hover:shadow-md"
+                    className="flex-1 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-semibold rounded-xl transition-all hover:shadow-md"
                   >
                     ✏️ Editar
                   </button>

@@ -11,6 +11,7 @@ import Categories from './pages/Categories.jsx'
 import Pockets from './pages/Pockets.jsx'
 import Groups from './pages/Groups.jsx'
 import './App.css'
+import Header from './components/Header.jsx'
 
 function Layout({ children }) {
   const { isAuthenticated, logout } = useAuth()
@@ -22,36 +23,15 @@ function Layout({ children }) {
 
   // Layout para usuarios autenticados
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header moderno */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="mx-auto w-full px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <span className="text-xl">💰</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                FinanzApp
-              </h1>
-              <p className="text-xs text-gray-500">Gestor inteligente</p>
-            </div>
-          </div>
-          
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-          >
-            <span>Salir</span>
-            <span>🚪</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Contenido principal con sidebar */}
-      <div className="mx-auto w-full max-w-7xl px-4 md:px-6 py-6 grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6">
+    <div className="min-h-screen bg-gray-50 text-gray-800">
+      <Header />
+      <div className="grid grid-cols-[auto_1fr] w-full">
         <Sidebar />
-        <main className="w-full min-h-[calc(100vh-120px)]">{children}</main>
+        <main className="bg-gray-50 p-4 sm:p-6 lg:p-10">
+          <div className="w-full max-w-[1920px] mx-auto">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   )
@@ -66,20 +46,20 @@ function Placeholder({ title, children }) {
   )
 }
 
+// Redirección inteligente para la ruta raíz
+function HomeRedirect() {
+  const { isAuthenticated } = useAuth()
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />
+  }
+  return <Navigate to="/login" replace />
+}
+
 function App() {
   return (
     <GroupProvider>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <Layout>
-              <Placeholder title="Bienvenido">
-                <p>Usa el menú para iniciar sesión o registrarte.</p>
-              </Placeholder>
-            </Layout>
-          }
-        />
+        <Route path="/" element={<HomeRedirect />} />
         <Route
           path="/login"
           element={<Layout><Login /></Layout>}

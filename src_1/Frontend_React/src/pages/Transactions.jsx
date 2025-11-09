@@ -321,13 +321,13 @@ export default function Transactions() {
     }
   }
   return (
-    <div className="space-y-6 fade-in">
+  <div className="space-y-10 fade-in max-w-[1900px] mx-auto px-4 lg:px-8 xl:px-12">
       {/* Header con gradiente */}
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white shadow-xl">
+  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-3xl p-10 text-white shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">Transacciones</h2>
-            <p className="text-indigo-100 text-lg">Gestiona tus ingresos y gastos</p>
+            <p className="text-emerald-100 text-lg">Gestiona tus ingresos y gastos</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {!activeGroup && groups.length > 0 && (
@@ -350,7 +350,7 @@ export default function Transactions() {
             )}
             <button
               onClick={() => setOpen(true)}
-              className="btn bg-white text-indigo-600 hover:bg-gray-50 shadow-lg flex items-center gap-2 font-bold"
+              className="btn bg-white text-emerald-600 hover:bg-gray-50 shadow-lg flex items-center gap-2 font-bold"
             >
               <span className="text-xl">＋</span>
               <span>Nueva Transacción</span>
@@ -361,9 +361,9 @@ export default function Transactions() {
 
       {/* Formulario de nueva transacción */}
       {open && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg scale-in">
+  <div className="bg-white rounded-3xl border border-gray-100 p-10 shadow-xl scale-in">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg">
               <span className="text-2xl">📝</span>
             </div>
             <div>
@@ -374,13 +374,13 @@ export default function Transactions() {
             </div>
           </div>
           
-          <form onSubmit={submit} className="space-y-6">
+          <form onSubmit={submit} className="space-y-8">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-3">Tipo de Transacción</label>
               <ToggleType value={form.type} onChange={(t) => setForm({ ...form, type: t })} />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Cantidad <span className="text-red-500">*</span>
@@ -510,9 +510,9 @@ export default function Transactions() {
             {items.map(it => (
               <div
                 key={it.id}
-                className="px-6 py-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-4"
+                className="px-6 py-5 grid grid-cols-12 gap-6 items-center hover:bg-gray-50 transition-colors"
               >
-                <div className="flex items-center gap-4 flex-1">
+                <div className="col-span-1">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                     it.type === 'income'
                       ? 'bg-gradient-to-br from-green-100 to-emerald-100'
@@ -520,38 +520,41 @@ export default function Transactions() {
                   }`}>
                     <span className="text-2xl">{it.type === 'income' ? '📈' : '📉'}</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 truncate">
-                      {it.description || (it.type === 'income' ? 'Ingreso' : 'Gasto')}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                      <span className="px-2 py-0.5 bg-gray-100 rounded-full">
-                        {it.category || it.categoria?.nombre || 'Sin categoría'}
-                      </span>
-                      <span>•</span>
-                      <span>{it.pocket || it.bolsillo?.nombre || 'Sin bolsillo'}</span>
-                      <span>•</span>
-                      <span>{formatLocalDate(it.date || it.fecha)}</span>
-                    </div>
+                </div>
+                <div className="col-span-3">
+                  <div className="font-semibold text-gray-900 truncate">
+                    {it.description || (it.type === 'income' ? 'Ingreso' : 'Gasto')}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-gray-100 rounded-full">
+                      {it.category || it.categoria?.nombre || 'Sin categoría'}
+                    </span>
+                    <span className="px-2 py-0.5 bg-gray-100 rounded-full">
+                      {it.pocket || it.bolsillo?.nombre || 'Sin bolsillo'}
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className={`text-xl font-bold ${
-                    it.type === 'income' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {it.type === 'income' ? '+' : '-'}€{Number(it.amount).toFixed(2)}
-                  </div>
+                <div className="col-span-2 text-sm text-gray-600">
+                  {formatLocalDate(it.date || it.fecha)}
+                </div>
+                <div className="col-span-2 text-sm text-gray-600 truncate">
+                  {it.id}
+                </div>
+                <div className="col-span-2 text-lg font-bold ${it.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                  {it.type === 'income' ? '+' : '-'}€{Number(it.amount).toFixed(2)}
+                </div>
+                <div className="col-span-2 flex items-center gap-3 justify-end">
                   <button
                     onClick={() => startEdit(it)}
                     className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   >
-                    ✏️
+                    ✏️ Editar
                   </button>
                   <button
                     onClick={() => setConfirmDelete(it)}
                     className="px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   >
-                    🗑️
+                    🗑️ Eliminar
                   </button>
                 </div>
               </div>

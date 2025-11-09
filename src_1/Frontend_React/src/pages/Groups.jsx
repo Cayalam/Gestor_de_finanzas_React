@@ -337,9 +337,9 @@ export default function Groups() {
   }
 
   return (
-    <div className="px-2 md:px-0 space-y-6 fade-in">
+  <div className="px-4 lg:px-10 xl:px-14 max-w-[1900px] mx-auto space-y-10 fade-in">
       {/* Header con gradiente */}
-      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 text-white rounded-2xl p-8 shadow-xl">
+  <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-lime-500 text-white rounded-3xl p-10 shadow-2xl">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -348,13 +348,13 @@ export default function Groups() {
               </div>
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold">Grupos</h2>
-                <p className="text-purple-100 text-sm md:text-base">Comparte finanzas con otros</p>
+                <p className="text-emerald-100 text-sm md:text-base">Comparte finanzas con otros</p>
               </div>
             </div>
           </div>
           <button
             onClick={() => setOpen(true)}
-            className="bg-white text-purple-600 hover:bg-purple-50 font-bold px-6 py-3 rounded-xl transition-all hover:shadow-xl hover:scale-105 flex items-center gap-2"
+            className="bg-white text-emerald-600 hover:bg-emerald-50 font-bold px-6 py-3 rounded-xl transition-all hover:shadow-xl hover:scale-105 flex items-center gap-2"
           >
             <span className="text-xl">＋</span>
             <span className="hidden md:inline">Nuevo Grupo</span>
@@ -364,9 +364,9 @@ export default function Groups() {
 
       {/* Formulario de creación/edición */}
       {open && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg scale-in">
+  <div className="bg-white rounded-3xl border border-gray-100 p-10 shadow-xl scale-in">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg">
               <span className="text-2xl">👥</span>
             </div>
             <div>
