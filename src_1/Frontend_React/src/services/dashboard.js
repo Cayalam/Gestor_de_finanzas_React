@@ -1,4 +1,5 @@
 import api from './api'
+import { formatCurrency } from '../utils/currency'
 
 const demoData = { overview: { stats: [], pockets: [], categories: [] }, recent: [] }
 
@@ -7,10 +8,6 @@ const TX_KEY = 'demo_transactions'
 
 function readLS(key) {
   try { return JSON.parse(localStorage.getItem(key) || '[]') } catch { return [] }
-}
-
-function euro(n) {
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n)
 }
 
 // Función para convertir fecha string a formato local sin problemas de zona horaria
@@ -34,24 +31,29 @@ export async function getOverview(grupoId = null) {
     const txs = readLS(TX_KEY)
     if (import.meta.env.VITE_DEMO_EMPTY === 'true') return { stats: defaultStats(), pockets: [], categories: [] }
 
-    const incomes = txs.filter(t => t.type === 'income').reduce((a, b) => a + Number(b.amount), 0)
-    const expenses = txs.filter(t => t.type === 'expense').reduce((a, b) => a + Number(b.amount), 0)
+    // Sumar ingresos y gastos de las transacciones
+    const incomes = txs.filter(t => t.type === 'income').reduce((a, b) => a + Number(b.amount || 0), 0)
+    const expenses = txs.filter(t => t.type === 'expense').reduce((a, b) => a + Number(b.amount || 0), 0)
     const net = incomes - expenses
-    const totalBalance = pockets.reduce((sum, p) => sum + Number(p.balance || 0), 0)
+    
+    // Calcular balance total de los bolsillos
+    console.log('Pockets:', pockets) // Para debug
+    const totalBalance = pockets.reduce((sum, p) => sum + Number(p.balance || p.saldo || 0), 0)
+    console.log('Total Balance:', totalBalance) // Para debug
 
     const stats = [
-      { title: 'Balance Total', value: euro(totalBalance), icon: '👛' },
-      { title: 'Ingresos', value: euro(incomes), icon: '📈' },
-      { title: 'Gastos', value: euro(expenses), icon: '📉' },
-      { title: 'Balance Neto', value: euro(net), icon: '🎯' },
+      { title: 'Balance Total', value: totalBalance, icon: '👛' },
+      { title: 'Ingresos', value: incomes, icon: '📈' },
+      { title: 'Gastos', value: expenses, icon: '📉' },
+      { title: 'Balance Neto', value: net, icon: '🎯' },
     ]
 
-    const pocketCards = pockets.map(p => ({ name: p.name, amount: euro(p.balance || 0), color: p.color || colorForPocket(p.id) }))
+    const pocketCards = pockets.map(p => ({ name: p.name, amount: Number(p.balance || 0), color: p.color || colorForPocket(p.id) }))
 
     // categorías: suma por categoría sobre gastos
     const catMap = {}
     txs.filter(t => t.type === 'expense').forEach(t => { const k=t.category||'Otros'; catMap[k]=(catMap[k]||0)+Number(t.amount) })
-    const categories = Object.entries(catMap).map(([name, val]) => ({ name, amount: euro(val), percent: 100 }))
+    const categories = Object.entries(catMap).map(([name, val]) => ({ name, amount: val, percent: 100 }))
 
     return { stats, pockets: pocketCards, categories }
   }
@@ -65,30 +67,44 @@ export async function getOverview(grupoId = null) {
     api.get('/egresos/', { params }),
   ])
   
-  const pockets = (pocketsRes?.data || pocketsRes).map(p => ({
+  const pocketsData = pocketsRes?.data || pocketsRes;
+  const ingresosData = ingresosRes?.data || ingresosRes;
+  const egresosData = egresosRes?.data || egresosRes;
+
+  // Procesar bolsillos
+  const pockets = pocketsData.map(p => ({
     name: p.nombre ?? p.name,
-    amount: euro(Number(p.balance ?? p.saldo ?? 0)),
+    amount: Number(p.balance ?? p.saldo ?? 0),
     color: p.color || '#3b82f6',
   }))
-  const ingresos = (ingresosRes?.data || ingresosRes).reduce((a, b) => a + Number(b.monto ?? b.amount ?? 0), 0)
-  const egresos = (egresosRes?.data || egresosRes).reduce((a, b) => a + Number(b.monto ?? b.amount ?? 0), 0)
+
+  // Calcular totales
+  const ingresos = ingresosData.reduce((a, b) => a + Number(b.monto ?? b.amount ?? 0), 0)
+  const egresos = egresosData.reduce((a, b) => a + Number(b.monto ?? b.amount ?? 0), 0)
   const neto = ingresos - egresos
-  const totalBalance = (pocketsRes?.data || pocketsRes).reduce((s, p) => s + Number(p.balance ?? p.saldo ?? 0), 0)
+  const totalBalance = pocketsData.reduce((s, p) => s + Number(p.balance ?? p.saldo ?? 0), 0)
+
+  // Estadísticas
   const stats = [
-    { title: 'Balance Total', value: euro(totalBalance), icon: '👛' },
-    { title: 'Ingresos', value: euro(ingresos), icon: '📈' },
-    { title: 'Gastos', value: euro(egresos), icon: '📉' },
-    { title: 'Balance Neto', value: euro(neto), icon: '🎯' },
+    { title: 'Balance Total', value: totalBalance, icon: '👛' },
+    { title: 'Ingresos', value: ingresos, icon: '📈' },
+    { title: 'Gastos', value: egresos, icon: '📉' },
+    { title: 'Balance Neto', value: neto, icon: '🎯' },
   ]
 
   // categorías de egresos
   const catMap = {}
-  ;(egresosRes?.data || egresosRes).forEach(t => {
+  egresosData.forEach(t => {
     const k = t.categoria?.nombre ?? t.categoria ?? t.category ?? 'Otros'
     catMap[k] = (catMap[k] || 0) + Number(t.monto ?? t.amount ?? 0)
   })
   const totalCat = Object.values(catMap).reduce((a,b)=>a+b,0) || 1
-  const categories = Object.entries(catMap).map(([name, val]) => ({ name, amount: euro(val), percent: Math.round((val/totalCat)*100) }))
+  const categories = Object.entries(catMap).map(([name, val]) => ({ 
+    name, 
+    amount: val,
+    percent: Math.round((val/totalCat)*100) 
+  }))
+
   return { stats, pockets, categories }
 }
 

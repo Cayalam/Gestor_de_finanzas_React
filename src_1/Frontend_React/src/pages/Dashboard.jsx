@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useGroup } from '../context/GroupContext'
+import { useAuth } from '../context/AuthContext'
 import * as dashboardService from '../services/dashboard'
 import * as statsService from '../services/stats'
+import { formatCurrency } from '../utils/currency'
 import MonthlyComparisonChart from '../components/MonthlyComparisonChart'
 
-function StatCard({ title, value, icon, trend }) {
+function StatCard({ title, value: rawValue, icon, trend }) {
+  const { currency } = useAuth()
+  const value = typeof rawValue === 'string' ? rawValue : formatCurrency(Number(rawValue) || 0)
+  
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-6 flex items-center justify-between hover:shadow-xl transition-all duration-300 hover:scale-105 group">
       <div className="flex-1">
@@ -17,14 +22,17 @@ function StatCard({ title, value, icon, trend }) {
           </p>
         )}
       </div>
-  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white grid place-items-center text-3xl shadow-lg group-hover:scale-110 transition-transform">
+      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white grid place-items-center text-3xl shadow-lg group-hover:scale-110 transition-transform">
         {icon}
       </div>
     </div>
   )
 }
 
-function PocketItem({ name, amount, color }) {
+function PocketItem({ name, amount: rawAmount, color }) {
+  const { currency } = useAuth()
+  const amount = typeof rawAmount === 'string' ? rawAmount : formatCurrency(Number(rawAmount) || 0)
+  
   return (
     <div className="flex items-center justify-between bg-gradient-to-r from-white to-gray-50 rounded-xl border border-gray-100 p-4 hover:shadow-md transition-all duration-200 hover:scale-102">
       <div className="flex items-center gap-3">
@@ -38,7 +46,10 @@ function PocketItem({ name, amount, color }) {
   )
 }
 
-function CategoryBar({ name, amount, percent }) {
+function CategoryBar({ name, rawAmount, percent }) {
+  const { currency } = useAuth()
+  const amount = formatCurrency(rawAmount, currency)
+  
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -55,7 +66,10 @@ function CategoryBar({ name, amount, percent }) {
   )
 }
 
-function TxRow({ title, subtitle, amount, date, positive }) {
+function TxRow({ title, subtitle, rawAmount, date, positive }) {
+  const { currency } = useAuth()
+  const amount = formatCurrency(rawAmount, currency)
+  
   return (
     <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-3 rounded-lg transition-colors">
       <div className="flex items-center gap-3">
@@ -79,19 +93,42 @@ function TxRow({ title, subtitle, amount, date, positive }) {
 
 export default function Dashboard() {
   const { activeGroup, getActiveGroupInfo } = useGroup()
+  const { currency } = useAuth()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState(null)
   const [monthly, setMonthly] = useState([])
   const [monthsBack, setMonthsBack] = useState(6)
+  const [forceUpdate, setForceUpdate] = useState(0)
+
+  // Función para recargar los datos
+  const reloadData = () => {
+    console.log('Reloading dashboard data...')
+    setForceUpdate(prev => prev + 1)
+  }
 
   async function load() {
+    console.log('Loading dashboard data...')
+    setLoading(true)
     try {
+      // Obtener datos de la API
       const overview = await dashboardService.getOverview(activeGroup)
+      console.log('Dashboard Overview:', overview)
       const recent = await dashboardService.getRecentTransactions(activeGroup)
-  const monthlyData = await statsService.getMonthlyIncomeExpense(activeGroup, monthsBack)
-      setData({ ...overview, transactions: recent })
-      setMonthly(monthlyData)
-    } catch {
+      const monthlyData = await statsService.getMonthlyIncomeExpense(activeGroup, monthsBack)
+      
+      // Procesar y actualizar los datos
+      const processedData = { 
+        stats: overview.stats || [],
+        pockets: overview.pockets || [],
+        categories: overview.categories || [],
+        transactions: recent || []
+      }
+      console.log('Processed Dashboard Data:', processedData)
+      
+      setData(processedData)
+      setMonthly(monthlyData || [])
+    } catch (error) {
+      console.error('Error loading dashboard:', error)
       setData({ stats: [], pockets: [], categories: [], transactions: [] })
       setMonthly([])
     } finally {
@@ -150,13 +187,16 @@ export default function Dashboard() {
         </div>
       </div>
 
-  {/* Stats Cards */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 xl:gap-14 2xl:gap-16">
+      {/* Espaciador visual */}
+      <div className="w-full h-6"></div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 xl:gap-14 2xl:gap-16">
         {(data.stats && data.stats.length ? data.stats : [
-          { title: 'Balance Total', value: '0,00 €', icon: '👛' },
-          { title: 'Ingresos', value: '0,00 €', icon: '📈' },
-          { title: 'Gastos', value: '0,00 €', icon: '📉' },
-          { title: 'Balance Neto', value: '0,00 €', icon: '🎯' },
+          { title: 'Balance Total', value: 0, icon: '👛' },
+          { title: 'Ingresos', value: 0, icon: '📈' },
+          { title: 'Gastos', value: 0, icon: '📉' },
+          { title: 'Balance Neto', value: 0, icon: '🎯' },
         ]).map((s, i) => (
           <div key={i} className="slide-in" style={{ animationDelay: `${i * 0.1}s` }}>
             <StatCard title={s.title} value={s.value} icon={s.icon} trend={s.trend} />
@@ -164,8 +204,11 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Espaciador visual */}
+      <div className="w-full h-6"></div>
+
       {/* Pockets y Categories */}
-  <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-12 xl:gap-14 2xl:gap-16">
+      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-12 xl:gap-14 2xl:gap-16">
         {/* Bolsillos */}
   <div className="lg:col-span-2 xl:col-span-3 bg-white rounded-3xl border border-gray-100 p-10 xl:p-12 shadow-xl">
           <div className="flex items-center gap-3 mb-6">
@@ -211,8 +254,11 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Espaciador visual */}
+      <div className="w-full h-6"></div>
+
       {/* Comparativa Mensual */}
-  <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl">
+      <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
@@ -244,8 +290,11 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Espaciador visual */}
+      <div className="w-full h-6"></div>
+
       {/* Transacciones Recientes */}
-  <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl">
+      <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
             <span className="text-xl">🔁</span>
