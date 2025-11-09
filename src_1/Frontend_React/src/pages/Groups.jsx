@@ -337,156 +337,286 @@ export default function Groups() {
   }
 
   return (
-    <div className="px-2 md:px-0">
-      <div className="flex items-center justify-between py-4">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold">Grupos</h2>
-          <p className="text-sm text-gray-600">Comparte tus finanzas con otros usuarios</p>
-        </div>
-        <button onClick={() => setOpen(true)} className="btn btn-primary">+ Nuevo Grupo</button>
-      </div>
-
-      {open && (
-        <div className="card p-5 mb-6">
-          <h3 className="text-lg font-semibold mb-4">
-            {editingGroup ? 'Editar Grupo' : 'Nuevo Grupo'}
-          </h3>
-          <form onSubmit={save} className="grid grid-cols-1 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Nombre del grupo</label>
-              <input value={form.nombre} onChange={(e)=>setForm({...form, nombre: e.target.value})} className="input" placeholder="Ej: Familia, Amigos, Compañeros..." />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Descripción</label>
-              <input value={form.descripcion} onChange={(e)=>setForm({...form, descripcion: e.target.value})} className="input" placeholder="Opcional" />
-            </div>
-
-            {/* Sección para agregar miembros - Solo al crear */}
-            {!editingGroup && (
-              <div className="border-t pt-4">
-                <label className="block text-sm font-medium mb-3">Agregar miembros (opcional)</label>
-                <p className="text-xs text-gray-500 mb-3">Serás agregado automáticamente como administrador del grupo</p>
-                <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                <div className="grid grid-cols-12 gap-2">
-                  <input
-                    type="email"
-                    value={memberEmail}
-                    onChange={(e) => setMemberEmail(e.target.value)}
-                    placeholder="correo@ejemplo.com"
-                    className="input col-span-7"
-                  />
-                  <select
-                    value={memberRole}
-                    onChange={(e) => setMemberRole(e.target.value)}
-                    className="input col-span-2 text-sm"
-                  >
-                    <option value="miembro">Miembro</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                  <button
-                    type="button"
-                    onClick={addMemberToList}
-                    className="btn btn-primary col-span-3 whitespace-nowrap"
-                  >
-                    + Agregar
-                  </button>
-                </div>
-                
-                {createError && <div className="text-red-600 text-sm">{createError}</div>}
-                
-                {/* Lista de miembros agregados */}
-                {newMembers.length > 0 && (
-                  <div className="space-y-2 mt-3">
-                    <div className="text-sm font-medium">Miembros a agregar:</div>
-                    {newMembers.map((member) => (
-                      <div key={member.email} className="flex items-center justify-between p-2 bg-white border rounded">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">{member.email}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded ${member.rol === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
-                            {member.rol}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeMemberFromList(member.email)}
-                          className="text-red-600 hover:text-red-800 text-sm"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+    <div className="px-2 md:px-0 space-y-6 fade-in">
+      {/* Header con gradiente */}
+      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 text-white rounded-2xl p-8 shadow-xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <span className="text-3xl">👥</span>
+              </div>
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold">Grupos</h2>
+                <p className="text-purple-100 text-sm md:text-base">Comparte finanzas con otros</p>
               </div>
             </div>
-            )}
+          </div>
+          <button
+            onClick={() => setOpen(true)}
+            className="bg-white text-purple-600 hover:bg-purple-50 font-bold px-6 py-3 rounded-xl transition-all hover:shadow-xl hover:scale-105 flex items-center gap-2"
+          >
+            <span className="text-xl">＋</span>
+            <span className="hidden md:inline">Nuevo Grupo</span>
+          </button>
+        </div>
+      </div>
 
-            <div className="flex items-center justify-end gap-3">
-              <button type="button" onClick={cancelEdit} className="btn">Cancelar</button>
-              <button disabled={!canSave} className="btn btn-primary">
-                {editingGroup ? 'Actualizar' : 'Crear'}
+      {/* Formulario de creación/edición */}
+      {open && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg scale-in">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+              <span className="text-2xl">👥</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                {editingGroup ? 'Editar Grupo' : 'Nuevo Grupo'}
+              </h3>
+              <p className="text-sm text-gray-500">Gestiona tu grupo de finanzas</p>
+            </div>
+          </div>
+
+          <form onSubmit={save} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Nombre del Grupo <span className="text-red-500">*</span>
+                </label>
+                <input
+                  value={form.nombre}
+                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                  className="input"
+                  placeholder="Ej: Familia, Amigos, Compañeros..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Descripción</label>
+                <input
+                  value={form.descripcion}
+                  onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+                  className="input"
+                  placeholder="Opcional - describe el propósito del grupo"
+                />
+              </div>
+
+              {/* Sección para agregar miembros - Solo al crear */}
+              {!editingGroup && (
+                <div className="border-t pt-6">
+                  <label className="block text-sm font-bold text-gray-700 mb-3">
+                    Agregar Miembros (opcional)
+                  </label>
+                  <p className="text-sm p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 mb-4">
+                    💡 Serás agregado automáticamente como administrador del grupo
+                  </p>
+                  <div className="bg-gray-50 p-5 rounded-xl space-y-4">
+                    <div className="grid grid-cols-12 gap-3">
+                      <input
+                        type="email"
+                        value={memberEmail}
+                        onChange={(e) => setMemberEmail(e.target.value)}
+                        placeholder="correo@ejemplo.com"
+                        className="input col-span-7"
+                      />
+                      <select
+                        value={memberRole}
+                        onChange={(e) => setMemberRole(e.target.value)}
+                        className="input col-span-2 text-sm"
+                      >
+                        <option value="miembro">Miembro</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={addMemberToList}
+                        className="btn btn-primary col-span-3 whitespace-nowrap"
+                      >
+                        ➕ Agregar
+                      </button>
+                    </div>
+
+                    {createError && (
+                      <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-lg">
+                        <div className="flex items-center">
+                          <span className="text-red-500 mr-2">⚠️</span>
+                          <p className="text-sm text-red-700 font-medium">{createError}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Lista de miembros agregados */}
+                    {newMembers.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-sm font-bold text-gray-700">Miembros a agregar:</div>
+                        {newMembers.map((member) => (
+                          <div
+                            key={member.email}
+                            className="flex items-center justify-between p-3 bg-white border-2 border-gray-200 rounded-xl hover:shadow-md transition-all"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                                <span className="text-white text-sm">👤</span>
+                              </div>
+                              <div>
+                                <span className="text-sm font-medium">{member.email}</span>
+                                <span
+                                  className={`ml-2 text-xs px-2 py-1 rounded-lg ${
+                                    member.rol === 'admin'
+                                      ? 'bg-blue-100 text-blue-700 font-semibold'
+                                      : 'bg-gray-100 text-gray-700'
+                                  }`}
+                                >
+                                  {member.rol}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeMemberFromList(member.email)}
+                              className="text-red-600 hover:text-red-800 font-bold px-3 py-1 hover:bg-red-50 rounded-lg transition-all"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t">
+              <button type="button" onClick={cancelEdit} className="btn btn-ghost">
+                Cancelar
+              </button>
+              <button
+                disabled={!canSave}
+                className={`btn btn-primary ${!canSave ? 'opacity-60 cursor-not-allowed' : ''}`}
+              >
+                {editingGroup ? '💾 Actualizar' : '✨ Crear Grupo'}
               </button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="bg-white rounded-xl border">
-        <div className="px-4 py-3 border-b flex items-center justify-between">
-          <div className="text-sm font-medium">Listado</div>
-          {loading && <div className="text-sm text-gray-500">Cargando…</div>}
+      {/* Lista de Grupos */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+        <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📋</span>
+            <h3 className="font-bold text-gray-900">Mis Grupos</h3>
+          </div>
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-purple-600">
+              <div className="spinner w-4 h-4"></div>
+              <span>Cargando…</span>
+            </div>
+          )}
         </div>
-        <div className="p-4 space-y-3">
-          {items?.length ? items.map(g => (
-            <div key={g.id} className="border rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">{g.nombre || g.name}</div>
-                  {g.descripcion && <div className="text-xs text-gray-500">{g.descripcion}</div>}
+        <div className="p-6 space-y-4">
+          {items?.length ? (
+            items.map((g) => (
+              <div
+                key={g.id}
+                className="relative group border-2 border-gray-100 rounded-2xl p-6 transition-all hover:shadow-xl hover:scale-105 hover:border-purple-200 bg-gradient-to-br from-white to-gray-50"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <span className="text-2xl">👥</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold text-gray-900 text-lg mb-1">
+                        {g.nombre || g.name}
+                      </div>
+                      {g.descripcion && (
+                        <div className="text-sm text-gray-500">{g.descripcion}</div>
+                      )}
+                      {userRoles[g.id || g.grupo_id] === 'admin' && (
+                        <div className="mt-2">
+                          <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-blue-100 text-blue-700 font-semibold">
+                            👑 Administrador
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <button onClick={()=>openMembersModal(g)} className="text-blue-600 hover:underline text-sm">
-                    👥 Ver miembros
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-200 flex-wrap">
+                  <button
+                    onClick={() => openMembersModal(g)}
+                    className="flex-1 min-w-[140px] px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold rounded-xl transition-all hover:shadow-md"
+                  >
+                    👥 Ver Miembros
                   </button>
                   {/* Solo mostrar opciones de gestión si el usuario es admin del grupo */}
                   {userRoles[g.id || g.grupo_id] === 'admin' && (
                     <>
-                      <button onClick={()=>openMembersModal(g)} className="text-purple-600 hover:underline text-sm">
-                        ➕ Agregar miembros
-                      </button>
-                      <button onClick={()=>openEditForm(g)} className="text-green-600 hover:underline text-sm">
+                      <button
+                        onClick={() => openEditForm(g)}
+                        className="flex-1 min-w-[100px] px-4 py-2 bg-green-50 hover:bg-green-100 text-green-600 font-semibold rounded-xl transition-all hover:shadow-md"
+                      >
                         ✏️ Editar
                       </button>
-                      <button onClick={()=>remove(g.id)} className="text-red-600 hover:underline text-sm">
+                      <button
+                        onClick={() => remove(g.id)}
+                        className="flex-1 min-w-[100px] px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition-all hover:shadow-md"
+                      >
                         🗑️ Eliminar
                       </button>
                     </>
                   )}
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">👥</div>
+              <p className="text-gray-500 font-medium">No tienes grupos creados</p>
+              <p className="text-sm text-gray-400 mt-2">
+                Crea tu primer grupo para compartir finanzas
+              </p>
             </div>
-          )) : <div className="text-sm text-gray-500">No tienes grupos creados.</div>}
+          )}
         </div>
       </div>
 
       {/* Modal de miembros */}
       {selectedGroup && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="card p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">
-                Miembros de "{selectedGroup.nombre || selectedGroup.name}"
-              </h3>
-              <button onClick={closeMembersModal} className="text-gray-500 hover:text-gray-700">
-                ✕
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 scale-in">
+          <div className="bg-white rounded-2xl p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                  <span className="text-2xl">👥</span>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Miembros de "{selectedGroup.nombre || selectedGroup.name}"
+                  </h3>
+                  <p className="text-sm text-gray-500">Gestiona el equipo</p>
+                </div>
+              </div>
+              <button
+                onClick={closeMembersModal}
+                className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-all"
+              >
+                <span className="text-xl text-gray-600">✕</span>
               </button>
             </div>
 
             {/* Formulario para agregar usuario - Solo para admins */}
             {isAdmin && (
-              <form onSubmit={addUserByEmail} className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <label className="block text-sm font-medium mb-2">Agregar usuario por email</label>
-                <div className="grid grid-cols-12 gap-2">
+              <form
+                onSubmit={addUserByEmail}
+                className="mb-6 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-200"
+              >
+                <label className="block text-sm font-bold text-gray-700 mb-3">
+                  Agregar Usuario por Email
+                </label>
+                <div className="grid grid-cols-12 gap-3">
                   <input
                     type="email"
                     value={emailToAdd}
@@ -504,64 +634,106 @@ export default function Groups() {
                     <option value="miembro">Miembro</option>
                     <option value="admin">Admin</option>
                   </select>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={!emailToAdd.trim() || addingUser}
-                    className="btn btn-primary col-span-3 whitespace-nowrap"
+                    className={`btn btn-primary col-span-3 whitespace-nowrap ${
+                      !emailToAdd.trim() || addingUser ? 'opacity-60 cursor-not-allowed' : ''
+                    }`}
                   >
-                    {addingUser ? 'Agregando...' : 'Agregar'}
+                    {addingUser ? '⏳ Agregando...' : '➕ Agregar'}
                   </button>
                 </div>
-                {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
-                {success && <div className="text-green-600 text-sm mt-2">{success}</div>}
+                {error && (
+                  <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-lg mt-3">
+                    <div className="flex items-center">
+                      <span className="text-red-500 mr-2">⚠️</span>
+                      <p className="text-sm text-red-700 font-medium">{error}</p>
+                    </div>
+                  </div>
+                )}
+                {success && (
+                  <div className="bg-green-50 border-l-4 border-green-500 p-3 rounded-lg mt-3">
+                    <div className="flex items-center">
+                      <span className="text-green-500 mr-2">✅</span>
+                      <p className="text-sm text-green-700 font-medium">{success}</p>
+                    </div>
+                  </div>
+                )}
               </form>
             )}
 
             {/* Mensaje para no admins */}
             {!isAdmin && (
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-700">
-                  ℹ️ Solo los administradores del grupo pueden agregar nuevos miembros
-                </p>
+              <div className="mb-6 p-4 bg-blue-50 rounded-2xl border border-blue-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">ℹ️</span>
+                  <p className="text-sm text-blue-700 font-medium">
+                    Solo los administradores del grupo pueden agregar nuevos miembros
+                  </p>
+                </div>
               </div>
             )}
 
             {/* Lista de miembros */}
             <div>
-              <h4 className="text-sm font-medium mb-3">Miembros actuales</h4>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-lg">👤</span>
+                <h4 className="text-lg font-bold text-gray-900">Miembros Actuales</h4>
+              </div>
               {loadingMembers ? (
-                <div className="text-sm text-gray-500">Cargando miembros...</div>
+                <div className="flex items-center justify-center py-12">
+                  <div className="spinner w-8 h-8"></div>
+                  <span className="ml-3 text-gray-500">Cargando miembros...</span>
+                </div>
               ) : members.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {members.map((member) => (
-                    <div key={member.usuario_id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <div className="font-medium">{member.nombre || member.email}</div>
-                          {member.es_creador && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-700 font-medium">
-                              👑 Creador
-                            </span>
-                          )}
+                    <div
+                      key={member.usuario_id}
+                      className="flex items-center justify-between p-4 border-2 border-gray-100 rounded-2xl hover:shadow-lg hover:border-purple-200 transition-all bg-gradient-to-br from-white to-gray-50"
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
+                          <span className="text-white text-xl">👤</span>
                         </div>
-                        <div className="text-xs text-gray-500">{member.email}</div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="font-bold text-gray-900">
+                              {member.nombre || member.email}
+                            </div>
+                            {member.es_creador && (
+                              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-purple-100 text-purple-700 font-bold">
+                                👑 Creador
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500">{member.email}</div>
+                        </div>
                       </div>
                       {/* Si es admin y no es creador, mostrar selector de rol */}
                       {isAdmin && !member.es_creador ? (
                         <select
                           value={member.rol}
                           onChange={(e) => changeUserRole(member, e.target.value)}
-                          className="text-xs px-2 py-1 rounded border cursor-pointer"
+                          className="text-sm px-3 py-2 rounded-xl border-2 font-semibold cursor-pointer transition-all hover:shadow-md"
                           style={{
                             backgroundColor: member.rol === 'admin' ? '#DBEAFE' : '#F3F4F6',
-                            color: member.rol === 'admin' ? '#1E40AF' : '#374151'
+                            color: member.rol === 'admin' ? '#1E40AF' : '#374151',
+                            borderColor: member.rol === 'admin' ? '#3B82F6' : '#D1D5DB',
                           }}
                         >
                           <option value="miembro">Miembro</option>
                           <option value="admin">Admin</option>
                         </select>
                       ) : (
-                        <span className={`text-xs px-2 py-1 rounded ${member.rol === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
+                        <span
+                          className={`text-sm px-3 py-2 rounded-xl font-semibold ${
+                            member.rol === 'admin'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-gray-100 text-gray-700'
+                          }`}
+                        >
                           {member.rol}
                         </span>
                       )}
@@ -569,12 +741,20 @@ export default function Groups() {
                   ))}
                 </div>
               ) : (
-                <div className="text-sm text-gray-500">No hay miembros en este grupo aún.</div>
+                <div className="text-center py-12">
+                  <div className="text-5xl mb-3">👥</div>
+                  <p className="text-gray-500 font-medium">No hay miembros en este grupo aún</p>
+                </div>
               )}
             </div>
 
-            <div className="mt-6 flex justify-end">
-              <button onClick={closeMembersModal} className="btn">Cerrar</button>
+            <div className="mt-6 flex justify-end pt-4 border-t">
+              <button
+                onClick={closeMembersModal}
+                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
+              >
+                Cerrar
+              </button>
             </div>
           </div>
         </div>

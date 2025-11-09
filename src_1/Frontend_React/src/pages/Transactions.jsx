@@ -21,14 +21,32 @@ function formatLocalDate(dateString) {
 
 function ToggleType({ value, onChange }) {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <button type="button" onClick={() => onChange('income')} className={`border rounded-xl p-6 text-center ${value==='income' ? 'border-green-500 bg-green-50' : ''}`}>
-        <div className="text-2xl mb-2">↗️</div>
-        <div className="font-medium">Ingreso</div>
+    <div className="grid grid-cols-2 gap-3">
+      <button
+        type="button"
+        onClick={() => onChange('income')}
+        className={`relative overflow-hidden border-2 rounded-xl p-6 text-center transition-all duration-300 ${
+          value === 'income'
+            ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 shadow-lg scale-105'
+            : 'border-gray-200 bg-white hover:border-green-300 hover:shadow-md'
+        }`}
+      >
+        <div className="text-4xl mb-2">📈</div>
+        <div className="font-bold text-lg">Ingreso</div>
+        <div className="text-xs text-gray-500 mt-1">Dinero que entra</div>
       </button>
-      <button type="button" onClick={() => onChange('expense')} className={`border rounded-xl p-6 text-center ${value==='expense' ? 'border-red-500 bg-red-50' : ''}`}>
-        <div className="text-2xl mb-2">↙️</div>
-        <div className="font-medium">Gasto</div>
+      <button
+        type="button"
+        onClick={() => onChange('expense')}
+        className={`relative overflow-hidden border-2 rounded-xl p-6 text-center transition-all duration-300 ${
+          value === 'expense'
+            ? 'border-red-500 bg-gradient-to-br from-red-50 to-pink-50 shadow-lg scale-105'
+            : 'border-gray-200 bg-white hover:border-red-300 hover:shadow-md'
+        }`}
+      >
+        <div className="text-4xl mb-2">📉</div>
+        <div className="font-bold text-lg">Gasto</div>
+        <div className="text-xs text-gray-500 mt-1">Dinero que sale</div>
       </button>
     </div>
   )
@@ -303,82 +321,132 @@ export default function Transactions() {
     }
   }
   return (
-    <div className="px-2 md:px-0">
-      <div className="flex items-center justify-between py-4">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold">Transacciones</h2>
-          <p className="text-sm text-gray-600">Gestiona tus ingresos y gastos</p>
-        </div>
-        <div className="flex gap-2">
-          {!activeGroup && groups.length > 0 && (
+    <div className="space-y-6 fade-in">
+      {/* Header con gradiente */}
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-2">Transacciones</h2>
+            <p className="text-indigo-100 text-lg">Gestiona tus ingresos y gastos</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {!activeGroup && groups.length > 0 && (
+              <button
+                onClick={() => setOpenContribution(true)}
+                className="btn bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 flex items-center gap-2"
+              >
+                <span>💰</span>
+                <span>Aportar al Grupo</span>
+              </button>
+            )}
+            {activeGroup && pockets.length > 1 && (
+              <button
+                onClick={() => setOpenTransfer(true)}
+                className="btn bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 flex items-center gap-2"
+              >
+                <span>🔄</span>
+                <span>Transferir</span>
+              </button>
+            )}
             <button
-              onClick={() => setOpenContribution(true)}
-              className="btn bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+              onClick={() => setOpen(true)}
+              className="btn bg-white text-indigo-600 hover:bg-gray-50 shadow-lg flex items-center gap-2 font-bold"
             >
-              <span>💰</span>
-              <span className="hidden md:inline">Aportar al Grupo</span>
+              <span className="text-xl">＋</span>
+              <span>Nueva Transacción</span>
             </button>
-          )}
-          {activeGroup && pockets.length > 1 && (
-            <button
-              onClick={() => setOpenTransfer(true)}
-              className="btn bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
-            >
-              <span>🔄</span>
-              <span className="hidden md:inline">Transferir</span>
-            </button>
-          )}
-          <button onClick={() => setOpen(true)} className="btn btn-primary flex items-center gap-2">
-            <span>＋</span>
-            <span>Nueva Transacción</span>
-          </button>
+          </div>
         </div>
       </div>
 
+      {/* Formulario de nueva transacción */}
       {open && (
-        <div className="card p-5 mb-6">
-          <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium mb-2">Tipo de Transacción</label>
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg scale-in">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <span className="text-2xl">📝</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                {form.id ? 'Editar Transacción' : 'Nueva Transacción'}
+              </h3>
+              <p className="text-sm text-gray-500">Registra un ingreso o gasto</p>
+            </div>
+          </div>
+          
+          <form onSubmit={submit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-3">Tipo de Transacción</label>
               <ToggleType value={form.type} onChange={(t) => setForm({ ...form, type: t })} />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Cantidad</label>
-              <div className="flex items-center">
-                <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">€</span>
-                <input name="amount" value={form.amount} onChange={onChange} type="number" step="0.01" placeholder="0.00" className="input rounded-r-lg" />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Cantidad <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">€</span>
+                  <input
+                    name="amount"
+                    value={form.amount}
+                    onChange={onChange}
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    className="input pl-10 text-lg font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Fecha <span className="text-red-500">*</span>
+                </label>
+                <input name="date" value={form.date} onChange={onChange} type="date" className="input" />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Fecha</label>
-              <input name="date" value={form.date} onChange={onChange} type="date" className="input" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Categoría <span className="text-red-500">*</span>
+                </label>
+                {categoriesByType.length ? (
+                  <select name="category" value={form.category} onChange={onChange} className="input">
+                    <option value="">Seleccionar categoría</option>
+                    {categoriesByType.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-800">
+                    No hay categorías de {form.type === 'income' ? 'ingreso' : 'gasto'}.{' '}
+                    <Link to="/categories" className="font-semibold underline">Crea una</Link>.
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Bolsillo <span className="text-red-500">*</span>
+                </label>
+                {pockets.length ? (
+                  <select name="pocket" value={form.pocket} onChange={onChange} className="input">
+                    <option value="">Seleccionar bolsillo</option>
+                    {pockets.map(p => <option key={p.id} value={p.id}>{p.name || p.nombre}</option>)}
+                  </select>
+                ) : (
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-800">
+                    No hay bolsillos creados.{' '}
+                    <Link to="/pockets" className="font-semibold underline">Crea uno</Link>.
+                  </div>
+                )}
+              </div>
             </div>
+
             <div>
-              <label className="block text-sm font-medium mb-2">Categoría</label>
-              {categoriesByType.length ? (
-                <select name="category" value={form.category} onChange={onChange} className="input">
-                  <option value="">Seleccionar categoría</option>
-                  {categoriesByType.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-              ) : (
-                <div className="text-sm text-gray-600">No hay categorías de {form.type === 'income' ? 'ingreso' : 'gasto'}. <Link to="/categories" className="text-blue-600 hover:underline">Crea una</Link>.</div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Bolsillo</label>
-              {pockets.length ? (
-                <select name="pocket" value={form.pocket} onChange={onChange} className="input">
-                  <option value="">Seleccionar bolsillo</option>
-                  {pockets.map(p => <option key={p.id} value={p.id}>{p.name || p.nombre}</option>)}
-                </select>
-              ) : (
-                <div className="text-sm text-gray-600">No hay bolsillos creados. <Link to="/pockets" className="text-blue-600 hover:underline">Crea uno</Link>.</div>
-              )}
-            </div>
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium mb-2">Descripción</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Descripción</label>
               <input
                 name="description"
                 value={form.description}
@@ -388,52 +456,148 @@ export default function Transactions() {
                 className="input"
               />
             </div>
-            {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
-            <div className="lg:col-span-2 flex items-center justify-end gap-3">
-              <button type="button" onClick={() => { setOpen(false); setForm({ id: null, type: 'expense', amount: '', date: new Date().toISOString().slice(0,10), category: '', pocket: '', description: '' }); setError(''); }} className="btn">Cancelar</button>
-              <button disabled={!canSave} className="btn btn-primary" type="submit">{form.id ? 'Actualizar transacción' : 'Guardar'}</button>
+
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                <div className="flex items-center">
+                  <span className="text-red-500 mr-2">⚠️</span>
+                  <p className="text-sm text-red-700 font-medium">{error}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t">
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false)
+                  setForm({ id: null, type: 'expense', amount: '', date: new Date().toISOString().slice(0,10), category: '', pocket: '', description: '' })
+                  setError('')
+                }}
+                className="btn btn-ghost"
+              >
+                Cancelar
+              </button>
+              <button disabled={!canSave} className="btn btn-primary" type="submit">
+                {form.id ? '💾 Actualizar' : '✨ Guardar'}
+              </button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="card">
-        <div className="px-4 py-3 border-b flex items-center justify-between">
-          <div className="text-sm font-medium">Historial</div>
-          {loading && <div className="text-sm text-gray-500">Cargando…</div>}
+      {/* Tabla de transacciones */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+              <span className="text-xl">📋</span>
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">Historial de Transacciones</h3>
+              <p className="text-xs text-gray-500">{items.length} transacciones registradas</p>
+            </div>
+          </div>
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="spinner border-indigo-500"></div>
+              <span>Cargando...</span>
+            </div>
+          )}
         </div>
         {items.length ? (
-          <ul className="divide-y">
+          <div className="divide-y divide-gray-100">
             {items.map(it => (
-              <li key={it.id} className="px-4 py-3 flex items-center justify-between">
-                <div>
-                  <div className="font-medium">{it.description || (it.type==='income' ? 'Ingreso' : 'Gasto')}</div>
-                  <div className="text-xs text-gray-500">{it.category || it.categoria?.nombre || 'Sin categoría'} • {it.pocket || it.bolsillo?.nombre || 'Sin bolsillo'} • {formatLocalDate(it.date || it.fecha)}</div>
+              <div
+                key={it.id}
+                className="px-6 py-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-4"
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    it.type === 'income'
+                      ? 'bg-gradient-to-br from-green-100 to-emerald-100'
+                      : 'bg-gradient-to-br from-red-100 to-pink-100'
+                  }`}>
+                    <span className="text-2xl">{it.type === 'income' ? '📈' : '📉'}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-gray-900 truncate">
+                      {it.description || (it.type === 'income' ? 'Ingreso' : 'Gasto')}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                      <span className="px-2 py-0.5 bg-gray-100 rounded-full">
+                        {it.category || it.categoria?.nombre || 'Sin categoría'}
+                      </span>
+                      <span>•</span>
+                      <span>{it.pocket || it.bolsillo?.nombre || 'Sin bolsillo'}</span>
+                      <span>•</span>
+                      <span>{formatLocalDate(it.date || it.fecha)}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className={`${it.type==='income' ? 'text-green-600' : 'text-red-600'} font-semibold`}>{it.type==='income' ? '+' : '-'}€ {Number(it.amount).toFixed(2)}</div>
-                  <button onClick={() => startEdit(it)} className="text-blue-600 hover:underline text-sm">Editar</button>
-                  <button onClick={() => setConfirmDelete(it)} className="text-red-600 hover:underline text-sm">Eliminar</button>
+                <div className="flex items-center gap-3">
+                  <div className={`text-xl font-bold ${
+                    it.type === 'income' ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {it.type === 'income' ? '+' : '-'}€{Number(it.amount).toFixed(2)}
+                  </div>
+                  <button
+                    onClick={() => startEdit(it)}
+                    className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(it)}
+                    className="px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    🗑️
+                  </button>
                 </div>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
-          <div className="px-4 py-8 text-sm text-gray-500">Aún no hay transacciones registradas.</div>
+          <div className="px-6 py-16 text-center">
+            <div className="text-6xl mb-4">📋</div>
+            <p className="text-lg font-semibold text-gray-900 mb-2">Aún no hay transacciones</p>
+            <p className="text-sm text-gray-500">Comienza registrando tu primera transacción</p>
+          </div>
         )}
       </div>
 
-  {/* Modal de confirmación de eliminación */}
+      {/* Modal de confirmación de eliminación */}
       {confirmDelete && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="card p-6 max-w-sm mx-4">
-            <div className="text-lg font-semibold mb-2">Confirmar eliminación</div>
-            <div className="text-sm text-gray-700 mb-4">
-              ¿Eliminar esta transacción de {confirmDelete.type === 'income' ? 'ingreso' : 'gasto'} por €{Number(confirmDelete.amount).toFixed(2)}? Esta acción no se puede deshacer.
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 scale-in">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🗑️</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Confirmar eliminación</h3>
+              <p className="text-gray-600">
+                ¿Eliminar esta transacción de{' '}
+                <span className="font-semibold">
+                  {confirmDelete.type === 'income' ? 'ingreso' : 'gasto'}
+                </span>{' '}
+                por{' '}
+                <span className="font-bold text-red-600">€{Number(confirmDelete.amount).toFixed(2)}</span>?
+              </p>
+              <p className="text-sm text-gray-500 mt-2">Esta acción no se puede deshacer.</p>
             </div>
-            <div className="flex justify-end gap-3">
-              <button className="btn" onClick={() => setConfirmDelete(null)}>Cancelar</button>
-              <button className="btn btn-danger" onClick={remove}>Eliminar</button>
+            <div className="flex gap-3">
+              <button
+                className="btn btn-ghost flex-1"
+                onClick={() => setConfirmDelete(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-danger flex-1"
+                onClick={remove}
+              >
+                Eliminar
+              </button>
             </div>
           </div>
         </div>

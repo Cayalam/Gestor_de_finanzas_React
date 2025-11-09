@@ -8,9 +8,18 @@ const COLORS = [
 
 function ColorPicker({ value, onChange }) {
   return (
-    <div className="flex flex-wrap gap-4">
-      {COLORS.map(c => (
-        <button key={c} type="button" onClick={() => onChange(c)} className={`w-10 h-10 rounded-md border-2 ${value===c ? 'border-gray-600' : 'border-gray-300'}`} style={{ background: c }} />
+    <div className="flex flex-wrap gap-3">
+      {COLORS.map((c) => (
+        <button
+          key={c}
+          type="button"
+          onClick={() => onChange(c)}
+          className={`w-14 h-14 rounded-xl border-4 shadow-md transition-all hover:scale-110 ${
+            value === c ? 'border-white ring-4 ring-indigo-500 scale-110' : 'border-gray-200'
+          }`}
+          style={{ background: c }}
+          aria-label={`Color ${c}`}
+        />
       ))}
     </div>
   )
@@ -19,13 +28,31 @@ function ColorPicker({ value, onChange }) {
 function TypeToggle({ value, onChange }) {
   return (
     <div className="grid grid-cols-2 gap-4">
-      <button type="button" onClick={() => onChange('income')} className={`border rounded-xl p-6 text-center ${value==='income' ? 'border-green-500 bg-green-50' : ''}`}>
-        <div className="text-2xl mb-2">↗️</div>
-        <div className="font-medium">Ingreso</div>
+      <button
+        type="button"
+        onClick={() => onChange('income')}
+        className={`border-2 rounded-2xl p-6 text-center transition-all transform hover:scale-105 ${
+          value === 'income'
+            ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 shadow-lg scale-105'
+            : 'border-gray-200 hover:border-green-300 hover:shadow-md'
+        }`}
+      >
+        <div className="text-4xl mb-2">📈</div>
+        <div className="font-bold text-gray-900">Ingreso</div>
+        <div className="text-xs text-gray-500 mt-1">Dinero que entra</div>
       </button>
-      <button type="button" onClick={() => onChange('expense')} className={`border rounded-xl p-6 text-center ${value==='expense' ? 'border-red-500 bg-red-50' : ''}`}>
-        <div className="text-2xl mb-2">↙️</div>
-        <div className="font-medium">Gasto</div>
+      <button
+        type="button"
+        onClick={() => onChange('expense')}
+        className={`border-2 rounded-2xl p-6 text-center transition-all transform hover:scale-105 ${
+          value === 'expense'
+            ? 'border-red-500 bg-gradient-to-br from-red-50 to-rose-50 shadow-lg scale-105'
+            : 'border-gray-200 hover:border-red-300 hover:shadow-md'
+        }`}
+      >
+        <div className="text-4xl mb-2">📉</div>
+        <div className="font-bold text-gray-900">Gasto</div>
+        <div className="text-xs text-gray-500 mt-1">Dinero que sale</div>
       </button>
     </div>
   )
@@ -33,17 +60,33 @@ function TypeToggle({ value, onChange }) {
 
 function CatRow({ it, onDelete, onEdit }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3 border rounded-lg bg-white">
-      <div className="flex items-center gap-3">
-        <div className="w-6 h-6 rounded-md" style={{ background: it.color }} />
+    <div className="group flex items-center justify-between px-5 py-4 border-2 border-gray-100 rounded-2xl bg-gradient-to-br from-white to-gray-50 transition-all hover:shadow-lg hover:scale-105 hover:border-indigo-200">
+      <div className="flex items-center gap-4">
+        <div
+          className="w-12 h-12 rounded-2xl shadow-md group-hover:scale-110 transition-transform"
+          style={{ background: it.color }}
+        />
         <div>
-          <div className="font-medium">{it.name}</div>
-          <div className="text-xs text-gray-500">{it.type === 'income' ? 'Ingreso' : 'Gasto'}</div>
+          <div className="font-bold text-gray-900 text-lg">{it.name}</div>
+          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+            <span>{it.type === 'income' ? '📈' : '📉'}</span>
+            <span className="font-medium">{it.type === 'income' ? 'Ingreso' : 'Gasto'}</span>
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <button onClick={() => onEdit && onEdit(it)} className="btn btn-ghost text-sm">Editar</button>
-        <button onClick={() => onDelete && onDelete(it.id)} className="btn btn-danger text-sm">Eliminar</button>
+        <button
+          onClick={() => onEdit && onEdit(it)}
+          className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold rounded-xl transition-all hover:shadow-md"
+        >
+          ✏️ Editar
+        </button>
+        <button
+          onClick={() => onDelete && onDelete(it.id)}
+          className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition-all hover:shadow-md"
+        >
+          🗑️
+        </button>
       </div>
     </div>
   )
@@ -112,73 +155,187 @@ export default function Categories() {
   const expense = items.filter(i => i.type === 'expense')
 
   return (
-    <div className="px-2 md:px-0">
-      <div className="flex items-center justify-between py-4">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold">Categorías</h2>
-          <p className="text-sm text-gray-600">Organiza tus transacciones por categorías</p>
+    <div className="px-2 md:px-0 space-y-6 fade-in">
+      {/* Header con gradiente */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-2xl p-8 shadow-xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <span className="text-3xl">🏷️</span>
+              </div>
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold">Categorías</h2>
+                <p className="text-indigo-100 text-sm md:text-base">Organiza tus transacciones</p>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setOpen(true)}
+            className="bg-white text-indigo-600 hover:bg-indigo-50 font-bold px-6 py-3 rounded-xl transition-all hover:shadow-xl hover:scale-105 flex items-center gap-2"
+          >
+            <span className="text-xl">＋</span>
+            <span className="hidden md:inline">Nueva Categoría</span>
+          </button>
         </div>
-        <button onClick={() => setOpen(true)} className="btn btn-primary flex items-center gap-2">
-          <span>＋</span>
-          <span>Nueva Categoría</span>
-        </button>
       </div>
 
-      {open ? (
-        <div className="card p-5 mb-6">
-          <form onSubmit={save} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">Nombre de la Categoría</label>
-              <input value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} placeholder="Ej: Alimentación, Transporte..." className="input" />
+      {/* Formulario */}
+      {open && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg scale-in">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <span className="text-2xl">🏷️</span>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Tipo</label>
-              <TypeToggle value={form.type} onChange={(v)=>setForm({...form, type: v})} />
+              <h3 className="text-2xl font-bold text-gray-900">
+                {form.id ? 'Editar Categoría' : 'Nueva Categoría'}
+              </h3>
+              <p className="text-sm text-gray-500">Clasifica tus movimientos</p>
             </div>
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium mb-2">Color</label>
-              <ColorPicker value={form.color} onChange={(c)=>setForm({...form, color: c})} />
+          </div>
+
+          <form onSubmit={save} className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Nombre de la Categoría <span className="text-red-500">*</span>
+                </label>
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Ej: Alimentación, Transporte..."
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Tipo <span className="text-red-500">*</span>
+                </label>
+                <TypeToggle value={form.type} onChange={(v) => setForm({ ...form, type: v })} />
+              </div>
             </div>
-            {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
-            <div className="lg:col-span-2 flex items-center justify-end gap-3">
-              <button type="button" onClick={()=>setOpen(false)} className="btn">Cancelar</button>
-              <button disabled={!canSave} className="btn btn-primary">{form.id ? 'Actualizar categoría' : 'Crear Categoría'}</button>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-3">
+                Color <span className="text-red-500">*</span>
+              </label>
+              <ColorPicker value={form.color} onChange={(c) => setForm({ ...form, color: c })} />
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                <div className="flex items-center">
+                  <span className="text-red-500 mr-2">⚠️</span>
+                  <p className="text-sm text-red-700 font-medium">{error}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t">
+              <button type="button" onClick={() => setOpen(false)} className="btn btn-ghost">
+                Cancelar
+              </button>
+              <button
+                disabled={!canSave}
+                className={`btn btn-primary ${!canSave ? 'opacity-60 cursor-not-allowed' : ''}`}
+              >
+                {form.id ? '💾 Actualizar' : '✨ Crear Categoría'}
+              </button>
             </div>
           </form>
         </div>
-      ) : null}
+      )}
 
+      {/* Grid de Ingresos y Gastos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border">
-          <div className="px-4 py-3 border-b font-semibold">Ingreso</div>
-          <div className="p-4 space-y-3">
-              {income.length ? income.map(c => (
-                <div key={c.id} className="">
+        {/* Ingresos */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                <span className="text-xl">📈</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-lg">Ingresos</h3>
+                <p className="text-xs text-gray-600">{income.length} categorías</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-4 space-y-3 max-h-[600px] overflow-y-auto">
+            {income.length ? (
+              income.map((c) => (
+                <div key={c.id}>
                   <CatRow it={c} onDelete={remove} onEdit={startEdit} />
                 </div>
-              )) : <div className="text-sm text-gray-500">Aún no hay categorías de ingreso.</div>}
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-5xl mb-3">📈</div>
+                <p className="text-gray-500 font-medium">No hay categorías de ingreso</p>
+                <p className="text-sm text-gray-400 mt-1">Crea una para empezar</p>
+              </div>
+            )}
           </div>
         </div>
-        <div className="bg-white rounded-xl border">
-          <div className="px-4 py-3 border-b font-semibold">Gasto</div>
-          <div className="p-4 space-y-3">
-            {expense.length ? expense.map(c => (
-              <div key={c.id} className="">
-                <CatRow it={c} onDelete={remove} onEdit={startEdit} />
+
+        {/* Gastos */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-red-50 to-rose-50 border-b border-red-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
+                <span className="text-xl">📉</span>
               </div>
-            )) : <div className="text-sm text-gray-500">Aún no hay categorías de gasto.</div>}
+              <div>
+                <h3 className="font-bold text-gray-900 text-lg">Gastos</h3>
+                <p className="text-xs text-gray-600">{expense.length} categorías</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-4 space-y-3 max-h-[600px] overflow-y-auto">
+            {expense.length ? (
+              expense.map((c) => (
+                <div key={c.id}>
+                  <CatRow it={c} onDelete={remove} onEdit={startEdit} />
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-5xl mb-3">📉</div>
+                <p className="text-gray-500 font-medium">No hay categorías de gasto</p>
+                <p className="text-sm text-gray-400 mt-1">Crea una para empezar</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
-      {/* Confirm modal */}
+
+      {/* Modal de confirmación */}
       {confirmId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="card p-6 max-w-sm">
-            <div className="text-lg font-semibold mb-2">Confirmar eliminación</div>
-            <div className="text-sm text-gray-700 mb-4">¿Eliminar esta categoría? Esta acción no se puede deshacer.</div>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 scale-in">
+          <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl border border-gray-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
+                <span className="text-2xl">⚠️</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">Confirmar Eliminación</h3>
+            </div>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              ¿Estás seguro de que deseas eliminar esta categoría? Esta acción no se puede deshacer y podría afectar las transacciones asociadas.
+            </p>
             <div className="flex justify-end gap-3">
-              <button className="btn" onClick={() => setConfirmId(null)}>Cancelar</button>
-              <button className="btn btn-danger" onClick={confirmRemove}>Eliminar</button>
+              <button
+                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
+                onClick={() => setConfirmId(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
+                onClick={confirmRemove}
+              >
+                🗑️ Eliminar
+              </button>
             </div>
           </div>
         </div>

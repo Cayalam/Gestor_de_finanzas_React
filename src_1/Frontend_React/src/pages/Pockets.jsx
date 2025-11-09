@@ -165,117 +165,259 @@ export default function Pockets() {
   }
 
   return (
-    <div className="px-2 md:px-0">
-      <div className="flex items-center justify-between py-4">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold">Bolsillos</h2>
-          <p className="text-sm text-gray-600">Gestiona tus cuentas y balances</p>
+    <div className="space-y-6 fade-in">
+      {/* Header con gradiente */}
+      <div className="bg-gradient-to-r from-blue-500 to-cyan-600 rounded-2xl p-8 text-white shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-2">Bolsillos</h2>
+            <p className="text-blue-100 text-lg">Organiza tus cuentas y balances</p>
+          </div>
+          <button
+            onClick={() => setOpen(true)}
+            className="btn bg-white text-blue-600 hover:bg-gray-50 shadow-lg flex items-center gap-2 font-bold"
+          >
+            <span className="text-xl">＋</span>
+            <span>Nuevo Bolsillo</span>
+          </button>
         </div>
-        <button onClick={() => setOpen(true)} className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z"/></svg>
-          Nuevo Bolsillo
-        </button>
       </div>
 
-      <div className="mb-6">
-        <div className="rounded-2xl p-6 text-white shadow" style={{ background: 'linear-gradient(90deg,#3b82f6,#2563eb)' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-blue-100 font-medium">Balance Total</div>
-              <div className="text-3xl md:text-4xl font-extrabold mt-1">{eur.format(total)}</div>
-            </div>
-            <div className="bg-white/20 rounded-xl p-3">
-              <Icon name="wallet" className="w-8 h-8" />
-            </div>
+      {/* Card de balance total */}
+      <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-8 text-white shadow-2xl hover:shadow-3xl transition-shadow">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm text-white/80 font-semibold uppercase tracking-wider mb-2">Balance Total</div>
+            <div className="text-4xl md:text-5xl font-extrabold">{eur.format(total)}</div>
+            <div className="text-sm text-white/80 mt-2">{items.length} bolsillo{items.length !== 1 ? 's' : ''} activo{items.length !== 1 ? 's' : ''}</div>
+          </div>
+          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-5 shadow-xl">
+            <Icon name="wallet" className="w-12 h-12" />
           </div>
         </div>
       </div>
 
+      {/* Formulario de nuevo/editar bolsillo */}
       {open && (
-        <div className="card p-5 mb-6">
-          <form onSubmit={save} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">Nombre del Bolsillo</label>
-              <input value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} placeholder="Ej: Cuenta Principal, Ahorros..." className="input" />
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg scale-in">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+              <span className="text-2xl">💼</span>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Monto inicial</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">€</span>
-                <input type="number" step="0.01" value={form.balance} onChange={(e)=>setForm({...form, balance: e.target.value})} className="input pl-8" />
+              <h3 className="text-2xl font-bold text-gray-900">
+                {form.id ? 'Editar Bolsillo' : 'Nuevo Bolsillo'}
+              </h3>
+              <p className="text-sm text-gray-500">Personaliza tu cuenta</p>
+            </div>
+          </div>
+
+          <form onSubmit={save} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Nombre del Bolsillo <span className="text-red-500">*</span>
+                </label>
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Ej: Cuenta Principal, Ahorros..."
+                  className="input"
+                />
               </div>
-              {activeGroup && (
-                <p className="mt-1 text-xs text-gray-500">Si indicas un monto, se transferirá desde el bolsillo General de tu grupo al nuevo bolsillo.</p>
-              )}
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Monto inicial</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">€</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={form.balance}
+                    onChange={(e) => setForm({ ...form, balance: e.target.value })}
+                    className="input pl-10 text-lg font-semibold"
+                  />
+                </div>
+                {activeGroup && (
+                  <p className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+                    💡 Si indicas un monto, se transferirá desde el bolsillo General de tu grupo.
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium mb-2">Icono</label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {ICONS.map(opt => (
-                  <button type="button" key={opt.id} onClick={() => setForm({ ...form, icon: opt.id })} className={`border rounded-xl p-4 flex flex-col items-center gap-3 hover:bg-gray-100 ${form.icon === opt.id ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : ''}`}>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-3">
+                Icono <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {ICONS.map((opt) => (
+                  <button
+                    type="button"
+                    key={opt.id}
+                    onClick={() => setForm({ ...form, icon: opt.id })}
+                    className={`border-2 rounded-xl p-4 flex flex-col items-center gap-2 transition-all ${
+                      form.icon === opt.id
+                        ? 'bg-blue-50 border-blue-500 shadow-lg scale-105'
+                        : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
+                    }`}
+                  >
                     <Icon name={opt.id} className="w-8 h-8" />
-                    <span className="text-sm">{opt.label}</span>
+                    <span className="text-xs font-semibold">{opt.label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium mb-2">Color</label>
-              <div className="flex flex-wrap gap-4">
-                {COLORS.map(c => (
-                  <button type="button" key={c} onClick={() => setForm({ ...form, color: c })} className={`w-14 h-14 rounded-xl border shadow-sm`} style={{ background: c, boxShadow: form.color === c ? '0 0 0 4px rgba(59,130,246,0.5)' : undefined }} aria-label={`Color ${c}`}></button>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-3">
+                Color <span className="text-red-500">*</span>
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {COLORS.map((c) => (
+                  <button
+                    type="button"
+                    key={c}
+                    onClick={() => setForm({ ...form, color: c })}
+                    className={`w-14 h-14 rounded-xl border-4 shadow-md transition-all hover:scale-110 ${
+                      form.color === c ? 'border-white ring-4 ring-blue-500 scale-110' : 'border-gray-200'
+                    }`}
+                    style={{ background: c }}
+                    aria-label={`Color ${c}`}
+                  ></button>
                 ))}
               </div>
             </div>
 
-            {error && <div className="lg:col-span-2 text-red-600 text-sm">{error}</div>}
-            <div className="lg:col-span-2 flex items-center justify-end gap-3">
-              <button type="button" onClick={()=>setOpen(false)} className="btn btn-ghost">Cancelar</button>
-              <button disabled={!canSave} className={`btn btn-primary inline-flex items-center gap-2 ${!canSave ? 'opacity-60 cursor-not-allowed' : ''}`}>
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                <div className="flex items-center">
+                  <span className="text-red-500 mr-2">⚠️</span>
+                  <p className="text-sm text-red-700 font-medium">{error}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t">
+              <button type="button" onClick={() => setOpen(false)} className="btn btn-ghost">
+                Cancelar
+              </button>
+              <button
+                disabled={!canSave}
+                className={`btn btn-primary inline-flex items-center gap-2 ${
+                  !canSave ? 'opacity-60 cursor-not-allowed' : ''
+                }`}
+              >
                 <Icon name="wallet" className="w-5 h-5" />
-                {form.id ? 'Actualizar Bolsillo' : 'Crear Bolsillo'}
+                {form.id ? '💾 Actualizar' : '✨ Crear Bolsillo'}
               </button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="card p-4">
-        <div className="px-4 py-3 border-b flex items-center justify-between">
-          <div className="text-sm font-medium">Listado</div>
-          {loading && <div className="text-sm text-gray-500">Cargando…</div>}
-        </div>
-        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {items.length ? items.map(p => (
-            <div key={p.id} className="border rounded-lg p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white" style={{ background: p.color }}>
-                  <Icon name={p.icon || 'wallet'} className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-medium">{p.name}</div>
-                  <div className="text-xs text-gray-500">Saldo: {eur.format(Number(p.balance || 0))}</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button onClick={()=>{ setForm({ id: p.id, name: p.name, color: p.color, balance: p.balance, icon: p.icon }); setOpen(true); setError('') }} className="btn btn-ghost text-sm">Editar</button>
-                <button onClick={()=>remove(p.id)} className="btn btn-danger text-sm">Eliminar</button>
-              </div>
+      {/* Lista de Bolsillos */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+        <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📋</span>
+            <h3 className="font-bold text-gray-900">Listado de Bolsillos</h3>
+          </div>
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-blue-600">
+              <div className="spinner w-4 h-4"></div>
+              <span>Cargando…</span>
             </div>
-          )) : <div className="text-sm text-gray-500">Aún no hay bolsillos.</div>}
+          )}
+        </div>
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {items.length ? (
+            items.map((p) => (
+              <div
+                key={p.id}
+                className="relative group border-2 border-gray-100 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 hover:border-blue-200 bg-gradient-to-br from-white to-gray-50"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform"
+                      style={{ background: p.color }}
+                    >
+                      <Icon name={p.icon || 'wallet'} className="w-7 h-7" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold text-gray-900 text-lg mb-1">{p.name}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Saldo:</span>
+                        <span className="text-sm font-bold text-blue-600">
+                          {eur.format(Number(p.balance || 0))}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => {
+                      setForm({
+                        id: p.id,
+                        name: p.name,
+                        color: p.color,
+                        balance: p.balance,
+                        icon: p.icon,
+                      });
+                      setOpen(true);
+                      setError('');
+                    }}
+                    className="flex-1 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold rounded-xl transition-all hover:shadow-md"
+                  >
+                    ✏️ Editar
+                  </button>
+                  <button
+                    onClick={() => remove(p.id)}
+                    className="flex-1 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition-all hover:shadow-md"
+                  >
+                    🗑️ Eliminar
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-16">
+              <div className="text-6xl mb-4">💼</div>
+              <p className="text-gray-500 font-medium">Aún no hay bolsillos creados</p>
+              <p className="text-sm text-gray-400 mt-2">Crea tu primer bolsillo para organizar tus finanzas</p>
+            </div>
+          )}
         </div>
       </div>
-      {/* Confirm modal */}
+
+      {/* Modal de confirmación */}
       {confirmId && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="card p-6 max-w-sm">
-            <div className="text-lg font-semibold mb-2">Confirmar eliminación</div>
-            <div className="text-sm text-gray-700 mb-4">¿Eliminar este bolsillo? Esta acción no se puede deshacer.</div>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 scale-in">
+          <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl border border-gray-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
+                <span className="text-2xl">⚠️</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">Confirmar Eliminación</h3>
+            </div>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              ¿Estás seguro de que deseas eliminar este bolsillo? Esta acción no se puede deshacer y se perderán todos los datos asociados.
+            </p>
             <div className="flex justify-end gap-3">
-              <button className="btn" onClick={() => setConfirmId(null)}>Cancelar</button>
-              <button className="btn btn-danger" onClick={confirmRemove}>Eliminar</button>
+              <button
+                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
+                onClick={() => setConfirmId(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
+                onClick={confirmRemove}
+              >
+                🗑️ Eliminar
+              </button>
             </div>
           </div>
         </div>
