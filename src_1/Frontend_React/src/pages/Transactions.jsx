@@ -321,7 +321,7 @@ export default function Transactions() {
     }
   }
   return (
-  <div className="space-y-12 sm:space-y-16 fade-in max-w-[1900px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12">
+  <div className="space-y-14 sm:space-y-18 xl:space-y-22 fade-in max-w-[1900px] mx-auto px-3 sm:px-5 lg:px-9 xl:px-14 2xl:px-18 py-6">
       {/* Header con gradiente */}
   <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -360,7 +360,7 @@ export default function Transactions() {
       </div>
 
       {/* Divisor visual entre header y formulario/listado */}
-      <div className="relative flex items-center justify-center mt-2">
+  <div className="relative flex items-center justify-center mt-10 sm:mt-12 pb-8 sm:pb-10">
         <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
         <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
           <span>{activeGroup ? '👥' : '🧍'}</span>
@@ -383,13 +383,13 @@ export default function Transactions() {
             </div>
           </div>
           
-          <form onSubmit={submit} className="space-y-8">
+          <form onSubmit={submit} className="space-y-10">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-3">Tipo de Transacción</label>
               <ToggleType value={form.type} onChange={(t) => setForm({ ...form, type: t })} />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Cantidad <span className="text-red-500">*</span>
@@ -416,7 +416,7 @@ export default function Transactions() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Categoría <span className="text-red-500">*</span>
@@ -475,7 +475,7 @@ export default function Transactions() {
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t">
+            <div className="flex items-center justify-end gap-4 pt-6 border-t">
               <button
                 type="button"
                 onClick={() => {
@@ -496,7 +496,7 @@ export default function Transactions() {
       )}
 
       {/* Tabla de transacciones */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+  <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
@@ -570,7 +570,7 @@ export default function Transactions() {
             ))}
           </div>
         ) : (
-          <div className="px-6 py-16 text-center">
+          <div className="px-8 py-20 text-center">
             <div className="text-6xl mb-4">📋</div>
             <p className="text-lg font-semibold text-gray-900 mb-2">Aún no hay transacciones</p>
             <p className="text-sm text-gray-500">Comienza registrando tu primera transacción</p>

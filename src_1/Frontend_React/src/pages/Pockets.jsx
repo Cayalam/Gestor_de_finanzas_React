@@ -165,7 +165,7 @@ export default function Pockets() {
   }
 
   return (
-  <div className="space-y-12 sm:space-y-16 fade-in max-w-[1900px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12">
+  <div className="space-y-14 sm:space-y-18 xl:space-y-22 fade-in max-w-[1900px] mx-auto px-3 sm:px-5 lg:px-9 xl:px-14 2xl:px-18 py-6">
       {/* Header con gradiente */}
   <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -198,7 +198,7 @@ export default function Pockets() {
       </div>
 
       {/* Divisor visual antes del listado */}
-      <div className="relative flex items-center justify-center mt-2">
+  <div className="relative flex items-center justify-center mt-10 sm:mt-12 pb-8 sm:pb-10">
         <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
         <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
           <span>{activeGroup ? '�' : '🧍'}</span>
@@ -221,8 +221,8 @@ export default function Pockets() {
             </div>
           </div>
 
-          <form onSubmit={save} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <form onSubmit={save} className="space-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Nombre del Bolsillo <span className="text-red-500">*</span>
@@ -259,7 +259,7 @@ export default function Pockets() {
               <label className="block text-sm font-bold text-gray-700 mb-3">
                 Icono <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
                 {ICONS.map((opt) => (
                   <button
                     type="button"
@@ -282,7 +282,7 @@ export default function Pockets() {
               <label className="block text-sm font-bold text-gray-700 mb-3">
                 Color <span className="text-red-500">*</span>
               </label>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-5">
                 {COLORS.map((c) => (
                   <button
                     type="button"
@@ -307,7 +307,7 @@ export default function Pockets() {
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t">
+            <div className="flex items-center justify-end gap-4 pt-6 border-t">
               <button type="button" onClick={() => setOpen(false)} className="btn btn-ghost">
                 Cancelar
               </button>
@@ -339,7 +339,7 @@ export default function Pockets() {
             </div>
           )}
         </div>
-  <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 xl:gap-10">
+  <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10 xl:gap-12">
           {items.length ? (
             items.map((p) => (
               <div

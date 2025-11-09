@@ -126,7 +126,7 @@ export default function Dashboard() {
   }
 
   return (
-  <div className="space-y-12 sm:space-y-16 xl:space-y-20 fade-in max-w-[1900px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 2xl:px-16 py-4 sm:py-6">
+  <div className="space-y-12 sm:space-y-16 xl:space-y-20 fade-in max-w-[1900px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 2xl:px-16 py-6 sm:py-8">
       {/* Header */}
   <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -142,7 +142,7 @@ export default function Dashboard() {
       </div>
 
       {/* Divisor visual entre estadísticas y secciones detalladas */}
-      <div className="relative flex items-center justify-center mt-4">
+  <div className="relative flex items-center justify-center mt-10 sm:mt-12 pb-8 sm:pb-10">
         <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
         <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
           <span>{activeGroup ? '�' : '🧍'}</span>
@@ -175,7 +175,7 @@ export default function Dashboard() {
             <h3 className="text-xl font-bold text-gray-900">Bolsillos</h3>
           </div>
           {data.pockets?.length ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {data.pockets.map((p, i) => (
                 <PocketItem key={i} name={p.name} amount={p.amount} color={p.color} />
               ))}
@@ -197,7 +197,7 @@ export default function Dashboard() {
             <h3 className="text-xl font-bold text-gray-900">Gastos</h3>
           </div>
           {data.categories?.length ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {data.categories.map((c, i) => (
                 <CategoryBar key={i} name={c.name} amount={c.amount} percent={c.percent} />
               ))}
@@ -213,7 +213,7 @@ export default function Dashboard() {
 
       {/* Comparativa Mensual */}
   <div className="bg-white rounded-3xl border border-gray-100 p-10 xl:p-12 shadow-xl">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               <span className="text-xl">📊</span>
@@ -246,14 +246,14 @@ export default function Dashboard() {
 
       {/* Transacciones Recientes */}
   <div className="bg-white rounded-3xl border border-gray-100 p-10 xl:p-12 shadow-xl">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
             <span className="text-xl">🔁</span>
           </div>
           <h3 className="text-xl font-bold text-gray-900">Transacciones Recientes</h3>
         </div>
         {data.transactions?.length ? (
-          <div className="space-y-1">
+          <div className="space-y-2">
             {data.transactions.map((t, i) => (
               <TxRow key={i} title={t.title} subtitle={t.subtitle} amount={t.amount} date={t.date} positive={t.positive} />
             ))}

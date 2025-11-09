@@ -50,7 +50,7 @@ export default function Register() {
         </div>
 
         {/* Divisor visual antes del formulario */}
-        <div className="relative flex items-center justify-center mb-6">
+  <div className="relative flex items-center justify-center pb-6 sm:pb-8 mb-10 sm:mb-12">
           <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
           <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
             <span>📝</span>
