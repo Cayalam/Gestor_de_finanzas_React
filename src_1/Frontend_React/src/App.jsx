@@ -14,32 +14,45 @@ import './App.css'
 
 function Layout({ children }) {
   const { isAuthenticated, logout } = useAuth()
+  
+  if (!isAuthenticated) {
+    // Layout para páginas públicas (Login/Register)
+    return <div className="min-h-screen">{children}</div>
+  }
+
+  // Layout para usuarios autenticados
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      <header className="border-b w-full">
-        <div className="mx-auto w-full max-w-7xl px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Gestor de Finanzas</h1>
-          <nav className="flex gap-4">
-            {!isAuthenticated && (
-              <>
-                <Link className="text-blue-600 hover:underline" to="/login">Login</Link>
-                <Link className="text-blue-600 hover:underline" to="/register">Registro</Link>
-              </>
-            )}
-            {isAuthenticated && (
-              <button onClick={logout} className="text-red-600 hover:underline">Salir</button>
-            )}
-          </nav>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header moderno */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div className="mx-auto w-full px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <span className="text-xl">💰</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                FinanzApp
+              </h1>
+              <p className="text-xs text-gray-500">Gestor inteligente</p>
+            </div>
+          </div>
+          
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <span>Salir</span>
+            <span>🚪</span>
+          </button>
         </div>
       </header>
-      {isAuthenticated ? (
-        <div className="mx-auto w-full max-w-7xl px-0 md:px-6 py-6 md:py-8 grid grid-cols-1 md:grid-cols-[16rem_1fr] gap-6">
-          <Sidebar />
-          <main className="w-full">{children}</main>
-        </div>
-      ) : (
-        <main className="mx-auto max-w-md px-4 py-8">{children}</main>
-      )}
+
+      {/* Contenido principal con sidebar */}
+      <div className="mx-auto w-full max-w-7xl px-4 md:px-6 py-6 grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6">
+        <Sidebar />
+        <main className="w-full min-h-[calc(100vh-120px)]">{children}</main>
+      </div>
     </div>
   )
 }
