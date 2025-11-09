@@ -43,20 +43,25 @@ export default function Sidebar() {
         <label className="block text-xs font-medium text-gray-600 mb-2">
           Contexto Activo
         </label>
-        <select
-          value={activeGroup || 'personal'}
-          onChange={handleContextChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={loading}
-        >
-          <option value="personal">🏠 Personal</option>
-          {groups.length > 0 && <option disabled>──────────</option>}
-          {groups.map((group) => (
-            <option key={group.id || group.grupo_id} value={group.id || group.grupo_id}>
-              👥 {group.nombre || group.name}
-            </option>
-          ))}
-        </select>
+        {loading ? (
+          <div className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm text-gray-500 bg-gray-50">
+            Cargando grupos…
+          </div>
+        ) : (
+          <select
+            value={activeGroup || 'personal'}
+            onChange={handleContextChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="personal">🏠 Personal</option>
+            {groups.length > 0 && <option disabled>──────────</option>}
+            {groups.map((group) => (
+              <option key={group.id || group.grupo_id} value={group.id || group.grupo_id}>
+                👥 {group.nombre || group.name}
+              </option>
+            ))}
+          </select>
+        )}
         
         {/* Indicador visual del contexto activo */}
         {activeGroupInfo && (

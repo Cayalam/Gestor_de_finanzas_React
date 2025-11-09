@@ -5,7 +5,10 @@ const GroupContext = createContext()
 
 export function GroupProvider({ children }) {
   // null = Personal, grupo_id = Grupo específico
-  const [activeGroup, setActiveGroup] = useState(null)
+  const [activeGroup, setActiveGroup] = useState(() => {
+    const saved = localStorage.getItem('activeGroup')
+    return saved ? parseInt(saved) : null
+  })
   const [groups, setGroups] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -40,13 +43,7 @@ export function GroupProvider({ children }) {
     selectGroup(null)
   }
 
-  // Restaurar grupo activo del localStorage al cargar
-  useEffect(() => {
-    const savedGroup = localStorage.getItem('activeGroup')
-    if (savedGroup) {
-      setActiveGroup(parseInt(savedGroup))
-    }
-  }, [])
+  // Nota: activeGroup ya se inicializa desde localStorage en el primer render
 
   // Obtener información del grupo activo
   const getActiveGroupInfo = () => {
