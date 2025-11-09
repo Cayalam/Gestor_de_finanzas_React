@@ -38,7 +38,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-16">
+  <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16">
       <div className="w-full max-w-xl">
         {/* Logo y título */}
         <div className="text-center mb-8 fade-in">
@@ -52,14 +52,14 @@ export default function Register() {
         {/* Divisor visual antes del formulario */}
         <div className="relative flex items-center justify-center mb-6">
           <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
-          <div className="absolute px-6 py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-sm font-semibold text-emerald-700">
+          <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
             <span>📝</span>
             <span>Formulario de Registro</span>
           </div>
         </div>
 
         {/* Card del formulario */}
-        <div className="glass rounded-3xl shadow-2xl p-10 scale-in">
+  <div className="glass rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-8 lg:p-10 scale-in">
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Nombre */}
             <div className="space-y-2">

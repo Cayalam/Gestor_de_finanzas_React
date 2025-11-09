@@ -32,19 +32,28 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-16">
+  <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16">
       <div className="w-full max-w-xl">
         {/* Logo y título */}
         <div className="text-center mb-8 fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 mb-4 shadow-lg">
             <span className="text-3xl">💰</span>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Bienvenido de nuevo</h1>
-          <p className="text-indigo-100">Ingresa a tu cuenta para continuar</p>
+          <p className="text-emerald-100">Ingresa a tu cuenta para continuar</p>
+        </div>
+
+        {/* Divisor visual antes del formulario */}
+        <div className="relative flex items-center justify-center mb-6">
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+          <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
+            <span>🔐</span>
+            <span>Acceso Seguro</span>
+          </div>
         </div>
 
         {/* Card del formulario */}
-        <div className="glass rounded-2xl shadow-2xl p-10 scale-in">
+  <div className="glass rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-8 lg:p-10 scale-in">
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Email */}
             <div className="space-y-2">
@@ -136,7 +145,7 @@ export default function Login() {
               ¿No tienes cuenta?{' '}
               <Link
                 to="/register"
-                className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors"
+                className="font-semibold text-emerald-600 hover:text-emerald-500 transition-colors"
               >
                 Regístrate gratis
               </Link>
@@ -145,7 +154,7 @@ export default function Login() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-indigo-100 text-sm mt-8">
+        <p className="text-center text-emerald-100 text-sm mt-8">
           Gestiona tus finanzas de forma inteligente 🚀
         </p>
       </div>

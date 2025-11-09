@@ -126,15 +126,15 @@ export default function Dashboard() {
   }
 
   return (
-  <div className="space-y-20 fade-in max-w-[1900px] mx-auto px-4 lg:px-8 xl:px-12 2xl:px-16 py-6">
+  <div className="space-y-12 sm:space-y-16 xl:space-y-20 fade-in max-w-[1900px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 2xl:px-16 py-4 sm:py-6">
       {/* Header */}
-  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-3xl p-10 text-white shadow-2xl">
+  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">{contextTitle}</h2>
             <p className="text-indigo-100 text-lg">{contextSubtitle}</p>
           </div>
-          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm">
             <span className="text-xl">📅</span>
             <span className="font-semibold">Noviembre 2025</span>
           </div>
@@ -144,7 +144,7 @@ export default function Dashboard() {
       {/* Divisor visual entre estadísticas y secciones detalladas */}
       <div className="relative flex items-center justify-center mt-4">
         <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
-        <div className="absolute px-6 py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-sm font-semibold text-emerald-700">
+        <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
           <span>{activeGroup ? '�' : '🧍'}</span>
           <span>{activeGroup ? 'Detalle del Grupo' : 'Detalle Personal'}</span>
         </div>
