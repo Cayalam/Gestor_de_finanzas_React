@@ -337,7 +337,7 @@ export default function Groups() {
   }
 
   return (
-  <div className="px-4 lg:px-10 xl:px-14 max-w-[1900px] mx-auto space-y-10 fade-in">
+  <div className="px-4 lg:px-10 xl:px-14 max-w-[1900px] mx-auto space-y-16 fade-in">
       {/* Header con gradiente */}
   <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-lime-500 text-white rounded-3xl p-10 shadow-2xl">
         <div className="flex items-center justify-between">
@@ -359,6 +359,15 @@ export default function Groups() {
             <span className="text-xl">＋</span>
             <span className="hidden md:inline">Nuevo Grupo</span>
           </button>
+        </div>
+      </div>
+
+      {/* Divisor visual tras header */}
+      <div className="relative flex items-center justify-center mt-2">
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+        <div className="absolute px-6 py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-sm font-semibold text-emerald-700">
+          <span>🧩</span>
+          <span>Gestión de Miembros y Roles</span>
         </div>
       </div>
 

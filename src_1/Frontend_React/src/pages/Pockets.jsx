@@ -165,7 +165,7 @@ export default function Pockets() {
   }
 
   return (
-  <div className="space-y-10 fade-in max-w-[1900px] mx-auto px-4 lg:px-8 xl:px-12">
+  <div className="space-y-16 fade-in max-w-[1900px] mx-auto px-4 lg:px-8 xl:px-12">
       {/* Header con gradiente */}
   <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-3xl p-10 text-white shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -194,6 +194,15 @@ export default function Pockets() {
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-5 shadow-xl">
             <Icon name="wallet" className="w-12 h-12" />
           </div>
+        </div>
+      </div>
+
+      {/* Divisor visual antes del listado */}
+      <div className="relative flex items-center justify-center mt-2">
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+        <div className="absolute px-6 py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-sm font-semibold text-emerald-700">
+          <span>{activeGroup ? '�' : '🧍'}</span>
+          <span>{activeGroup ? 'Bolsillos del Grupo' : 'Tus Bolsillos'}</span>
         </div>
       </div>
 
@@ -317,8 +326,8 @@ export default function Pockets() {
       )}
 
       {/* Lista de Bolsillos */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-        <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b flex items-center justify-between">
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
+        <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-white border-b flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-lg">📋</span>
             <h3 className="font-bold text-gray-900">Listado de Bolsillos</h3>
@@ -330,7 +339,7 @@ export default function Pockets() {
             </div>
           )}
         </div>
-  <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-8">
+  <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 xl:gap-10">
           {items.length ? (
             items.map((p) => (
               <div

@@ -49,6 +49,15 @@ export default function Register() {
           <p className="text-indigo-100">Comienza a gestionar tus finanzas hoy</p>
         </div>
 
+        {/* Divisor visual antes del formulario */}
+        <div className="relative flex items-center justify-center mb-6">
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+          <div className="absolute px-6 py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-sm font-semibold text-emerald-700">
+            <span>📝</span>
+            <span>Formulario de Registro</span>
+          </div>
+        </div>
+
         {/* Card del formulario */}
         <div className="glass rounded-3xl shadow-2xl p-10 scale-in">
           <form onSubmit={onSubmit} className="space-y-6">
