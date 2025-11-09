@@ -126,9 +126,9 @@ export default function Dashboard() {
   }
 
   return (
-  <div className="space-y-12 sm:space-y-16 xl:space-y-20 fade-in max-w-[1900px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 2xl:px-16 py-6 sm:py-8">
+  <div className="space-y-16 sm:space-y-24 xl:space-y-28 fade-in max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20 py-8 sm:py-12">
       {/* Header */}
-  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-2xl">
+  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-8 md:p-10 lg:p-12 text-white shadow-2xl mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">{contextTitle}</h2>
@@ -142,7 +142,7 @@ export default function Dashboard() {
       </div>
 
       {/* Divisor visual entre estadísticas y secciones detalladas */}
-  <div className="relative flex items-center justify-center mt-10 sm:mt-12 pb-8 sm:pb-10">
+  <div className="relative flex items-center justify-center mt-14 sm:mt-20 pb-10 sm:pb-12">
         <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
         <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
           <span>{activeGroup ? '�' : '🧍'}</span>
@@ -151,7 +151,7 @@ export default function Dashboard() {
       </div>
 
   {/* Stats Cards */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 xl:gap-12 2xl:gap-14">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 xl:gap-14 2xl:gap-16">
         {(data.stats && data.stats.length ? data.stats : [
           { title: 'Balance Total', value: '0,00 €', icon: '👛' },
           { title: 'Ingresos', value: '0,00 €', icon: '📈' },
@@ -165,9 +165,9 @@ export default function Dashboard() {
       </div>
 
       {/* Pockets y Categories */}
-  <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-10 xl:gap-12 2xl:gap-14">
+  <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-12 xl:gap-14 2xl:gap-16">
         {/* Bolsillos */}
-  <div className="lg:col-span-2 xl:col-span-3 bg-white rounded-3xl border border-gray-100 p-8 shadow-xl">
+  <div className="lg:col-span-2 xl:col-span-3 bg-white rounded-3xl border border-gray-100 p-10 xl:p-12 shadow-xl">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
               <span className="text-xl">💼</span>
@@ -189,7 +189,7 @@ export default function Dashboard() {
         </div>
 
         {/* Categorías */}
-  <div className="xl:col-span-2 bg-white rounded-3xl border border-gray-100 p-8 shadow-xl">
+  <div className="xl:col-span-2 bg-white rounded-3xl border border-gray-100 p-10 xl:p-12 shadow-xl">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
               <span className="text-xl">🏷️</span>
@@ -212,7 +212,7 @@ export default function Dashboard() {
       </div>
 
       {/* Comparativa Mensual */}
-  <div className="bg-white rounded-3xl border border-gray-100 p-10 xl:p-12 shadow-xl">
+  <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
@@ -245,7 +245,7 @@ export default function Dashboard() {
       </div>
 
       {/* Transacciones Recientes */}
-  <div className="bg-white rounded-3xl border border-gray-100 p-10 xl:p-12 shadow-xl">
+  <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
             <span className="text-xl">🔁</span>

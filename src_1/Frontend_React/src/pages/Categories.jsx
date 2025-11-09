@@ -157,7 +157,7 @@ export default function Categories() {
   return (
   <div className="px-3 sm:px-5 lg:px-10 xl:px-14 2xl:px-18 max-w-[1900px] mx-auto space-y-14 sm:space-y-18 xl:space-y-22 fade-in py-6">
       {/* Header con gradiente */}
-  <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-lime-500 text-white rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 shadow-2xl">
+  <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-lime-500 text-white rounded-2xl md:rounded-3xl p-8 md:p-10 lg:p-12 shadow-2xl mb-4 sm:mb-6">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -191,7 +191,7 @@ export default function Categories() {
 
       {/* Formulario */}
       {open && (
-  <div className="bg-white rounded-3xl border border-gray-100 p-10 shadow-xl scale-in">
+  <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl scale-in">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
               <span className="text-2xl">🏷️</span>

@@ -165,9 +165,9 @@ export default function Pockets() {
   }
 
   return (
-  <div className="space-y-14 sm:space-y-18 xl:space-y-22 fade-in max-w-[1900px] mx-auto px-3 sm:px-5 lg:px-9 xl:px-14 2xl:px-18 py-6">
+  <div className="space-y-16 sm:space-y-24 xl:space-y-28 fade-in max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20 py-8 sm:py-12">
       {/* Header con gradiente */}
-  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-2xl">
+  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-8 md:p-10 lg:p-12 text-white shadow-2xl mb-8 sm:mb-12">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">Bolsillos</h2>
@@ -184,7 +184,7 @@ export default function Pockets() {
       </div>
 
       {/* Card de balance total */}
-  <div className="bg-gradient-to-br from-emerald-500 via-green-600 to-lime-500 rounded-3xl p-10 text-white shadow-2xl hover:shadow-3xl transition-shadow">
+  <div className="bg-gradient-to-br from-emerald-500 via-green-600 to-lime-500 rounded-3xl p-12 xl:p-14 text-white shadow-2xl hover:shadow-3xl transition-shadow mb-8 sm:mb-12">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-sm text-white/80 font-semibold uppercase tracking-wider mb-2">Balance Total</div>
@@ -198,7 +198,7 @@ export default function Pockets() {
       </div>
 
       {/* Divisor visual antes del listado */}
-  <div className="relative flex items-center justify-center mt-10 sm:mt-12 pb-8 sm:pb-10">
+  <div className="relative flex items-center justify-center mt-14 sm:mt-20 pb-10 sm:pb-12">
         <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
         <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
           <span>{activeGroup ? '�' : '🧍'}</span>
@@ -222,21 +222,21 @@ export default function Pockets() {
           </div>
 
           <form onSubmit={save} className="space-y-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-700 mb-3">
                   Nombre del Bolsillo <span className="text-red-500">*</span>
                 </label>
                 <input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Ej: Cuenta Principal, Ahorros..."
-                  className="input"
+                  className="input h-12"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Monto inicial</label>
+                <label className="block text-sm font-bold text-gray-700 mb-3">Monto inicial</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">€</span>
                   <input
@@ -244,11 +244,11 @@ export default function Pockets() {
                     step="0.01"
                     value={form.balance}
                     onChange={(e) => setForm({ ...form, balance: e.target.value })}
-                    className="input pl-10 text-lg font-semibold"
+                    className="input pl-10 text-lg font-semibold h-12"
                   />
                 </div>
                 {activeGroup && (
-                  <p className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+                  <p className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
                     💡 Si indicas un monto, se transferirá desde el bolsillo General de tu grupo.
                   </p>
                 )}
@@ -327,7 +327,7 @@ export default function Pockets() {
 
       {/* Lista de Bolsillos */}
       <div className="bg-white rounded-2xl md:rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
-        <div className="px-4 py-4 md:px-8 md:py-6 bg-gradient-to-r from-gray-50 to-white border-b flex items-center justify-between">
+        <div className="px-6 py-6 md:px-10 md:py-8 bg-gradient-to-r from-gray-50 to-white border-b flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-lg">📋</span>
             <h3 className="font-bold text-gray-900">Listado de Bolsillos</h3>
@@ -339,33 +339,33 @@ export default function Pockets() {
             </div>
           )}
         </div>
-  <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10 xl:gap-12">
+  <div className="p-14 xl:p-16 grid grid-cols-1 md:grid-cols-2 gap-14 xl:gap-16">
           {items.length ? (
             items.map((p) => (
               <div
                 key={p.id}
-                className="relative group border-2 border-gray-100 rounded-2xl p-6 transition-all hover:shadow-xl hover:scale-[1.03] hover:border-emerald-200 bg-gradient-to-br from-white to-gray-50"
+                className="relative group border-2 border-gray-100 rounded-2xl p-10 transition-all hover:shadow-xl hover:scale-[1.03] hover:border-emerald-200 bg-gradient-to-br from-white to-gray-50"
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4 flex-1">
+                  <div className="flex items-center gap-6 flex-1">
                     <div
-                      className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform"
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform"
                       style={{ background: p.color }}
                     >
-                      <Icon name={p.icon || 'wallet'} className="w-7 h-7" />
+                      <Icon name={p.icon || 'wallet'} className="w-8 h-8" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-bold text-gray-900 text-lg mb-1">{p.name}</div>
+                      <div className="font-bold text-gray-900 text-xl mb-2">{p.name}</div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">Saldo:</span>
-                        <span className="text-sm font-bold text-blue-600">
+                        <span className="text-sm text-gray-500 font-medium">Saldo:</span>
+                        <span className="text-base font-bold text-blue-600">
                           {eur.format(Number(p.balance || 0))}
                         </span>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-4 mt-8 pt-8 border-t border-gray-200">
                   <button
                     onClick={() => {
                       setForm({
@@ -378,13 +378,13 @@ export default function Pockets() {
                       setOpen(true);
                       setError('');
                     }}
-                    className="flex-1 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-semibold rounded-xl transition-all hover:shadow-md"
+                    className="flex-1 px-6 py-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-semibold rounded-xl transition-all hover:shadow-md"
                   >
                     ✏️ Editar
                   </button>
                   <button
                     onClick={() => remove(p.id)}
-                    className="flex-1 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition-all hover:shadow-md"
+                    className="flex-1 px-6 py-4 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl transition-all hover:shadow-md"
                   >
                     🗑️ Eliminar
                   </button>

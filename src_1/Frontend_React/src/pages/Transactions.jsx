@@ -321,9 +321,9 @@ export default function Transactions() {
     }
   }
   return (
-  <div className="space-y-14 sm:space-y-18 xl:space-y-22 fade-in max-w-[1900px] mx-auto px-3 sm:px-5 lg:px-9 xl:px-14 2xl:px-18 py-6">
+  <div className="space-y-16 sm:space-y-24 xl:space-y-28 fade-in max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20 py-8 sm:py-12">
       {/* Header con gradiente */}
-  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-2xl">
+  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-8 md:p-10 lg:p-12 text-white shadow-2xl mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">Transacciones</h2>
@@ -370,7 +370,7 @@ export default function Transactions() {
 
       {/* Formulario de nueva transacción */}
       {open && (
-  <div className="bg-white rounded-3xl border border-gray-100 p-10 shadow-xl scale-in">
+  <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl scale-in">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg">
               <span className="text-2xl">📝</span>

@@ -38,10 +38,10 @@ export default function Register() {
   }
 
   return (
-  <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16">
+  <div className="min-h-screen flex items-center justify-center px-6 sm:px-8 py-14 sm:py-20">
       <div className="w-full max-w-xl">
         {/* Logo y título */}
-        <div className="text-center mb-8 fade-in">
+  <div className="text-center mb-10 sm:mb-12 fade-in">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-lg">
             <span className="text-3xl">🎯</span>
           </div>
