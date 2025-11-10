@@ -64,7 +64,8 @@ function CategoryBar({ name, rawAmount, percent }) {
 }
 
 function TxRow({ title, subtitle, rawAmount, date, positive }) {
-  const amount = formatCurrency(rawAmount)
+  const amount = formatCurrency(Math.abs(rawAmount))
+  const sign = positive ? '+' : '-'
   
   return (
     <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-3 rounded-lg transition-colors">
@@ -79,7 +80,7 @@ function TxRow({ title, subtitle, rawAmount, date, positive }) {
       </div>
       <div className="text-right">
         <p className={`font-bold text-lg ${positive ? 'text-green-600' : 'text-red-600'}`}>
-          {amount}
+          {sign}{amount}
         </p>
         <p className="text-xs text-gray-500">{date}</p>
       </div>

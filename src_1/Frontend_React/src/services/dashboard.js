@@ -129,7 +129,7 @@ export async function getRecentTransactions(grupoId = null) {
     return txs.slice(0, 5).map(t => ({
       title: t.description || (t.type==='income' ? 'Ingreso' : 'Gasto'),
       subtitle: `${t.category || 'Sin categoría'} • ${pocketName(t.pocket)}`,
-      amount: `${t.type==='income' ? '+' : '-'}${euro(Number(t.amount))}`,
+      amount: Number(t.amount),
       date: formatDate(t.date),
       positive: t.type === 'income',
     }))
@@ -157,7 +157,7 @@ export async function getRecentTransactions(grupoId = null) {
   const normalize = (arr, type) => (arr?.data || arr).map(t => ({
     title: t.descripcion || (type==='income' ? 'Ingreso' : 'Gasto'),
     subtitle: `${t.categoria?.nombre || t.categoria?.name || 'Sin categoría'} • ${pname(t.bolsillo)}`,
-    amount: `${type==='income' ? '+' : '-'}${euro(Number(t.monto ?? t.amount))}`,
+    amount: Number(t.monto ?? t.amount ?? 0),
     date: formatDate(t.fecha ?? t.date),
     positive: type==='income',
   }))
