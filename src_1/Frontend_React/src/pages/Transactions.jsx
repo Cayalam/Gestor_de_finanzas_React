@@ -400,7 +400,7 @@ export default function Transactions() {
                   Cantidad <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">€</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">$</span>
                   <input
                     name="amount"
                     value={form.amount}
@@ -641,7 +641,7 @@ export default function Transactions() {
                   <option value="">Selecciona el bolsillo origen</option>
                   {pockets.filter(p => parseFloat(p.balance || p.saldo || 0) > 0).map((p) => (
                     <option key={p.id || p.bolsillo_id} value={p.id || p.bolsillo_id}>
-                      {p.name || p.nombre} - Saldo: €{Number(p.balance || p.saldo || 0).toFixed(2)}
+                      {p.name || p.nombre} - Saldo: {formatCurrency(Number(p.balance || p.saldo || 0))}
                     </option>
                   ))}
                 </select>
@@ -670,7 +670,7 @@ export default function Transactions() {
               <div>
                 <label className="block text-sm font-medium mb-2">Monto</label>
                 <div className="flex items-center">
-                  <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">€</span>
+                  <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">$</span>
                   <input
                     type="number"
                     step="0.01"
@@ -760,7 +760,7 @@ export default function Transactions() {
                   <option value="">Selecciona tu bolsillo</option>
                   {pockets.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} - Saldo: €{Number(p.balance || 0).toFixed(2)}
+                      {p.name} - Saldo: {formatCurrency(Number(p.balance || 0))}
                     </option>
                   ))}
                 </select>
@@ -769,7 +769,7 @@ export default function Transactions() {
               <div>
                 <label className="block text-sm font-medium mb-2">Monto</label>
                 <div className="flex items-center">
-                  <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">€</span>
+                  <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-white">$</span>
                   <input
                     type="number"
                     step="0.01"
@@ -797,7 +797,7 @@ export default function Transactions() {
                   </option>
                   {groupPockets.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} - Saldo: €{Number(p.balance || 0).toFixed(2)}
+                      {p.name} - Saldo: {formatCurrency(Number(p.balance || 0))}
                     </option>
                   ))}
                 </select>

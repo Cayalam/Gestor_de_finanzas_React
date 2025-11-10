@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js'
+import { formatCurrency } from '../utils/currency'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Tooltip, Legend)
 
@@ -60,7 +61,7 @@ export default function MonthlyComparisonChart({ data = [], months = 6 }) {
         callbacks: {
           label: (ctx) => {
             const v = ctx.parsed.y
-            return `${ctx.dataset.label}: €${Number(v).toFixed(2)}`
+            return `${ctx.dataset.label}: ${formatCurrency(Number(v))}`
           }
         }
       }
@@ -68,7 +69,7 @@ export default function MonthlyComparisonChart({ data = [], months = 6 }) {
     scales: {
       y: {
         beginAtZero: true,
-        title: { display: true, text: 'Ingresos / Gastos (€)' },
+        title: { display: true, text: 'Ingresos / Gastos ($)' },
         grid: { color: 'rgba(0,0,0,0.05)' },
         suggestedMax: maxVal * 1.15 || 10
       },
@@ -76,7 +77,7 @@ export default function MonthlyComparisonChart({ data = [], months = 6 }) {
         beginAtZero: true,
         position: 'right',
         grid: { drawOnChartArea: false },
-        title: { display: true, text: 'Neto (€)' }
+        title: { display: true, text: 'Neto ($)' }
       },
       x: {
         ticks: { maxRotation: 0 },
