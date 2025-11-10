@@ -371,6 +371,9 @@ export default function Groups() {
         </div>
       </div>
 
+      {/* Espaciador visual */}
+      <div className="w-full h-6"></div>
+
       {/* Formulario de creación/edición */}
       {open && (
   <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl scale-in">

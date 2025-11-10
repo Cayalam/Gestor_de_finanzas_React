@@ -5,7 +5,13 @@ import { useAuth } from '../context/AuthContext.jsx'
 export default function Register() {
   const navigate = useNavigate()
   const { register } = useAuth()
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' })
+  const [form, setForm] = useState({ 
+    name: '', 
+    email: '', 
+    password: '', 
+    confirm: '',
+    divisa_pref: 'COP' // Siempre COP por defecto
+  })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -28,7 +34,12 @@ export default function Register() {
     }
     try {
       setLoading(true)
-      await register({ name: form.name, email: form.email, password: form.password })
+      await register({ 
+        name: form.name, 
+        email: form.email, 
+        password: form.password,
+        divisa_pref: form.divisa_pref 
+      })
       navigate('/login')
     } catch (err) {
       setError(err?.response?.data?.message || 'No se pudo registrar')
@@ -39,36 +50,38 @@ export default function Register() {
 
   return (
   <div className="min-h-screen flex items-center justify-center px-6 sm:px-8 py-14 sm:py-20">
-      <div className="w-full max-w-xl">
+      <div className="w-full max-w-xl space-y-16">
         {/* Logo y título */}
-  <div className="text-center mb-10 sm:mb-12 fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-lg">
-            <span className="text-3xl">🎯</span>
+        <div className="text-center fade-in">
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-8 shadow-lg">
+            <span className="text-4xl">🎯</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Crea tu cuenta</h1>
-          <p className="text-indigo-100">Comienza a gestionar tus finanzas hoy</p>
-        </div>
-
-        {/* Divisor visual antes del formulario */}
-  <div className="relative flex items-center justify-center pb-6 sm:pb-8 mb-10 sm:mb-12">
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
-          <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
-            <span>📝</span>
-            <span>Formulario de Registro</span>
-          </div>
+          <h1 className="text-4xl font-bold text-white mb-4">Crea tu cuenta</h1>
+          <p className="text-lg text-emerald-100">Comienza a gestionar tus finanzas hoy</p>
         </div>
 
         {/* Card del formulario */}
-  <div className="glass rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-8 lg:p-10 scale-in">
-          <form onSubmit={onSubmit} className="space-y-6">
+        <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl md:rounded-3xl shadow-2xl p-8 md:p-10 space-y-8 scale-in">
+          {/* Divisor visual antes del formulario */}
+          <div className="relative flex items-center justify-center -mt-14 mb-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+            </div>
+            <div className="relative px-6 py-2.5 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-3 text-sm font-semibold text-emerald-700">
+              <span className="text-lg">📝</span>
+              <span>Formulario de Registro</span>
+            </div>
+          </div>
+
+          <form onSubmit={onSubmit} className="space-y-8">
             {/* Nombre */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700" htmlFor="name">
+            <div className="space-y-2.5">
+              <label className="block text-base font-semibold text-white" htmlFor="name">
                 Nombre completo
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400">👤</span>
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="text-lg text-gray-400">👤</span>
                 </div>
                 <input
                   id="name"
@@ -76,7 +89,7 @@ export default function Register() {
                   type="text"
                   value={form.name}
                   onChange={onChange}
-                  className="input pl-10"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-black/30 border border-emerald-500/30 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Juan Pérez"
                   autoComplete="name"
                 />
@@ -84,13 +97,13 @@ export default function Register() {
             </div>
 
             {/* Email */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700" htmlFor="email">
+            <div className="space-y-2.5">
+              <label className="block text-base font-semibold text-white" htmlFor="email">
                 Correo electrónico
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400">📧</span>
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="text-lg text-gray-400">📧</span>
                 </div>
                 <input
                   id="email"
@@ -98,7 +111,7 @@ export default function Register() {
                   type="email"
                   value={form.email}
                   onChange={onChange}
-                  className="input pl-10"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-black/30 border border-emerald-500/30 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="tu@ejemplo.com"
                   autoComplete="email"
                 />
@@ -106,13 +119,13 @@ export default function Register() {
             </div>
 
             {/* Password */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700" htmlFor="password">
+            <div className="space-y-2.5">
+              <label className="block text-base font-semibold text-white" htmlFor="password">
                 Contraseña
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400">🔒</span>
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="text-lg text-gray-400">🔒</span>
                 </div>
                 <input
                   id="password"
@@ -120,7 +133,7 @@ export default function Register() {
                   type="password"
                   value={form.password}
                   onChange={onChange}
-                  className="input pl-10"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-black/30 border border-emerald-500/30 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Mínimo 6 caracteres"
                   autoComplete="new-password"
                 />
@@ -128,13 +141,13 @@ export default function Register() {
             </div>
 
             {/* Confirm Password */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700" htmlFor="confirm">
+            <div className="space-y-2.5">
+              <label className="block text-base font-semibold text-white" htmlFor="confirm">
                 Confirmar contraseña
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400">🔑</span>
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="text-lg text-gray-400">🔑</span>
                 </div>
                 <input
                   id="confirm"
@@ -142,7 +155,7 @@ export default function Register() {
                   type="password"
                   value={form.confirm}
                   onChange={onChange}
-                  className="input pl-10"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-black/30 border border-emerald-500/30 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Repite tu contraseña"
                   autoComplete="new-password"
                 />
@@ -151,10 +164,10 @@ export default function Register() {
 
             {/* Error message */}
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg fade-in">
-                <div className="flex items-center">
-                  <span className="text-red-500 mr-2">⚠️</span>
-                  <p className="text-sm text-red-700 font-medium">{error}</p>
+              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 fade-in">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg text-red-400">⚠️</span>
+                  <p className="text-sm text-red-400 font-medium">{error}</p>
                 </div>
               </div>
             )}
@@ -163,39 +176,43 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-accent w-full text-lg py-3"
+              className={`w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-semibold text-white rounded-xl transition-all ${
+                loading
+                  ? "bg-emerald-600/50 cursor-not-allowed"
+                  : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+              }`}
             >
               {loading ? (
                 <>
-                  <span className="spinner"></span>
+                  <span className="animate-spin">⏳</span>
                   <span>Creando cuenta...</span>
                 </>
               ) : (
                 <>
                   <span>Crear cuenta</span>
-                  <span>✨</span>
+                  <span className="text-lg">✨</span>
                 </>
               )}
             </button>
           </form>
 
           {/* Divider */}
-          <div className="relative my-6">
+          <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300/30 to-transparent"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">o</span>
+              <span className="px-4 text-gray-400 bg-transparent">o</span>
             </div>
           </div>
 
           {/* Login link */}
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-base text-gray-400">
               ¿Ya tienes cuenta?{' '}
               <Link
                 to="/login"
-                className="font-semibold text-emerald-600 hover:text-emerald-500 transition-colors"
+                className="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
               >
                 Inicia sesión
               </Link>

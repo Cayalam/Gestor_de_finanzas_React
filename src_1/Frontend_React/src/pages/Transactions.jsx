@@ -1,11 +1,13 @@
 ﻿import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useGroup } from '../context/GroupContext'
+import { useAuth } from '../context/AuthContext'
 import * as txService from '../services/transactions'
 import * as catService from '../services/categories'
 import * as pocketsService from '../services/pockets'
 import * as contributionsService from '../services/contributions'
 import * as transfersService from '../services/transfers'
+import { formatCurrency } from '../utils/currency'
 
 // Función para formatear fechas sin problemas de zona horaria
 function formatLocalDate(dateString) {
@@ -368,6 +370,9 @@ export default function Transactions() {
         </div>
       </div>
 
+      {/* Espaciador visual */}
+      <div className="w-full h-6"></div>
+
       {/* Formulario de nueva transacción */}
       {open && (
   <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl scale-in">
@@ -549,8 +554,8 @@ export default function Transactions() {
                 <div className="col-span-2 text-sm text-gray-600 truncate">
                   {it.id}
                 </div>
-                <div className="col-span-2 text-lg font-bold ${it.type === 'income' ? 'text-green-600' : 'text-red-600'}">
-                  {it.type === 'income' ? '+' : '-'}€{Number(it.amount).toFixed(2)}
+                <div className={`col-span-2 text-lg font-bold ${it.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                  {it.type === 'income' ? '+' : '-'}{formatCurrency(Number(it.amount))}
                 </div>
                 <div className="col-span-2 flex items-center gap-3 justify-end">
                   <button
@@ -593,7 +598,7 @@ export default function Transactions() {
                   {confirmDelete.type === 'income' ? 'ingreso' : 'gasto'}
                 </span>{' '}
                 por{' '}
-                <span className="font-bold text-red-600">€{Number(confirmDelete.amount).toFixed(2)}</span>?
+                <span className="font-bold text-red-600">{formatCurrency(Number(confirmDelete.amount))}</span>?
               </p>
               <p className="text-sm text-gray-500 mt-2">Esta acción no se puede deshacer.</p>
             </div>

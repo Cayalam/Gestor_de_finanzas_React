@@ -7,7 +7,6 @@ import { formatCurrency } from '../utils/currency'
 import MonthlyComparisonChart from '../components/MonthlyComparisonChart'
 
 function StatCard({ title, value: rawValue, icon, trend }) {
-  const { currency } = useAuth()
   const value = typeof rawValue === 'string' ? rawValue : formatCurrency(Number(rawValue) || 0)
   
   return (
@@ -30,7 +29,6 @@ function StatCard({ title, value: rawValue, icon, trend }) {
 }
 
 function PocketItem({ name, amount: rawAmount, color }) {
-  const { currency } = useAuth()
   const amount = typeof rawAmount === 'string' ? rawAmount : formatCurrency(Number(rawAmount) || 0)
   
   return (
@@ -47,8 +45,7 @@ function PocketItem({ name, amount: rawAmount, color }) {
 }
 
 function CategoryBar({ name, rawAmount, percent }) {
-  const { currency } = useAuth()
-  const amount = formatCurrency(rawAmount, currency)
+  const amount = formatCurrency(rawAmount)
   
   return (
     <div className="space-y-2">
@@ -67,8 +64,7 @@ function CategoryBar({ name, rawAmount, percent }) {
 }
 
 function TxRow({ title, subtitle, rawAmount, date, positive }) {
-  const { currency } = useAuth()
-  const amount = formatCurrency(rawAmount, currency)
+  const amount = formatCurrency(rawAmount)
   
   return (
     <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-3 rounded-lg transition-colors">
@@ -93,7 +89,6 @@ function TxRow({ title, subtitle, rawAmount, date, positive }) {
 
 export default function Dashboard() {
   const { activeGroup, getActiveGroupInfo } = useGroup()
-  const { currency } = useAuth()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState(null)
   const [monthly, setMonthly] = useState([])
@@ -171,9 +166,18 @@ export default function Dashboard() {
             <h2 className="text-3xl md:text-4xl font-bold mb-2">{contextTitle}</h2>
             <p className="text-indigo-100 text-lg">{contextSubtitle}</p>
           </div>
-          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm">
-            <span className="text-xl">📅</span>
-            <span className="font-semibold">Noviembre 2025</span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={reloadData}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl text-sm font-semibold transition-all"
+              title="Recargar datos"
+            >
+              🔄 Recargar
+            </button>
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm">
+              <span className="text-xl">📅</span>
+              <span className="font-semibold">Noviembre 2025</span>
+            </div>
           </div>
         </div>
       </div>

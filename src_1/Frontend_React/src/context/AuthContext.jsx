@@ -18,10 +18,16 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token)
-      try { setUser(jwtDecode(token)) } catch { setUser(null) }
+      try {
+        const decoded = jwtDecode(token)
+        setUser(decoded)
+      } catch {
+        setUser(null)
+      }
       setAuthToken(token)
     } else {
       localStorage.removeItem('token')
+      localStorage.removeItem('user')
       setUser(null)
       setAuthToken('')
     }
@@ -53,7 +59,19 @@ export function AuthProvider({ children }) {
     setToken('')
   }
 
-  const value = useMemo(() => ({ token, user, isAuthenticated, loading, login, register, logout }), [token, user, isAuthenticated, loading])
+  const value = useMemo(
+    () => ({
+      token,
+      user,
+      isAuthenticated,
+      loading,
+      login,
+      register,
+      logout
+    }),
+    [token, user, isAuthenticated, loading]
+  )
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

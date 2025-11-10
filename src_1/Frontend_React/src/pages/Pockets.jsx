@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useGroup } from '../context/GroupContext'
 import * as pocketsService from '../services/pockets'
 import * as transfersService from '../services/transfers'
-
-const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
+import { formatCurrency } from '../utils/currency'
 
 function Icon({ name, className = 'w-6 h-6' }) {
   switch (name) {
@@ -167,15 +166,15 @@ export default function Pockets() {
   return (
   <div className="space-y-16 sm:space-y-24 xl:space-y-28 fade-in max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20 py-8 sm:py-12">
       {/* Header con gradiente */}
-  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-8 md:p-10 lg:p-12 text-white shadow-2xl mb-8 sm:mb-12">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-10 md:p-12 lg:p-14 text-white shadow-2xl mb-12 sm:mb-16">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-2">Bolsillos</h2>
-            <p className="text-emerald-100 text-lg">Organiza tus cuentas y balances</p>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Bolsillos</h2>
+            <p className="text-emerald-100 text-xl">Organiza tus cuentas y balances</p>
           </div>
           <button
             onClick={() => setOpen(true)}
-            className="btn bg-white text-emerald-600 hover:bg-gray-50 shadow-lg flex items-center gap-2 font-bold"
+            className="btn bg-white text-emerald-600 hover:bg-gray-50 shadow-lg flex items-center gap-3 font-bold text-lg px-6 py-4"
           >
             <span className="text-xl">＋</span>
             <span>Nuevo Bolsillo</span>
@@ -183,19 +182,25 @@ export default function Pockets() {
         </div>
       </div>
 
+      {/* Espaciador visual */}
+      <div className="w-full h-6"></div>
+
       {/* Card de balance total */}
-  <div className="bg-gradient-to-br from-emerald-500 via-green-600 to-lime-500 rounded-3xl p-12 xl:p-14 text-white shadow-2xl hover:shadow-3xl transition-shadow mb-8 sm:mb-12">
+      <div className="bg-gradient-to-br from-emerald-500 via-green-600 to-lime-500 rounded-3xl p-14 xl:p-16 text-white shadow-2xl hover:shadow-3xl transition-shadow">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm text-white/80 font-semibold uppercase tracking-wider mb-2">Balance Total</div>
-            <div className="text-4xl md:text-5xl font-extrabold">{eur.format(total)}</div>
-            <div className="text-sm text-white/80 mt-2">{items.length} bolsillo{items.length !== 1 ? 's' : ''} activo{items.length !== 1 ? 's' : ''}</div>
+            <div className="text-base text-white/90 font-semibold uppercase tracking-wider mb-4">Balance Total</div>
+            <div className="text-5xl md:text-6xl font-extrabold mb-4">{formatCurrency(total)}</div>
+            <div className="text-base text-white/90">{items.length} bolsillo{items.length !== 1 ? 's' : ''} activo{items.length !== 1 ? 's' : ''}</div>
           </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-5 shadow-xl">
-            <Icon name="wallet" className="w-12 h-12" />
+          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-8 shadow-xl">
+            <Icon name="wallet" className="w-16 h-16" />
           </div>
         </div>
       </div>
+
+      {/* Espaciador visual */}
+      <div className="w-full h-6"></div>
 
       {/* Divisor visual antes del listado */}
   <div className="relative flex items-center justify-center mt-14 sm:mt-20 pb-10 sm:pb-12">
@@ -359,7 +364,7 @@ export default function Pockets() {
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-500 font-medium">Saldo:</span>
                         <span className="text-base font-bold text-blue-600">
-                          {eur.format(Number(p.balance || 0))}
+                          {formatCurrency(Number(p.balance || 0))}
                         </span>
                       </div>
                     </div>

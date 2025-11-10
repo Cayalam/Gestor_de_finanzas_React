@@ -61,51 +61,63 @@ export async function getOverview(grupoId = null) {
   // Backend - agregar grupo_id como query param si existe
   const params = grupoId ? { grupo_id: grupoId } : {}
   
-  const [pocketsRes, ingresosRes, egresosRes] = await Promise.all([
-    api.get('/bolsillos/', { params }),
-    api.get('/ingresos/', { params }),
-    api.get('/egresos/', { params }),
-  ])
-  
-  const pocketsData = pocketsRes?.data || pocketsRes;
-  const ingresosData = ingresosRes?.data || ingresosRes;
-  const egresosData = egresosRes?.data || egresosRes;
+  try {
+    const [pocketsRes, ingresosRes, egresosRes] = await Promise.all([
+      api.get('/bolsillos/', { params }),
+      api.get('/ingresos/', { params }),
+      api.get('/egresos/', { params }),
+    ])
+    
+    // Extraer datos de la respuesta
+    const pocketsData = Array.isArray(pocketsRes?.data) ? pocketsRes.data : (Array.isArray(pocketsRes) ? pocketsRes : [])
+    const ingresosData = Array.isArray(ingresosRes?.data) ? ingresosRes.data : (Array.isArray(ingresosRes) ? ingresosRes : [])
+    const egresosData = Array.isArray(egresosRes?.data) ? egresosRes.data : (Array.isArray(egresosRes) ? egresosRes : [])
 
-  // Procesar bolsillos
-  const pockets = pocketsData.map(p => ({
-    name: p.nombre ?? p.name,
-    amount: Number(p.balance ?? p.saldo ?? 0),
-    color: p.color || '#3b82f6',
-  }))
+    console.log('Backend Response - Pockets:', pocketsData)
+    console.log('Backend Response - Ingresos:', ingresosData)
+    console.log('Backend Response - Egresos:', egresosData)
 
-  // Calcular totales
-  const ingresos = ingresosData.reduce((a, b) => a + Number(b.monto ?? b.amount ?? 0), 0)
-  const egresos = egresosData.reduce((a, b) => a + Number(b.monto ?? b.amount ?? 0), 0)
-  const neto = ingresos - egresos
-  const totalBalance = pocketsData.reduce((s, p) => s + Number(p.balance ?? p.saldo ?? 0), 0)
+    // Procesar bolsillos
+    const pockets = pocketsData.map(p => ({
+      name: p.nombre ?? p.name ?? 'Sin nombre',
+      amount: Number(p.balance ?? p.saldo ?? 0),
+      color: p.color || '#3b82f6',
+    }))
 
-  // Estadísticas
-  const stats = [
-    { title: 'Balance Total', value: totalBalance, icon: '👛' },
-    { title: 'Ingresos', value: ingresos, icon: '📈' },
-    { title: 'Gastos', value: egresos, icon: '📉' },
-    { title: 'Balance Neto', value: neto, icon: '🎯' },
-  ]
+    // Calcular totales
+    const ingresos = ingresosData.reduce((a, b) => a + Number(b.monto ?? b.amount ?? 0), 0)
+    const egresos = egresosData.reduce((a, b) => a + Number(b.monto ?? b.amount ?? 0), 0)
+    const neto = ingresos - egresos
+    const totalBalance = pocketsData.reduce((s, p) => s + Number(p.balance ?? p.saldo ?? 0), 0)
 
-  // categorías de egresos
-  const catMap = {}
-  egresosData.forEach(t => {
-    const k = t.categoria?.nombre ?? t.categoria ?? t.category ?? 'Otros'
-    catMap[k] = (catMap[k] || 0) + Number(t.monto ?? t.amount ?? 0)
-  })
-  const totalCat = Object.values(catMap).reduce((a,b)=>a+b,0) || 1
-  const categories = Object.entries(catMap).map(([name, val]) => ({ 
-    name, 
-    amount: val,
-    percent: Math.round((val/totalCat)*100) 
-  }))
+    console.log('Calculated totals:', { totalBalance, ingresos, egresos, neto })
 
-  return { stats, pockets, categories }
+    // Estadísticas
+    const stats = [
+      { title: 'Balance Total', value: totalBalance, icon: '👛' },
+      { title: 'Ingresos', value: ingresos, icon: '📈' },
+      { title: 'Gastos', value: egresos, icon: '📉' },
+      { title: 'Balance Neto', value: neto, icon: '🎯' },
+    ]
+
+    // categorías de egresos
+    const catMap = {}
+    egresosData.forEach(t => {
+      const k = t.categoria?.nombre ?? t.categoria ?? t.category ?? 'Otros'
+      catMap[k] = (catMap[k] || 0) + Number(t.monto ?? t.amount ?? 0)
+    })
+    const totalCat = Object.values(catMap).reduce((a,b)=>a+b,0) || 1
+    const categories = Object.entries(catMap).map(([name, val]) => ({ 
+      name, 
+      amount: val,
+      percent: Math.round((val/totalCat)*100) 
+    }))
+
+    return { stats, pockets, categories }
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error)
+    return { stats: defaultStats(), pockets: [], categories: [] }
+  }
 }
 
 export async function getRecentTransactions(grupoId = null) {
@@ -155,10 +167,10 @@ export async function getRecentTransactions(grupoId = null) {
 
 function defaultStats() {
   return [
-    { title: 'Balance Total', value: euro(0), icon: '👛' },
-    { title: 'Ingresos', value: euro(0), icon: '📈' },
-    { title: 'Gastos', value: euro(0), icon: '📉' },
-    { title: 'Balance Neto', value: euro(0), icon: '🎯' },
+    { title: 'Balance Total', value: 0, icon: '👛' },
+    { title: 'Ingresos', value: 0, icon: '📈' },
+    { title: 'Gastos', value: 0, icon: '📉' },
+    { title: 'Balance Neto', value: 0, icon: '🎯' },
   ]
 }
 

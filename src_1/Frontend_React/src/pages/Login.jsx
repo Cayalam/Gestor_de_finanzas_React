@@ -33,28 +33,30 @@ export default function Login() {
 
   return (
   <div className="min-h-screen flex items-center justify-center px-6 sm:px-8 py-14 sm:py-20">
-      <div className="w-full max-w-xl">
+      <div className="w-full max-w-xl space-y-16">
         {/* Logo y título */}
-  <div className="text-center mb-10 sm:mb-12 fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 mb-4 shadow-lg">
-            <span className="text-3xl">💰</span>
+        <div className="text-center fade-in">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 mb-6 shadow-lg">
+            <span className="text-4xl">💰</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Bienvenido de nuevo</h1>
-          <p className="text-emerald-100">Ingresa a tu cuenta para continuar</p>
+          <h1 className="text-4xl font-bold text-white mb-3">Bienvenido de nuevo</h1>
+          <p className="text-lg text-emerald-100">Ingresa a tu cuenta para continuar</p>
         </div>
 
         {/* Divisor visual antes del formulario */}
-  <div className="relative flex items-center justify-center pb-6 sm:pb-8 mb-10 sm:mb-12">
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
-          <div className="absolute px-4 py-1.5 sm:px-6 sm:py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700">
+        <div className="relative flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+          </div>
+          <div className="relative px-6 py-2 rounded-full bg-white shadow-lg border border-emerald-200 flex items-center gap-2 text-sm font-semibold text-emerald-700">
             <span>🔐</span>
             <span>Acceso Seguro</span>
           </div>
         </div>
 
         {/* Card del formulario */}
-  <div className="glass rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-8 lg:p-10 scale-in">
-          <form onSubmit={onSubmit} className="space-y-6">
+        <div className="glass rounded-2xl md:rounded-3xl shadow-2xl p-8 md:p-10 lg:p-12 scale-in">
+          <form onSubmit={onSubmit} className="space-y-8">
             {/* Email */}
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700" htmlFor="email">
