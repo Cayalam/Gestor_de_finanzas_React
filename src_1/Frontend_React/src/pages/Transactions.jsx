@@ -400,7 +400,7 @@ export default function Transactions() {
                   Cantidad <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-base">$</span>
                   <input
                     name="amount"
                     value={form.amount}
@@ -408,7 +408,7 @@ export default function Transactions() {
                     type="number"
                     step="0.01"
                     placeholder="0.00"
-                    className="input pl-10 text-lg font-semibold"
+                    className="input pl-9 text-lg font-semibold"
                   />
                 </div>
               </div>

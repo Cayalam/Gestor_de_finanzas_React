@@ -243,13 +243,13 @@ export default function Pockets() {
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-3">Monto inicial</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-base">$</span>
                   <input
                     type="number"
                     step="0.01"
                     value={form.balance}
                     onChange={(e) => setForm({ ...form, balance: e.target.value })}
-                    className="input pl-10 text-lg font-semibold h-12"
+                    className="input pl-9 text-lg font-semibold h-12"
                   />
                 </div>
                 {activeGroup && (
