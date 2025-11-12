@@ -94,6 +94,10 @@ export default function Dashboard() {
   const [data, setData] = useState(null)
   const [monthly, setMonthly] = useState([])
   const [monthsBack, setMonthsBack] = useState(6)
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
   const [forceUpdate, setForceUpdate] = useState(0)
 
   // Función para recargar los datos
@@ -106,11 +110,14 @@ export default function Dashboard() {
     console.log('Loading dashboard data...')
     setLoading(true)
     try {
+      // Determinar si agrupar por mes o por año
+      const groupBy = monthsBack === 12 ? 'year' : 'month'
+      
       // Obtener datos de la API
       const overview = await dashboardService.getOverview(activeGroup)
       console.log('Dashboard Overview:', overview)
       const recent = await dashboardService.getRecentTransactions(activeGroup)
-      const monthlyData = await statsService.getMonthlyIncomeExpense(activeGroup, monthsBack)
+      const monthlyData = await statsService.getMonthlyIncomeExpense(activeGroup, monthsBack, groupBy, selectedDate)
       
       // Procesar y actualizar los datos
       const processedData = { 
@@ -141,7 +148,16 @@ export default function Dashboard() {
     }
     window.addEventListener('storage', onStorage)
     return () => window.removeEventListener('storage', onStorage)
-  }, [activeGroup, monthsBack]) // Recargar cuando cambie el grupo activo o el rango
+  }, [activeGroup, monthsBack, selectedDate, forceUpdate]) // Recargar cuando cambie el grupo activo, rango, fecha o force update
+
+  // Resetear fecha al mes actual cuando no esté en modo Mensual
+  useEffect(() => {
+    if (monthsBack !== 1) {
+      const now = new Date()
+      const currentYearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+      setSelectedDate(currentYearMonth)
+    }
+  }, [monthsBack])
 
   const activeGroupInfo = getActiveGroupInfo()
   const contextTitle = activeGroup ? `Dashboard - ${activeGroupInfo?.nombre || 'Grupo'}` : 'Dashboard Financiero'
@@ -264,25 +280,43 @@ export default function Dashboard() {
 
       {/* Comparativa Mensual */}
       <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               <span className="text-xl">📊</span>
             </div>
             <h3 className="text-xl font-bold text-gray-900">Comparativa Mensual</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="monthsBack" className="text-sm font-medium text-gray-600">Rango:</label>
-            <select
-              id="monthsBack"
-              value={monthsBack}
-              onChange={e => setMonthsBack(Number(e.target.value))}
-              className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            >
-              <option value={3}>3 meses</option>
-              <option value={6}>6 meses</option>
-              <option value={12}>12 meses</option>
-            </select>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Selector de mes/año - solo visible en modo Mensual */}
+            {monthsBack === 1 && (
+              <div className="flex items-center gap-2">
+                <label htmlFor="selectedDate" className="text-sm font-medium text-gray-600">Periodo:</label>
+                <input
+                  type="month"
+                  id="selectedDate"
+                  value={selectedDate}
+                  onChange={e => setSelectedDate(e.target.value)}
+                  max={`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`}
+                  className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+            )}
+            {/* Selector de rango */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="monthsBack" className="text-sm font-medium text-gray-600">Rango:</label>
+              <select
+                id="monthsBack"
+                value={monthsBack}
+                onChange={e => setMonthsBack(Number(e.target.value))}
+                className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              >
+                <option value={1}>Mensual</option>
+                <option value={3}>Trimestral</option>
+                <option value={6}>Semestral</option>
+                <option value={12}>Anual</option>
+              </select>
+            </div>
           </div>
         </div>
         {monthly.length ? (
