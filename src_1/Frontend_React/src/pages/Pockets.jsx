@@ -249,7 +249,7 @@ export default function Pockets() {
                     step="0.01"
                     value={form.balance}
                     onChange={(e) => setForm({ ...form, balance: e.target.value })}
-                    className="input pl-9 text-lg font-semibold h-12"
+                    className="input pl-10 text-lg font-semibold h-12"
                   />
                 </div>
                 {activeGroup && (

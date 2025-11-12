@@ -408,7 +408,7 @@ export default function Transactions() {
                     type="number"
                     step="0.01"
                     placeholder="0.00"
-                    className="input pl-9 text-lg font-semibold"
+                    className="input pl-10 text-lg font-semibold"
                   />
                 </div>
               </div>
