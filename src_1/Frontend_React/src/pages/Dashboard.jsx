@@ -247,7 +247,7 @@ export default function Dashboard() {
           {data.categories?.length ? (
             <div className="space-y-5">
               {data.categories.map((c, i) => (
-                <CategoryBar key={i} name={c.name} amount={c.amount} percent={c.percent} />
+                <CategoryBar key={i} name={c.name} rawAmount={c.amount} percent={c.percent} />
               ))}
             </div>
           ) : (
@@ -309,7 +309,7 @@ export default function Dashboard() {
         {data.transactions?.length ? (
           <div className="space-y-2">
             {data.transactions.map((t, i) => (
-              <TxRow key={i} title={t.title} subtitle={t.subtitle} amount={t.amount} date={t.date} positive={t.positive} />
+              <TxRow key={i} title={t.title} subtitle={t.subtitle} rawAmount={t.amount} date={t.date} positive={t.positive} />
             ))}
           </div>
         ) : (
