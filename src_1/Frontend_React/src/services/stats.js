@@ -59,8 +59,37 @@ export async function getMonthlyIncomeExpense(grupoId = null, monthsBack = 6, gr
   }
   
   const last = filtered.slice(-monthsBack)
+  
+  // Generar todos los periodos esperados (incluso si no tienen datos)
+  const referenceStr = referenceDate || (() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })()
+  
+  const allPeriods = []
+  if (groupBy === 'year') {
+    // Generar años
+    const endYear = parseInt(referenceStr.slice(0, 4))
+    for (let i = monthsBack - 1; i >= 0; i--) {
+      const year = endYear - i
+      const existing = last.find(e => e.month === String(year))
+      allPeriods.push(existing || { month: String(year), income: 0, expense: 0, net: 0 })
+    }
+  } else {
+    // Generar meses
+    const [endYear, endMonth] = referenceStr.split('-').map(Number)
+    for (let i = monthsBack - 1; i >= 0; i--) {
+      const targetDate = new Date(endYear, endMonth - 1 - i, 1)
+      const year = targetDate.getFullYear()
+      const month = String(targetDate.getMonth() + 1).padStart(2, '0')
+      const periodKey = `${year}-${month}`
+      const existing = last.find(e => e.month === periodKey)
+      allPeriods.push(existing || { month: periodKey, income: 0, expense: 0, net: 0 })
+    }
+  }
+  
   // Formateo final
-  return last.map(entry => ({
+  return allPeriods.map(entry => ({
     month: entry.month,
     income: entry.income,
     expense: entry.expense,

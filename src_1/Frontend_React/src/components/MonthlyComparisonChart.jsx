@@ -45,7 +45,8 @@ export default function MonthlyComparisonChart({ data = [], months = 6 }) {
         data: data.map(d => d.net),
         borderColor: 'rgba(59,130,246,1)',
         backgroundColor: 'rgba(59,130,246,0.3)',
-        tension: 0.3,
+        tension: 0,
+        spanGaps: false,
         yAxisID: 'y2'
       }
     ]
@@ -77,7 +78,12 @@ export default function MonthlyComparisonChart({ data = [], months = 6 }) {
         beginAtZero: true,
         position: 'right',
         grid: { drawOnChartArea: false },
-        title: { display: true, text: 'Neto ($)' }
+        title: { display: true, text: 'Neto ($)' },
+        ticks: {
+          callback: function(value) {
+            return formatCurrency(value)
+          }
+        }
       },
       x: {
         ticks: { maxRotation: 0 },
