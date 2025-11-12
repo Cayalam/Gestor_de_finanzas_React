@@ -535,7 +535,7 @@ export default function Transactions() {
                     <span className="text-2xl">{it.type === 'income' ? '📈' : '📉'}</span>
                   </div>
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-4">
                   <div className="font-semibold text-gray-900 truncate">
                     {it.description || (it.type === 'income' ? 'Ingreso' : 'Gasto')}
                   </div>
@@ -551,13 +551,10 @@ export default function Transactions() {
                 <div className="col-span-2 text-sm text-gray-600">
                   {formatLocalDate(it.date || it.fecha)}
                 </div>
-                <div className="col-span-2 text-sm text-gray-600 truncate">
-                  {it.id}
-                </div>
                 <div className={`col-span-2 text-lg font-bold ${it.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
                   {it.type === 'income' ? '+' : '-'}{formatCurrency(Number(it.amount))}
                 </div>
-                <div className="col-span-2 flex items-center gap-3 justify-end">
+                <div className="col-span-3 flex items-center gap-3 justify-end">
                   <button
                     onClick={() => startEdit(it)}
                     className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
