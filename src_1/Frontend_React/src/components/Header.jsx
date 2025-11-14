@@ -6,12 +6,14 @@ export default function Header({ onMenuToggle, isMenuOpen }) {
   const { user, logout, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const { activeGroup } = useGroup()
+  const { activeGroup, getActiveGroupMembersCount } = useGroup()
 
   const handleLogout = () => {
     logout()
     navigate('/login')
   }
+
+  const membersCount = getActiveGroupMembersCount()
 
   return (
   <header className="sticky top-0 z-40 w-full backdrop-blur bg-white/80 border-b border-gray-200">
@@ -47,7 +49,7 @@ export default function Header({ onMenuToggle, isMenuOpen }) {
           <div className="flex items-center gap-4">
             {activeGroup && (
               <div className="hidden md:flex px-3 py-1.5 text-xs rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-medium">
-                Grupo activo: {activeGroup}
+                Grupo activo: {membersCount} {membersCount === 1 ? 'persona' : 'personas'}
               </div>
             )}
             <button

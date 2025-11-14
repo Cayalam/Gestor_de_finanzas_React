@@ -368,9 +368,11 @@ class IngresoViewSet(viewsets.ModelViewSet):
             if not es_miembro:
                 from rest_framework.exceptions import ValidationError
                 raise ValidationError({'detail': 'No eres miembro de este grupo'})
-            serializer.save(grupo_id=grupo_id)
+            # Importante: NO setear usuario para transacciones de grupo (restricción XOR)
+            # pero SÍ guardar quién la creó en creado_por
+            serializer.save(grupo_id=grupo_id, creado_por=user)
         else:
-            serializer.save(usuario=user)
+            serializer.save(usuario=user, creado_por=user)
     
     def perform_update(self, serializer):
         # Obtener el ingreso original antes de actualizar
@@ -453,9 +455,11 @@ class EgresoViewSet(viewsets.ModelViewSet):
             if not es_miembro:
                 from rest_framework.exceptions import ValidationError
                 raise ValidationError({'detail': 'No eres miembro de este grupo'})
-            serializer.save(grupo_id=grupo_id)
+            # Importante: NO setear usuario para transacciones de grupo (restricción XOR)
+            # pero SÍ guardar quién la creó en creado_por
+            serializer.save(grupo_id=grupo_id, creado_por=user)
         else:
-            serializer.save(usuario=user)
+            serializer.save(usuario=user, creado_por=user)
     
     def perform_update(self, serializer):
         # Obtener el egreso original antes de actualizar
@@ -915,7 +919,8 @@ class AportacionViewSet(viewsets.ModelViewSet):
             bolsillo=bolsillo_usuario,
             monto=monto,
             fecha=fecha,
-            descripcion=descripcion or f'Aportación al grupo {grupo.nombre}'
+            descripcion=descripcion or f'Aportación al grupo {grupo.nombre}',
+            creado_por=user
         )
         
         # Actualizar saldo del bolsillo del usuario
@@ -928,7 +933,8 @@ class AportacionViewSet(viewsets.ModelViewSet):
             bolsillo=bolsillo_grupo,
             monto=monto,
             fecha=fecha,
-            descripcion=descripcion or f'Aportación de {user.nombre or user.email}'
+            descripcion=descripcion or f'Aportación de {user.nombre or user.email}',
+            creado_por=user
         )
         
         # Actualizar saldo del bolsillo del grupo

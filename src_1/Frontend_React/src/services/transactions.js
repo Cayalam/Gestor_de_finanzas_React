@@ -38,6 +38,9 @@ export async function list(grupoId = null) {
     pocket: x.bolsillo?.nombre ?? x.bolsillo?.name ?? x.pocket,
     pocketId: x.bolsillo?.bolsillo_id ?? x.bolsillo?.id ?? x.bolsilloId,
     description: x.descripcion ?? x.description ?? '',
+    // Información del usuario que creó la transacción
+    userName: x.usuario?.nombre ?? null,
+    userEmail: x.usuario?.email ?? null,
   }))
   const items = [...normalize(ing, 'income'), ...normalize(egr, 'expense')]
   return items.sort((a,b)=> new Date(b.date) - new Date(a.date))

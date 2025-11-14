@@ -138,6 +138,7 @@ class Ingreso(models.Model):
     monto = models.DecimalField(max_digits=14, decimal_places=2)
     fecha = models.DateField()
     descripcion = models.CharField(max_length=255, blank=True, null=True)
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='ingresos_creados')
 
     class Meta:
         db_table = "ingreso"
@@ -157,6 +158,7 @@ class Egreso(models.Model):
     monto = models.DecimalField(max_digits=14, decimal_places=2)
     fecha = models.DateField()
     descripcion = models.CharField(max_length=255, blank=True, null=True)
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='egresos_creados')
 
     class Meta:
         db_table = "egreso"

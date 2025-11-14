@@ -97,6 +97,33 @@ class IngresoSerializer(serializers.ModelSerializer):
                 'saldo': str(instance.bolsillo.saldo),
                 'color': instance.bolsillo.color,
             }
+        
+        # Incluir información del usuario que creó la transacción
+        # Intentar varias fuentes para obtener el autor
+        usuario_autor = None
+        
+        # 1. Si tiene usuario directo (transacción personal)
+        if instance.usuario:
+            usuario_autor = instance.usuario
+        # 2. Si es una aportación al grupo, buscar en la relación inversa
+        elif hasattr(instance, 'aportacion_ingreso'):
+            aportacion = instance.aportacion_ingreso.first()
+            if aportacion and aportacion.usuario:
+                usuario_autor = aportacion.usuario
+        # 3. Si tiene creado_por (campo agregado recientemente)
+        elif hasattr(instance, 'creado_por') and instance.creado_por:
+            usuario_autor = instance.creado_por
+        
+        # Agregar información del usuario autor
+        if usuario_autor:
+            representation['usuario'] = {
+                'usuario_id': usuario_autor.usuario_id,
+                'email': usuario_autor.email,
+                'nombre': usuario_autor.nombre,
+            }
+        else:
+            representation['usuario'] = None
+        
         return representation
 
 
@@ -126,6 +153,33 @@ class EgresoSerializer(serializers.ModelSerializer):
                 'saldo': str(instance.bolsillo.saldo),
                 'color': instance.bolsillo.color,
             }
+        
+        # Incluir información del usuario que creó la transacción
+        # Intentar varias fuentes para obtener el autor
+        usuario_autor = None
+        
+        # 1. Si tiene usuario directo (transacción personal)
+        if instance.usuario:
+            usuario_autor = instance.usuario
+        # 2. Si es una aportación del grupo, buscar en la relación inversa
+        elif hasattr(instance, 'aportacion_egreso'):
+            aportacion = instance.aportacion_egreso.first()
+            if aportacion and aportacion.usuario:
+                usuario_autor = aportacion.usuario
+        # 3. Si tiene creado_por (campo agregado recientemente)
+        elif hasattr(instance, 'creado_por') and instance.creado_por:
+            usuario_autor = instance.creado_por
+        
+        # Agregar información del usuario autor
+        if usuario_autor:
+            representation['usuario'] = {
+                'usuario_id': usuario_autor.usuario_id,
+                'email': usuario_autor.email,
+                'nombre': usuario_autor.nombre,
+            }
+        else:
+            representation['usuario'] = None
+        
         return representation
 
 
