@@ -47,7 +47,9 @@ export default function MonthlyComparisonChart({ data = [], months = 6 }) {
         backgroundColor: 'rgba(59,130,246,0.3)',
         tension: 0,
         spanGaps: false,
-        yAxisID: 'y2'
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6
       }
     ]
   }
@@ -70,15 +72,9 @@ export default function MonthlyComparisonChart({ data = [], months = 6 }) {
     scales: {
       y: {
         beginAtZero: true,
-        title: { display: true, text: 'Ingresos / Gastos ($)' },
+        min: 0,
+        title: { display: true, text: 'Monto ($)' },
         grid: { color: 'rgba(0,0,0,0.05)' },
-        suggestedMax: maxVal * 1.15 || 10
-      },
-      y2: {
-        beginAtZero: true,
-        position: 'right',
-        grid: { drawOnChartArea: false },
-        title: { display: true, text: 'Neto ($)' },
         ticks: {
           callback: function(value) {
             return formatCurrency(value)
