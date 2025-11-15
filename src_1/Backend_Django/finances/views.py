@@ -141,21 +141,19 @@ class BolsilloViewSet(viewsets.ModelViewSet):
         if not user or user.is_anonymous:
             return models.Bolsillo.objects.none()
         
-        # Obtener todos los grupos donde el usuario es miembro
-        grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
-        
         # Filtrar por grupo específico si se proporciona grupo_id
         grupo_id = self.request.query_params.get('grupo_id')
         if grupo_id:
+            # Obtener todos los grupos donde el usuario es miembro
+            grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
+            
             # Verificar que el usuario sea miembro del grupo
             if int(grupo_id) not in grupos_ids:
                 return models.Bolsillo.objects.none()
             return models.Bolsillo.objects.filter(grupo_id=grupo_id)
         
-        # Si no hay grupo_id, mostrar bolsillos personales Y de todos los grupos del usuario
-        return models.Bolsillo.objects.filter(
-            Q(usuario=user) | Q(grupo__in=grupos_ids)
-        )
+        # Si no hay grupo_id, mostrar SOLO bolsillos personales (sin grupo)
+        return models.Bolsillo.objects.filter(usuario=user, grupo__isnull=True)
 
     def perform_create(self, serializer):
         from django.db.models import Sum
@@ -356,21 +354,19 @@ class IngresoViewSet(viewsets.ModelViewSet):
         if not user or user.is_anonymous:
             return models.Ingreso.objects.none()
         
-        # Obtener todos los grupos donde el usuario es miembro
-        grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
-        
         # Filtrar por grupo específico si se proporciona grupo_id
         grupo_id = self.request.query_params.get('grupo_id')
         if grupo_id:
+            # Obtener todos los grupos donde el usuario es miembro
+            grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
+            
             # Verificar que el usuario sea miembro del grupo
             if int(grupo_id) not in grupos_ids:
                 return models.Ingreso.objects.none()
             return models.Ingreso.objects.filter(grupo_id=grupo_id)
         
-        # Si no hay grupo_id, mostrar ingresos personales Y de todos los grupos del usuario
-        return models.Ingreso.objects.filter(
-            Q(usuario=user) | Q(grupo__in=grupos_ids)
-        )
+        # Si no hay grupo_id, mostrar SOLO ingresos personales (sin grupo)
+        return models.Ingreso.objects.filter(usuario=user, grupo__isnull=True)
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -437,21 +433,19 @@ class EgresoViewSet(viewsets.ModelViewSet):
         if not user or user.is_anonymous:
             return models.Egreso.objects.none()
         
-        # Obtener todos los grupos donde el usuario es miembro
-        grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
-        
         # Filtrar por grupo específico si se proporciona grupo_id
         grupo_id = self.request.query_params.get('grupo_id')
         if grupo_id:
+            # Obtener todos los grupos donde el usuario es miembro
+            grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
+            
             # Verificar que el usuario sea miembro del grupo
             if int(grupo_id) not in grupos_ids:
                 return models.Egreso.objects.none()
             return models.Egreso.objects.filter(grupo_id=grupo_id)
         
-        # Si no hay grupo_id, mostrar egresos personales Y de todos los grupos del usuario
-        return models.Egreso.objects.filter(
-            Q(usuario=user) | Q(grupo__in=grupos_ids)
-        )
+        # Si no hay grupo_id, mostrar SOLO egresos personales (sin grupo)
+        return models.Egreso.objects.filter(usuario=user, grupo__isnull=True)
 
     def perform_create(self, serializer):
         user = self.request.user

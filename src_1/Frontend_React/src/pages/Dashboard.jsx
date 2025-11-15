@@ -101,6 +101,7 @@ function TxRow({ title, subtitle, rawAmount, date, positive, author }) {
 
 export default function Dashboard() {
   const { activeGroup, getActiveGroupInfo } = useGroup()
+  const { user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState(null)
   const [monthly, setMonthly] = useState([])
@@ -194,7 +195,27 @@ export default function Dashboard() {
   }
 
   return (
-  <div className="space-y-16 sm:space-y-24 xl:space-y-28 fade-in max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20 py-8 sm:py-12">
+  <div className="space-y-8 sm:space-y-10 xl:space-y-12 fade-in max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20 py-8 sm:py-12">
+      {/* Mensaje de Bienvenida Personalizado */}
+      <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 rounded-2xl md:rounded-3xl p-6 md:p-8 text-white shadow-2xl">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <span className="text-4xl">👋</span>
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">
+              ¡Bienvenido, {user?.nombre || user?.email?.split('@')[0] || 'Usuario'}!
+            </h1>
+            <p className="text-emerald-100 text-sm md:text-base mt-1">
+              {activeGroup ? `Estás viendo el grupo: ${getActiveGroupInfo()?.nombre || 'Sin nombre'}` : 'Gestiona tus finanzas personales'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Espaciador */}
+      <div className="h-4"></div>
+      
       {/* Header */}
   <div className="bg-gradient-to-r from-emerald-500 via-green-600 to-lime-500 rounded-2xl md:rounded-3xl p-8 md:p-10 lg:p-12 text-white shadow-2xl mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

@@ -47,6 +47,14 @@ export default function Header({ onMenuToggle, isMenuOpen }) {
 
         {isAuthenticated ? (
           <div className="flex items-center gap-4">
+            {/* Mensaje de bienvenida */}
+            <div className="hidden lg:flex flex-col items-end">
+              <span className="text-xs text-gray-500">Bienvenido</span>
+              <span className="text-sm font-semibold text-gray-800">
+                {user?.nombre || user?.email || 'Usuario'}
+              </span>
+            </div>
+            
             {activeGroup && (
               <div className="hidden md:flex px-3 py-1.5 text-xs rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-medium">
                 Grupo activo: {membersCount} {membersCount === 1 ? 'persona' : 'personas'}
