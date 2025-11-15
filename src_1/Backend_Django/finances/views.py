@@ -333,20 +333,21 @@ class IngresoViewSet(viewsets.ModelViewSet):
         if not user or user.is_anonymous:
             return models.Ingreso.objects.none()
         
+        # Obtener todos los grupos donde el usuario es miembro
+        grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
+        
         # Filtrar por grupo específico si se proporciona grupo_id
         grupo_id = self.request.query_params.get('grupo_id')
         if grupo_id:
             # Verificar que el usuario sea miembro del grupo
-            es_miembro = models.UsuarioGrupo.objects.filter(
-                usuario=user,
-                grupo_id=grupo_id
-            ).exists()
-            if not es_miembro:
+            if int(grupo_id) not in grupos_ids:
                 return models.Ingreso.objects.none()
             return models.Ingreso.objects.filter(grupo_id=grupo_id)
         
-        # Si no hay grupo_id, mostrar solo ingresos personales del usuario
-        return models.Ingreso.objects.filter(usuario=user)
+        # Si no hay grupo_id, mostrar ingresos personales Y de todos los grupos del usuario
+        return models.Ingreso.objects.filter(
+            Q(usuario=user) | Q(grupo__in=grupos_ids)
+        )
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -413,20 +414,21 @@ class EgresoViewSet(viewsets.ModelViewSet):
         if not user or user.is_anonymous:
             return models.Egreso.objects.none()
         
+        # Obtener todos los grupos donde el usuario es miembro
+        grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
+        
         # Filtrar por grupo específico si se proporciona grupo_id
         grupo_id = self.request.query_params.get('grupo_id')
         if grupo_id:
             # Verificar que el usuario sea miembro del grupo
-            es_miembro = models.UsuarioGrupo.objects.filter(
-                usuario=user,
-                grupo_id=grupo_id
-            ).exists()
-            if not es_miembro:
+            if int(grupo_id) not in grupos_ids:
                 return models.Egreso.objects.none()
             return models.Egreso.objects.filter(grupo_id=grupo_id)
         
-        # Si no hay grupo_id, mostrar solo egresos personales del usuario
-        return models.Egreso.objects.filter(usuario=user)
+        # Si no hay grupo_id, mostrar egresos personales Y de todos los grupos del usuario
+        return models.Egreso.objects.filter(
+            Q(usuario=user) | Q(grupo__in=grupos_ids)
+        )
 
     def perform_create(self, serializer):
         user = self.request.user
