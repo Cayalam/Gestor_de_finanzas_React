@@ -174,35 +174,38 @@ class BolsilloViewSet(viewsets.ModelViewSet):
             if not es_miembro:
                 raise ValidationError({'detail': 'No eres miembro de este grupo'})
             
-            # Solo validar balance si el monto del bolsillo es mayor a 0
+            # Si se especifica un monto inicial, transferir desde el bolsillo General
             if monto_bolsillo > 0:
-                # Calcular balance disponible del grupo
-                total_ingresos = models.Ingreso.objects.filter(grupo_id=grupo_id).aggregate(
-                    total=Sum('monto')
-                )['total'] or 0
-                
-                total_egresos = models.Egreso.objects.filter(grupo_id=grupo_id).aggregate(
-                    total=Sum('monto')
-                )['total'] or 0
-                
-                total_bolsillos = models.Bolsillo.objects.filter(grupo_id=grupo_id).aggregate(
-                    total=Sum('saldo')
-                )['total'] or 0
-                
-                balance_disponible = total_ingresos - total_egresos - total_bolsillos
-                
-                # Validar que el grupo tenga dinero
-                if total_ingresos == 0:
-                    raise ValidationError({'detail': 'El grupo no tiene ingresos. Los miembros deben aportar dinero primero para crear bolsillos con saldo.'})
-                
-                # Validar que el monto del bolsillo no exceda el balance disponible
-                if monto_bolsillo > balance_disponible:
+                # Buscar el bolsillo "General" del grupo
+                try:
+                    bolsillo_general = models.Bolsillo.objects.get(
+                        grupo_id=grupo_id,
+                        nombre='General'
+                    )
+                except models.Bolsillo.DoesNotExist:
                     raise ValidationError({
-                        'detail': f'Saldo insuficiente. Balance disponible: {balance_disponible:.2f}',
-                        'balance_disponible': float(balance_disponible)
+                        'detail': 'No se encontró el bolsillo General del grupo. Crea primero el bolsillo General.'
                     })
-            
-            serializer.save(grupo_id=grupo_id)
+                
+                # Verificar que el bolsillo General tenga saldo suficiente
+                if bolsillo_general.saldo < monto_bolsillo:
+                    raise ValidationError({
+                        'detail': f'Saldo insuficiente en el bolsillo General. Saldo disponible: ${bolsillo_general.saldo:.2f}',
+                        'saldo_disponible': float(bolsillo_general.saldo)
+                    })
+                
+                # Crear el bolsillo primero con saldo 0
+                nuevo_bolsillo = serializer.save(grupo_id=grupo_id, saldo=0)
+                
+                # Realizar la transferencia interna
+                bolsillo_general.saldo -= monto_bolsillo
+                bolsillo_general.save()
+                
+                nuevo_bolsillo.saldo = monto_bolsillo
+                nuevo_bolsillo.save()
+            else:
+                # Crear bolsillo sin saldo inicial
+                serializer.save(grupo_id=grupo_id)
         else:
             serializer.save(usuario=user)
 
