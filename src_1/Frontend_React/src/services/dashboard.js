@@ -160,6 +160,7 @@ export async function getRecentTransactions(grupoId = null) {
     amount: Number(t.monto ?? t.amount ?? 0),
     date: formatDate(t.fecha ?? t.date),
     positive: type==='income',
+    author: t.creado_por_info?.nombre || t.creado_por_info?.email || null,
   }))
   const items = [...normalize(ing, 'income'), ...normalize(egr, 'expense')].sort((a,b)=> new Date(b.date) - new Date(a.date))
   return items.slice(0,5)

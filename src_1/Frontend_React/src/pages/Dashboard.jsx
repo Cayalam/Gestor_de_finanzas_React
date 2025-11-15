@@ -63,7 +63,7 @@ function CategoryBar({ name, rawAmount, percent }) {
   )
 }
 
-function TxRow({ title, subtitle, rawAmount, date, positive }) {
+function TxRow({ title, subtitle, rawAmount, date, positive, author }) {
   const amount = formatCurrency(Math.abs(rawAmount))
   const sign = positive ? '+' : '-'
   
@@ -75,7 +75,18 @@ function TxRow({ title, subtitle, rawAmount, date, positive }) {
         </div>
         <div>
           <p className="font-semibold text-gray-900">{title}</p>
-          <p className="text-sm text-gray-500">{subtitle}</p>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span>{subtitle}</span>
+            {author && (
+              <>
+                <span>•</span>
+                <div className="flex items-center gap-1">
+                  <span>👤</span>
+                  <span className="font-medium">{author}</span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
       <div className="text-right">
@@ -367,7 +378,15 @@ export default function Dashboard() {
         {data.transactions?.length ? (
           <div className="space-y-2">
             {data.transactions.map((t, i) => (
-              <TxRow key={i} title={t.title} subtitle={t.subtitle} rawAmount={t.amount} date={t.date} positive={t.positive} />
+              <TxRow 
+                key={i} 
+                title={t.title} 
+                subtitle={t.subtitle} 
+                rawAmount={t.amount} 
+                date={t.date} 
+                positive={t.positive}
+                author={t.author}
+              />
             ))}
           </div>
         ) : (
