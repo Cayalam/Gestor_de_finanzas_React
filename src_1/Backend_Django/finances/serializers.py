@@ -99,30 +99,30 @@ class IngresoSerializer(serializers.ModelSerializer):
             }
         
         # Incluir información del usuario que creó la transacción
-        # Intentar varias fuentes para obtener el autor
+        # Prioridad: creado_por > usuario > aportacion
         usuario_autor = None
         
-        # 1. Si tiene usuario directo (transacción personal)
-        if instance.usuario:
+        # 1. Primero intentar con creado_por (el más confiable)
+        if instance.creado_por:
+            usuario_autor = instance.creado_por
+        # 2. Si tiene usuario directo (transacción personal)
+        elif instance.usuario:
             usuario_autor = instance.usuario
-        # 2. Si es una aportación al grupo, buscar en la relación inversa
+        # 3. Si es una aportación al grupo, buscar en la relación inversa
         elif hasattr(instance, 'aportacion_ingreso'):
             aportacion = instance.aportacion_ingreso.first()
             if aportacion and aportacion.usuario:
                 usuario_autor = aportacion.usuario
-        # 3. Si tiene creado_por (campo agregado recientemente)
-        elif hasattr(instance, 'creado_por') and instance.creado_por:
-            usuario_autor = instance.creado_por
         
         # Agregar información del usuario autor
         if usuario_autor:
-            representation['usuario'] = {
+            representation['creado_por_info'] = {
                 'usuario_id': usuario_autor.usuario_id,
                 'email': usuario_autor.email,
                 'nombre': usuario_autor.nombre,
             }
         else:
-            representation['usuario'] = None
+            representation['creado_por_info'] = None
         
         return representation
 
@@ -155,30 +155,30 @@ class EgresoSerializer(serializers.ModelSerializer):
             }
         
         # Incluir información del usuario que creó la transacción
-        # Intentar varias fuentes para obtener el autor
+        # Prioridad: creado_por > usuario > aportacion
         usuario_autor = None
         
-        # 1. Si tiene usuario directo (transacción personal)
-        if instance.usuario:
+        # 1. Primero intentar con creado_por (el más confiable)
+        if instance.creado_por:
+            usuario_autor = instance.creado_por
+        # 2. Si tiene usuario directo (transacción personal)
+        elif instance.usuario:
             usuario_autor = instance.usuario
-        # 2. Si es una aportación del grupo, buscar en la relación inversa
+        # 3. Si es una aportación del grupo, buscar en la relación inversa
         elif hasattr(instance, 'aportacion_egreso'):
             aportacion = instance.aportacion_egreso.first()
             if aportacion and aportacion.usuario:
                 usuario_autor = aportacion.usuario
-        # 3. Si tiene creado_por (campo agregado recientemente)
-        elif hasattr(instance, 'creado_por') and instance.creado_por:
-            usuario_autor = instance.creado_por
         
         # Agregar información del usuario autor
         if usuario_autor:
-            representation['usuario'] = {
+            representation['creado_por_info'] = {
                 'usuario_id': usuario_autor.usuario_id,
                 'email': usuario_autor.email,
                 'nombre': usuario_autor.nombre,
             }
         else:
-            representation['usuario'] = None
+            representation['creado_por_info'] = None
         
         return representation
 

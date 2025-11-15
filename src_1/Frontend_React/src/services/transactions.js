@@ -39,8 +39,9 @@ export async function list(grupoId = null) {
     pocketId: x.bolsillo?.bolsillo_id ?? x.bolsillo?.id ?? x.bolsilloId,
     description: x.descripcion ?? x.description ?? '',
     // Información del usuario que creó la transacción
-    userName: x.usuario?.nombre ?? null,
-    userEmail: x.usuario?.email ?? null,
+    creado_por_info: x.creado_por_info ?? null,
+    userName: x.usuario?.nombre ?? x.creado_por_info?.nombre ?? null,
+    userEmail: x.usuario?.email ?? x.creado_por_info?.email ?? null,
   }))
   const items = [...normalize(ing, 'income'), ...normalize(egr, 'expense')]
   return items.sort((a,b)=> new Date(b.date) - new Date(a.date))
@@ -91,6 +92,9 @@ export async function create(tx, grupoId = null) {
       pocket: data.bolsillo?.nombre ?? tx.pocket,
       pocketId: data.bolsillo?.bolsillo_id ?? data.bolsillo?.id ?? tx.pocketId,
       description: data.descripcion ?? tx.description,
+      creado_por_info: data.creado_por_info ?? null,
+      userName: data.creado_por_info?.nombre ?? null,
+      userEmail: data.creado_por_info?.email ?? null,
     }
   } else {
     const { data } = await api.post('/egresos/', basePayload)
@@ -104,6 +108,9 @@ export async function create(tx, grupoId = null) {
       pocket: data.bolsillo?.nombre ?? tx.pocket,
       pocketId: data.bolsillo?.bolsillo_id ?? data.bolsillo?.id ?? tx.pocketId,
       description: data.descripcion ?? tx.description,
+      creado_por_info: data.creado_por_info ?? null,
+      userName: data.creado_por_info?.nombre ?? null,
+      userEmail: data.creado_por_info?.email ?? null,
     }
   }
 }
@@ -194,6 +201,9 @@ export async function update(id, type, tx, grupoId = null) {
       pocket: data.bolsillo?.nombre ?? tx.pocket,
       pocketId: data.bolsillo?.bolsillo_id ?? data.bolsillo?.id ?? tx.pocketId,
       description: data.descripcion ?? tx.description,
+      creado_por_info: data.creado_por_info ?? null,
+      userName: data.creado_por_info?.nombre ?? null,
+      userEmail: data.creado_por_info?.email ?? null,
     }
   } else {
     const { data } = await api.patch(`/egresos/${id}/`, basePayload)
@@ -207,6 +217,9 @@ export async function update(id, type, tx, grupoId = null) {
       pocket: data.bolsillo?.nombre ?? tx.pocket,
       pocketId: data.bolsillo?.bolsillo_id ?? data.bolsillo?.id ?? tx.pocketId,
       description: data.descripcion ?? tx.description,
+      creado_por_info: data.creado_por_info ?? null,
+      userName: data.creado_por_info?.nombre ?? null,
+      userEmail: data.creado_por_info?.email ?? null,
     }
   }
 }

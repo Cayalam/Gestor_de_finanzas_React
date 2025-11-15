@@ -548,23 +548,25 @@ export default function Transactions() {
                     </span>
                   </div>
                 </div>
-                {activeGroup && (
-                  <div className="col-span-2 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <span>👤</span>
-                      <span className="truncate">
-                        {it.userName || (it.userEmail ? it.userEmail.split('@')[0] : 'Sin autor')}
-                      </span>
-                    </div>
+                {/* Mostrar quién hizo la transacción (tanto en grupos como personales) */}
+                <div className="col-span-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <span>👤</span>
+                    <span className="truncate">
+                      {it.creado_por_info?.nombre || 
+                       (it.creado_por_info?.email ? it.creado_por_info.email.split('@')[0] : null) ||
+                       it.userName || 
+                       (it.userEmail ? it.userEmail.split('@')[0] : 'Sin autor')}
+                    </span>
                   </div>
-                )}
-                <div className={`${activeGroup ? 'col-span-2' : 'col-span-2'} text-sm text-gray-600`}>
+                </div>
+                <div className="col-span-2 text-sm text-gray-600">
                   {formatLocalDate(it.date || it.fecha)}
                 </div>
-                <div className={`${activeGroup ? 'col-span-2' : 'col-span-2'} text-lg font-bold ${it.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                <div className="col-span-2 text-lg font-bold ${it.type === 'income' ? 'text-green-600' : 'text-red-600'}">
                   {it.type === 'income' ? '+' : '-'}{formatCurrency(Number(it.amount))}
                 </div>
-                <div className={`${activeGroup ? 'col-span-2' : 'col-span-3'} flex items-center gap-3 justify-end`}>
+                <div className="col-span-2 flex items-center gap-3 justify-end">
                   <button
                     onClick={() => startEdit(it)}
                     className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
