@@ -210,38 +210,47 @@ class BolsilloViewSet(viewsets.ModelViewSet):
             serializer.save(usuario=user)
 
     def perform_update(self, serializer):
-        from django.db.models import Sum
         from rest_framework.exceptions import ValidationError
         
         bolsillo = self.get_object()
         nuevo_saldo = serializer.validated_data.get('saldo', bolsillo.saldo)
+        saldo_anterior = bolsillo.saldo
         
-        # Solo validar si el bolsillo pertenece a un grupo
-        if bolsillo.grupo:
-            # Calcular balance disponible del grupo (sin contar el saldo actual de este bolsillo)
-            total_ingresos = models.Ingreso.objects.filter(grupo=bolsillo.grupo).aggregate(
-                total=Sum('monto')
-            )['total'] or 0
-            
-            total_egresos = models.Egreso.objects.filter(grupo=bolsillo.grupo).aggregate(
-                total=Sum('monto')
-            )['total'] or 0
-            
-            # Suma de saldos de otros bolsillos (excluyendo el actual)
-            total_otros_bolsillos = models.Bolsillo.objects.filter(
-                grupo=bolsillo.grupo
-            ).exclude(bolsillo_id=bolsillo.bolsillo_id).aggregate(
-                total=Sum('saldo')
-            )['total'] or 0
-            
-            balance_disponible = total_ingresos - total_egresos - total_otros_bolsillos
-            
-            # Validar que el nuevo saldo no exceda el balance disponible
-            if nuevo_saldo > balance_disponible:
+        # Solo validar si el bolsillo pertenece a un grupo Y el saldo cambió
+        if bolsillo.grupo and nuevo_saldo != saldo_anterior:
+            # No permitir editar el saldo del bolsillo General directamente
+            if bolsillo.nombre == 'General':
                 raise ValidationError({
-                    'detail': f'Saldo insuficiente. Balance disponible: {balance_disponible:.2f}',
-                    'balance_disponible': float(balance_disponible)
+                    'detail': 'No puedes editar el saldo del bolsillo General directamente. El saldo se actualiza automáticamente con las transacciones del grupo.'
                 })
+            
+            # Buscar el bolsillo General
+            try:
+                bolsillo_general = models.Bolsillo.objects.get(
+                    grupo=bolsillo.grupo,
+                    nombre='General'
+                )
+            except models.Bolsillo.DoesNotExist:
+                raise ValidationError({
+                    'detail': 'No se encontró el bolsillo General del grupo.'
+                })
+            
+            # Calcular la diferencia
+            diferencia = nuevo_saldo - saldo_anterior
+            
+            if diferencia > 0:
+                # Aumentar saldo: transferir desde General
+                if bolsillo_general.saldo < diferencia:
+                    raise ValidationError({
+                        'detail': f'Saldo insuficiente en el bolsillo General. Saldo disponible: ${bolsillo_general.saldo:.2f}, necesitas: ${diferencia:.2f}',
+                        'saldo_disponible': float(bolsillo_general.saldo)
+                    })
+                bolsillo_general.saldo -= diferencia
+                bolsillo_general.save()
+            else:
+                # Disminuir saldo: devolver a General
+                bolsillo_general.saldo += abs(diferencia)
+                bolsillo_general.save()
         
         serializer.save()
 
