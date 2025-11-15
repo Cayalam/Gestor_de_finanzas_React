@@ -10,6 +10,7 @@ import Transactions from './pages/Transactions.jsx'
 import Categories from './pages/Categories.jsx'
 import Pockets from './pages/Pockets.jsx'
 import Groups from './pages/Groups.jsx'
+import BackendStatus from './components/BackendStatus.jsx'
 import './App.css'
 import Header from './components/Header.jsx'
 import { useState, useEffect, useRef } from 'react'
@@ -101,6 +102,7 @@ function HomeRedirect() {
 function App() {
   return (
     <GroupProvider>
+      <BackendStatus />
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
         <Route
