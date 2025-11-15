@@ -141,20 +141,21 @@ class BolsilloViewSet(viewsets.ModelViewSet):
         if not user or user.is_anonymous:
             return models.Bolsillo.objects.none()
         
+        # Obtener todos los grupos donde el usuario es miembro
+        grupos_ids = models.UsuarioGrupo.objects.filter(usuario=user).values_list('grupo', flat=True)
+        
         # Filtrar por grupo específico si se proporciona grupo_id
         grupo_id = self.request.query_params.get('grupo_id')
         if grupo_id:
             # Verificar que el usuario sea miembro del grupo
-            es_miembro = models.UsuarioGrupo.objects.filter(
-                usuario=user,
-                grupo_id=grupo_id
-            ).exists()
-            if not es_miembro:
+            if int(grupo_id) not in grupos_ids:
                 return models.Bolsillo.objects.none()
             return models.Bolsillo.objects.filter(grupo_id=grupo_id)
         
-        # Si no hay grupo_id, mostrar solo bolsillos personales del usuario
-        return models.Bolsillo.objects.filter(usuario=user)
+        # Si no hay grupo_id, mostrar bolsillos personales Y de todos los grupos del usuario
+        return models.Bolsillo.objects.filter(
+            Q(usuario=user) | Q(grupo__in=grupos_ids)
+        )
 
     def perform_create(self, serializer):
         from django.db.models import Sum
@@ -173,31 +174,33 @@ class BolsilloViewSet(viewsets.ModelViewSet):
             if not es_miembro:
                 raise ValidationError({'detail': 'No eres miembro de este grupo'})
             
-            # Calcular balance disponible del grupo
-            total_ingresos = models.Ingreso.objects.filter(grupo_id=grupo_id).aggregate(
-                total=Sum('monto')
-            )['total'] or 0
-            
-            total_egresos = models.Egreso.objects.filter(grupo_id=grupo_id).aggregate(
-                total=Sum('monto')
-            )['total'] or 0
-            
-            total_bolsillos = models.Bolsillo.objects.filter(grupo_id=grupo_id).aggregate(
-                total=Sum('saldo')
-            )['total'] or 0
-            
-            balance_disponible = total_ingresos - total_egresos - total_bolsillos
-            
-            # Validar que el grupo tenga dinero
-            if total_ingresos == 0:
-                raise ValidationError({'detail': 'El grupo no tiene ingresos. Los miembros deben aportar dinero primero.'})
-            
-            # Validar que el monto del bolsillo no exceda el balance disponible
-            if monto_bolsillo > balance_disponible:
-                raise ValidationError({
-                    'detail': f'Saldo insuficiente. Balance disponible: {balance_disponible:.2f}',
-                    'balance_disponible': float(balance_disponible)
-                })
+            # Solo validar balance si el monto del bolsillo es mayor a 0
+            if monto_bolsillo > 0:
+                # Calcular balance disponible del grupo
+                total_ingresos = models.Ingreso.objects.filter(grupo_id=grupo_id).aggregate(
+                    total=Sum('monto')
+                )['total'] or 0
+                
+                total_egresos = models.Egreso.objects.filter(grupo_id=grupo_id).aggregate(
+                    total=Sum('monto')
+                )['total'] or 0
+                
+                total_bolsillos = models.Bolsillo.objects.filter(grupo_id=grupo_id).aggregate(
+                    total=Sum('saldo')
+                )['total'] or 0
+                
+                balance_disponible = total_ingresos - total_egresos - total_bolsillos
+                
+                # Validar que el grupo tenga dinero
+                if total_ingresos == 0:
+                    raise ValidationError({'detail': 'El grupo no tiene ingresos. Los miembros deben aportar dinero primero para crear bolsillos con saldo.'})
+                
+                # Validar que el monto del bolsillo no exceda el balance disponible
+                if monto_bolsillo > balance_disponible:
+                    raise ValidationError({
+                        'detail': f'Saldo insuficiente. Balance disponible: {balance_disponible:.2f}',
+                        'balance_disponible': float(balance_disponible)
+                    })
             
             serializer.save(grupo_id=grupo_id)
         else:
@@ -253,16 +256,24 @@ class BolsilloViewSet(viewsets.ModelViewSet):
             return super().create(request, *args, **kwargs)
         except IntegrityError as e:
             return Response({'detail': 'Ya existe un bolsillo con ese nombre para este usuario o grupo.'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
-            return Response({'detail': 'Error al crear el bolsillo.'}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            # Re-lanzar ValidationError para que se muestre el mensaje específico
+            raise e
+        except Exception as e:
+            logger.error(f"Error al crear bolsillo: {str(e)}")
+            return Response({'detail': f'Error al crear el bolsillo: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         try:
             return super().update(request, *args, **kwargs)
         except IntegrityError:
             return Response({'detail': 'No se puede actualizar: nombre duplicado para este usuario o grupo.'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
-            return Response({'detail': 'Error al actualizar el bolsillo.'}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            # Re-lanzar ValidationError para que se muestre el mensaje específico
+            raise e
+        except Exception as e:
+            logger.error(f"Error al actualizar bolsillo: {str(e)}")
+            return Response({'detail': f'Error al actualizar el bolsillo: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoriaViewSet(viewsets.ModelViewSet):
