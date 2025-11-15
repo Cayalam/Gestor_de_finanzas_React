@@ -296,7 +296,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 ## 👨‍💻 Autores
 
-- **Ivan Perez** - *Desarrollo Principal* - [Cayalam](https://github.com/Cayalam)
+- **Carlos Eduardo Ayala Moreno** - *Desarrollo Principal* - [Cayalam](https://github.com/Cayalam)
 
 ## 🙏 Agradecimientos
 
