@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useGroup } from '../context/GroupContext'
 import { jwtDecode } from 'jwt-decode'
 import * as groupsService from '../services/groups'
 import * as userGroupService from '../services/userGroup'
@@ -7,6 +8,7 @@ import * as usersService from '../services/users'
 
 export default function Groups() {
   const { user } = useAuth()
+  const { loadGroups } = useGroup()
   
   // Obtener usuario del token como fallback
   const getUserFromToken = () => {
@@ -158,6 +160,10 @@ export default function Groups() {
         // Actualizar grupo existente
         const updated = await groupsService.update(editingGroup.id || editingGroup.grupo_id, form)
         setItems(prev => prev.map(g => (g.id || g.grupo_id) === (editingGroup.id || editingGroup.grupo_id) ? updated : g))
+        
+        // Recargar grupos en el contexto
+        await loadGroups()
+        
         setOpen(false)
         setEditingGroup(null)
         setForm({ nombre: '', descripcion: '' })
@@ -180,6 +186,10 @@ export default function Groups() {
         }
         
         setItems(prev => [created, ...prev])
+        
+        // Recargar grupos en el contexto
+        await loadGroups()
+        
         setOpen(false)
         setForm({ nombre: '', descripcion: '' })
         setNewMembers([])
@@ -211,6 +221,9 @@ export default function Groups() {
   const remove = async (id) => {
     await groupsService.remove(id)
     setItems(prev => prev.filter(x => x.id !== id))
+    
+    // Recargar grupos en el contexto
+    await loadGroups()
   }
 
   const openMembersModal = async (group) => {
@@ -300,6 +313,9 @@ export default function Groups() {
       // Recargar miembros
       const data = await userGroupService.listMembers(selectedGroup.id || selectedGroup.grupo_id)
       setMembers(data)
+      
+      // Recargar grupos en el contexto para actualizar contador de miembros
+      await loadGroups()
     } catch (err) {
       const detail = err?.response?.data?.detail
       setError(detail || 'Error al agregar el usuario')
