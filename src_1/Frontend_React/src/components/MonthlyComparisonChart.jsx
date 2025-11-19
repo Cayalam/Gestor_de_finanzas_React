@@ -7,12 +7,24 @@ import {
   BarElement,
   PointElement,
   LineElement,
+  LineController,
+  BarController,
   Tooltip,
   Legend
 } from 'chart.js'
 import { formatCurrency } from '../utils/currency'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Tooltip, Legend)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  LineController,
+  BarController,
+  Tooltip,
+  Legend
+)
 
 export default function MonthlyComparisonChart({ data = [], months = 6 }) {
   const labels = data.map(d => d.month)

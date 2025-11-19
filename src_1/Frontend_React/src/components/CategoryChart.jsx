@@ -5,13 +5,24 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  BarController,
   ArcElement,
+  PieController,
   Tooltip,
   Legend
 } from 'chart.js'
 import { formatCurrency } from '../utils/currency'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  BarController,
+  ArcElement,
+  PieController,
+  Tooltip,
+  Legend
+)
 
 export default function CategoryChart({ data = [], type = 'income' }) {
   // Generar colores dinámicos para las categorías
