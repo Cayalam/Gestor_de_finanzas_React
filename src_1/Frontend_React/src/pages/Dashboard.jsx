@@ -5,6 +5,7 @@ import * as dashboardService from '../services/dashboard'
 import * as statsService from '../services/stats'
 import { formatCurrency } from '../utils/currency'
 import MonthlyComparisonChart from '../components/MonthlyComparisonChart'
+import CategoryChart from '../components/CategoryChart'
 
 function StatCard({ title, value: rawValue, icon, trend }) {
   const value = typeof rawValue === 'string' ? rawValue : formatCurrency(Number(rawValue) || 0)
@@ -105,6 +106,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState(null)
   const [monthly, setMonthly] = useState([])
+  const [categoryData, setCategoryData] = useState([])
   const [monthsBack, setMonthsBack] = useState(6)
   const [selectedDate, setSelectedDate] = useState(() => {
     const now = new Date()
@@ -138,6 +140,7 @@ export default function Dashboard() {
       console.log('Dashboard Overview:', overview)
       const recent = await dashboardService.getRecentTransactions(activeGroup)
       const monthlyData = await statsService.getMonthlyIncomeExpense(activeGroup, monthsBack, groupBy, referenceDate)
+      const categoryStats = await statsService.getCategoryStats(activeGroup, monthsBack, referenceDate)
       
       // Procesar y actualizar los datos
       const processedData = { 
@@ -147,13 +150,16 @@ export default function Dashboard() {
         transactions: recent || []
       }
       console.log('Processed Dashboard Data:', processedData)
+      console.log('Category Stats:', categoryStats)
       
       setData(processedData)
       setMonthly(monthlyData || [])
+      setCategoryData(categoryStats || [])
     } catch (error) {
       console.error('Error loading dashboard:', error)
       setData({ stats: [], pockets: [], categories: [], transactions: [] })
       setMonthly([])
+      setCategoryData([])
     } finally {
       setLoading(false)
     }
@@ -381,6 +387,30 @@ export default function Dashboard() {
           <div className="text-center py-12 text-gray-500">
             <span className="text-5xl mb-3 block">📊</span>
             <p>No hay datos suficientes para mostrar la comparativa</p>
+          </div>
+        )}
+      </div>
+
+      {/* Espaciador visual */}
+      <div className="w-full h-6"></div>
+
+      {/* Análisis por Categorías */}
+      <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center">
+            <span className="text-xl">🏷️</span>
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">Análisis por Categorías</h3>
+            <p className="text-sm text-gray-600 mt-1">Visualiza tus ingresos y gastos distribuidos por categoría</p>
+          </div>
+        </div>
+        {categoryData.length ? (
+          <CategoryChart data={categoryData} />
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            <span className="text-5xl mb-3 block">🏷️</span>
+            <p>No hay datos de categorías para mostrar</p>
           </div>
         )}
       </div>

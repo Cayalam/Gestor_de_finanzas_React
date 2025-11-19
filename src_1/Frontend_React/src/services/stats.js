@@ -97,4 +97,66 @@ export async function getMonthlyIncomeExpense(grupoId = null, monthsBack = 6, gr
   }))
 }
 
-export default { getMonthlyIncomeExpense }
+// Obtiene estadísticas de ingresos y egresos agrupados por categoría
+export async function getCategoryStats(grupoId = null, monthsBack = 6, referenceDate = null) {
+  const params = grupoId ? { grupo_id: grupoId } : {}
+  const [ingRes, egrRes] = await Promise.all([
+    api.get('/ingresos/', { params }),
+    api.get('/egresos/', { params }),
+  ])
+  const ingresos = ingRes.data || []
+  const egresos = egrRes.data || []
+
+  // Calcular fecha de corte si se especifica
+  let cutoffDate = null
+  if (monthsBack && referenceDate) {
+    const [refYear, refMonth] = referenceDate.split('-').map(Number)
+    cutoffDate = new Date(refYear, refMonth - monthsBack, 1)
+  }
+
+  // Filtrar por fecha si hay cutoff
+  const filteredIngresos = cutoffDate 
+    ? ingresos.filter(i => new Date(i.fecha || i.date) >= cutoffDate)
+    : ingresos
+  
+  const filteredEgresos = cutoffDate
+    ? egresos.filter(e => new Date(e.fecha || e.date) >= cutoffDate)
+    : egresos
+
+  // Agrupar ingresos por categoría
+  const incomeByCategory = {}
+  filteredIngresos.forEach(i => {
+    const categoria = i.categoria?.nombre || i.categoria || i.category || 'Sin categoría'
+    const monto = Number(i.monto ?? i.amount ?? 0)
+    incomeByCategory[categoria] = (incomeByCategory[categoria] || 0) + monto
+  })
+
+  // Agrupar egresos por categoría
+  const expenseByCategory = {}
+  filteredEgresos.forEach(e => {
+    const categoria = e.categoria?.nombre || e.categoria || e.category || 'Sin categoría'
+    const monto = Number(e.monto ?? e.amount ?? 0)
+    expenseByCategory[categoria] = (expenseByCategory[categoria] || 0) + monto
+  })
+
+  // Obtener todas las categorías únicas
+  const allCategories = new Set([
+    ...Object.keys(incomeByCategory),
+    ...Object.keys(expenseByCategory)
+  ])
+
+  // Formatear datos para las gráficas
+  const categoryData = Array.from(allCategories).map(categoria => ({
+    category: categoria,
+    income: incomeByCategory[categoria] || 0,
+    expense: expenseByCategory[categoria] || 0,
+    net: (incomeByCategory[categoria] || 0) - (expenseByCategory[categoria] || 0)
+  }))
+
+  // Ordenar por total (ingreso + egreso) descendente
+  categoryData.sort((a, b) => (b.income + b.expense) - (a.income + a.expense))
+
+  return categoryData
+}
+
+export default { getMonthlyIncomeExpense, getCategoryStats }
