@@ -10,6 +10,16 @@ from django.db.models.deletion import RestrictedError
 from django.db import IntegrityError
 import logging
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class HealthCheckAPIView(APIView):
+    permission_classes = []
+    authentication_classes = []
+
+    def get(self, request):
+        return Response({'status': 'ok'}, status=200)
+
 logger = logging.getLogger(__name__)
 
 

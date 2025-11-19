@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +22,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-2krera$qojp07a!f&*z35-ul2%$ho*68x&m$57)$x&!y)9dr#8'
+# Se toma de variable de entorno SECRET_KEY; valor inseguro por defecto sólo para desarrollo local.
+SECRET_KEY = os.getenv('SECRET_KEY', 'insecure-dev-key-change-me')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG controlado por variable de entorno DEBUG=true|false
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS configurado vía env ALLOWED_HOSTS="dominio1,dominio2". Incluye localhost por defecto.
+_allowed_hosts_env = os.getenv('ALLOWED_HOSTS')
+ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts_env.split(',') if h.strip()] if _allowed_hosts_env else ['localhost', '127.0.0.1']
+
+# CSRF_TRUSTED_ORIGINS (para dominios HTTPS en Railway)
+_csrf_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS')
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins_env.split(',') if o.strip()] if _csrf_origins_env else [
+    'https://*.railway.app'
+]
 
 
 # Application definition
@@ -54,6 +65,8 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Whitenoise para servir archivos estáticos en producción (Railway)
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -86,12 +99,19 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Base de datos: si hay DATABASE_URL (Postgres en Railway) usarla; si no, fallback a sqlite local.
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=False)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -128,7 +148,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Whitenoise storage para compresión y hash de archivos en producción
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -141,6 +165,11 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',  # Vite default
     'http://localhost:3000',  # create-react-app default
 ]
+
+# Permitir sobrescritura mediante variable de entorno CORS_ALLOWED_ORIGINS="https://dominio1,https://dominio2"
+_cors_env = os.getenv('CORS_ALLOWED_ORIGINS')
+if _cors_env:
+    CORS_ALLOWED_ORIGINS = [c.strip() for c in _cors_env.split(',') if c.strip()]
 
 # Allow credentials (cookies) if you use session authentication; not required for token auth
 CORS_ALLOW_CREDENTIALS = True

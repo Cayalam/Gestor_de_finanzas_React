@@ -4,5 +4,16 @@ setuptools==80.9.0
 sqlparse==0.5.3
 tzdata==2025.2
 wheel==0.45.1
-djangorestframework
-django-cors-headers
+djangorestframework==3.15.2
+django-cors-headers==4.4.0
+
+# Despliegue en Railway / Producción
+# gunicorn no se usa en Windows local (incompatible) pero sí en Railway (Linux)
+gunicorn==22.0.0; sys_platform != 'win32'
+whitenoise==6.6.0
+dj-database-url==2.2.0
+python-dotenv==1.0.1
+
+# Nota: psycopg2-binary solo necesario cuando se usa Postgres.
+# No instalar en Python 3.13 (no hay wheel estable todavía) -> Railway usará Python 3.12.2 según runtime.txt
+psycopg2-binary==2.9.9; python_version < '3.13'
