@@ -39,7 +39,7 @@ export default function Login() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 mb-6 shadow-lg">
             <span className="text-4xl">💰</span>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-3">Bienvenido de nuevo</h1>
+          <h1 className="text-4xl font-bold text-white mb-3">FinanzaApp</h1>
           <p className="text-lg text-emerald-100">Ingresa a tu cuenta para continuar</p>
         </div>
 
