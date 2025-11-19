@@ -12,4 +12,13 @@ export default defineConfig({
     port: 3000,
     host: true,
   },
+  preview: {
+    port: 8080,
+    host: '0.0.0.0',
+    strictPort: false,
+    allowedHosts: [
+      'motivated-mercy-production.up.railway.app',
+      '.railway.app'
+    ]
+  }
 })
