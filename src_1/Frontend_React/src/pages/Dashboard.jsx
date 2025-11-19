@@ -108,11 +108,17 @@ export default function Dashboard() {
   const [monthly, setMonthly] = useState([])
   const [categoryData, setCategoryData] = useState([])
   const [monthsBack, setMonthsBack] = useState(6)
+  const [categoryMonthsBack, setCategoryMonthsBack] = useState(6)
   const [selectedDate, setSelectedDate] = useState(() => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   })
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [categorySelectedDate, setCategorySelectedDate] = useState(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
+  const [categorySelectedYear, setCategorySelectedYear] = useState(new Date().getFullYear())
   const [forceUpdate, setForceUpdate] = useState(0)
 
   // Función para recargar los datos
@@ -135,12 +141,19 @@ export default function Dashboard() {
         referenceDate = `${selectedYear}-12`
       }
       
+      // Calcular fecha de referencia para categorías
+      const categoryGroupBy = categoryMonthsBack === 12 ? 'year' : 'month'
+      let categoryReferenceDate = categorySelectedDate
+      if (categoryMonthsBack === 12) {
+        categoryReferenceDate = `${categorySelectedYear}-12`
+      }
+      
       // Obtener datos de la API
       const overview = await dashboardService.getOverview(activeGroup)
       console.log('Dashboard Overview:', overview)
       const recent = await dashboardService.getRecentTransactions(activeGroup)
       const monthlyData = await statsService.getMonthlyIncomeExpense(activeGroup, monthsBack, groupBy, referenceDate)
-      const categoryStats = await statsService.getCategoryStats(activeGroup, monthsBack, referenceDate)
+      const categoryStats = await statsService.getCategoryStats(activeGroup, categoryMonthsBack, categoryReferenceDate)
       
       // Procesar y actualizar los datos
       const processedData = { 
@@ -174,7 +187,7 @@ export default function Dashboard() {
     }
     window.addEventListener('storage', onStorage)
     return () => window.removeEventListener('storage', onStorage)
-  }, [activeGroup, monthsBack, selectedDate, selectedYear, forceUpdate]) // Recargar cuando cambie el grupo activo, rango, fecha, año o force update
+  }, [activeGroup, monthsBack, selectedDate, selectedYear, categoryMonthsBack, categorySelectedDate, categorySelectedYear, forceUpdate]) // Recargar cuando cambie el grupo activo, rango, fecha, año o force update
 
   // Resetear fecha al mes actual cuando no esté en modo Mensual
   useEffect(() => {
@@ -184,6 +197,15 @@ export default function Dashboard() {
       setSelectedDate(currentYearMonth)
     }
   }, [monthsBack])
+
+  // Resetear fecha de categorías al mes actual cuando no esté en modo Mensual
+  useEffect(() => {
+    if (categoryMonthsBack !== 1) {
+      const now = new Date()
+      const currentYearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+      setCategorySelectedDate(currentYearMonth)
+    }
+  }, [categoryMonthsBack])
 
   const activeGroupInfo = getActiveGroupInfo()
   const contextTitle = activeGroup ? `Dashboard - ${activeGroupInfo?.nombre || 'Grupo'}` : 'Dashboard Financiero'
@@ -396,13 +418,62 @@ export default function Dashboard() {
 
       {/* Análisis por Categorías */}
       <div className="bg-white rounded-3xl border border-gray-100 p-12 xl:p-14 shadow-xl">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center">
-            <span className="text-xl">🏷️</span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center">
+              <span className="text-xl">🏷️</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Análisis por Categorías</h3>
+              <p className="text-sm text-gray-600 mt-1">Visualiza tus ingresos y gastos distribuidos por categoría</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-gray-900">Análisis por Categorías</h3>
-            <p className="text-sm text-gray-600 mt-1">Visualiza tus ingresos y gastos distribuidos por categoría</p>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Selector de mes/año - solo visible en modo Mensual */}
+            {categoryMonthsBack === 1 && (
+              <div className="flex items-center gap-2">
+                <label htmlFor="categorySelectedDate" className="text-sm font-medium text-gray-600">Periodo:</label>
+                <input
+                  type="month"
+                  id="categorySelectedDate"
+                  value={categorySelectedDate}
+                  onChange={e => setCategorySelectedDate(e.target.value)}
+                  max={`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`}
+                  className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+            )}
+            {/* Selector de año - solo visible en modo Anual */}
+            {categoryMonthsBack === 12 && (
+              <div className="flex items-center gap-2">
+                <label htmlFor="categorySelectedYear" className="text-sm font-medium text-gray-600">Año:</label>
+                <select
+                  id="categorySelectedYear"
+                  value={categorySelectedYear}
+                  onChange={e => setCategorySelectedYear(Number(e.target.value))}
+                  className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {/* Selector de rango */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="categoryMonthsBack" className="text-sm font-medium text-gray-600">Rango:</label>
+              <select
+                id="categoryMonthsBack"
+                value={categoryMonthsBack}
+                onChange={e => setCategoryMonthsBack(Number(e.target.value))}
+                className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              >
+                <option value={1}>Mensual</option>
+                <option value={3}>Trimestral</option>
+                <option value={6}>Semestral</option>
+                <option value={12}>Anual</option>
+              </select>
+            </div>
           </div>
         </div>
         {categoryData.length ? (
