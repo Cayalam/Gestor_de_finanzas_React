@@ -117,6 +117,26 @@ Toda la documentación detallada está disponible en la carpeta [`docs/`](docs/)
 | [🔌 Referencia de API](docs/api-reference.md) | Documentación completa de endpoints |
 | [💻 Guía de Desarrollo](docs/development.md) | Configuración del entorno de desarrollo |
 
+## 🚀 Despliegue en Railway
+
+¿Listo para llevar tu aplicación a producción? Hemos preparado guías completas para desplegar en Railway con PostgreSQL:
+
+| Documento | Descripción |
+|-----------|-------------|
+| [⚡ Inicio Rápido Railway](RAILWAY_QUICK_START.md) | Checklist y pasos esenciales (5-10 min) |
+| [📖 Guía Completa de Despliegue](RAILWAY_DEPLOYMENT.md) | Instrucciones detalladas paso a paso |
+| [🛠️ Comandos Útiles](RAILWAY_COMMANDS.md) | Railway CLI y comandos de gestión |
+| [🏗️ Arquitectura de Despliegue](RAILWAY_ARCHITECTURE.md) | Diagrama visual del sistema |
+| [✅ Checklist Pre-Despliegue](RAILWAY_CHECKLIST.md) | Verificación completa antes de desplegar |
+
+**Características del despliegue en Railway:**
+- ✅ PostgreSQL gestionado automáticamente
+- ✅ HTTPS y SSL configurados automáticamente
+- ✅ Deploy automático desde GitHub
+- ✅ Variables de entorno seguras
+- ✅ Logs y métricas en tiempo real
+- ✅ $5/mes de crédito gratuito
+
 ## 🤝 Contribuir
 
 ¡Las contribuciones son bienvenidas! Por favor lee nuestra [Guía de Contribución](CONTRIBUTING.md) para conocer:
