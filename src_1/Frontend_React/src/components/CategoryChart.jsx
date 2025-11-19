@@ -200,12 +200,16 @@ export default function CategoryChart({ data = [], type = 'income' }) {
     }
   }
 
-  if (!data.length || (type === 'income' && !data.some(d => d.income > 0)) || 
-      (type === 'expense' && !data.some(d => d.expense > 0))) {
+  // Verificar si hay datos reales (no solo categorías con valores en cero)
+  const hasIncome = data.some(d => d.income > 0)
+  const hasExpense = data.some(d => d.expense > 0)
+  const hasAnyData = hasIncome || hasExpense
+
+  if (!data.length || !hasAnyData) {
     return (
       <div className="text-center py-12 text-gray-500">
         <span className="text-5xl mb-3 block">📊</span>
-        <p>No hay datos de {type === 'income' ? 'ingresos' : 'gastos'} por categoría</p>
+        <p>No hay datos de categorías en el periodo seleccionado</p>
       </div>
     )
   }
@@ -215,7 +219,7 @@ export default function CategoryChart({ data = [], type = 'income' }) {
       {/* Gráficas de Pie separadas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pie Chart de Ingresos */}
-        {data.some(d => d.income > 0) && (
+        {hasIncome && (
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
             <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <span>📈</span>
@@ -228,7 +232,7 @@ export default function CategoryChart({ data = [], type = 'income' }) {
         )}
 
         {/* Pie Chart de Gastos */}
-        {data.some(d => d.expense > 0) && (
+        {hasExpense && (
           <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-6 border border-red-100">
             <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <span>📉</span>
@@ -258,7 +262,7 @@ export default function CategoryChart({ data = [], type = 'income' }) {
               </tr>
             </thead>
             <tbody>
-              {data.map((item, index) => (
+              {data.filter(item => item.income > 0 || item.expense > 0).map((item, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-white transition-colors">
                   <td className="py-3 px-4 font-semibold text-gray-800">{item.category}</td>
                   <td className="py-3 px-4 text-right text-green-600 font-medium">
