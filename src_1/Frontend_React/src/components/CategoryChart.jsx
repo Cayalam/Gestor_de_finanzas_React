@@ -212,17 +212,6 @@ export default function CategoryChart({ data = [], type = 'income' }) {
 
   return (
     <div className="space-y-8">
-      {/* Gráfica de Barras Combinada */}
-      <div>
-        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span>📊</span>
-          <span>Comparación por Categorías</span>
-        </h4>
-        <div className="h-96">
-          <Bar data={combinedData} options={barOptions} />
-        </div>
-      </div>
-
       {/* Gráficas de Pie separadas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pie Chart de Ingresos */}
